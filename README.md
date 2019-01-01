@@ -2,11 +2,11 @@
 
 Template for a project that combines some of my favourite tools: Google Apps Script, Clasp, TypeScript, Vue, and Webpack.
 
-- Google Apps Script bootstraps a web app with GSuite integration, authentication, and a convenient RPC framework (i.e., `google.script.run.{your-top-level-function-here}`)
-- Clasp lets you push your entire locally managed project to Google Apps Script - no more copy and paste! (See <https://codelabs.developers.google.com/codelabs/clasp/#1> for installation instructions.)
-- TypeScript gives compile-time type-checking
-- Vue provides a framework for rapid development of an interactive front-end for the app
-- Webpack bundles the backend and frontend code into two bundles of ES5 JavaScript
+- **Google Apps Script** bootstraps a web app with GSuite integration, authentication, and a convenient RPC framework (i.e., `google.script.run.{your-top-level-function-here}`)
+- **Clasp** lets you push your entire locally managed project to Google Apps Script - no more copy and paste! (See <https://codelabs.developers.google.com/codelabs/clasp/#1> for installation instructions.)
+- **TypeScript** gives compile-time type-checking
+- **Vue** provides a framework for rapid development of an interactive front-end for the app
+- **Webpack** bundles the backend and frontend code into two bundles of ES5 JavaScript
 
 ## Installation
 
