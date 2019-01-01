@@ -23,7 +23,8 @@
   "license": "MIT",
   "name": "gas",
   "scripts": {
-    "build": "webpack --config webpack.config.js --watch"
+    "build": "webpack --config webpack.config.js --watch",
+    "clush": "./scripts/clush.sh"
   },
   "version": "1.0.0",
   "dependencies": {
