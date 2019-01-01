@@ -18,6 +18,12 @@ I'm assuming you have Yarn, Webpack, and Clasp installed and can run them from t
 4. Update `clasp/.clasp.json`, setting `"scriptId"` to your project's ID (so if your project's URL was https://script.google.com/d/foo123bar321) then `"scriptId"` should be `"foo123bar321"`)
 5. Build and deploy with `yarn clush`
 
+### Webpack note
+
+The bundled frontend code goes to `clasp/dist/index.js.html` which is then loaded into the HTML template in `clasp/index.html`. Unfortunately, Google Apps Script does not let you serve raw JavaScript code - it must be treated as raw HTML. Accordingly, HTML-semantic characters like `<` and `>` are escaped which naturally breaks the code.
+
+The best and only fix I have found is to wrap the generated bundle in a `<script>` tag, turning it into valid HTML that does not need to be escaped. This is accomplished with the Webpack Shell Plugin and `scripts/wrap-in-script.sh`.
+
 ## Why do this?
 
 ### How is this better than building an app with Node and communicating with Google through its APIs?
@@ -29,12 +35,6 @@ For a sufficiently large app, it probably isn't. But Google Apps Script handles 
 For a sufficiently _small_ app, it probably isn't! But Google Apps Script runs a variant of JS that only supports ES5, and it sucks to write ES5 by hand when there are such better options available.
 
 It's helpful to know that TypeScript's command-line compiler, `tsc`, can compile TypeScript (or even plain ES6) to ES5 with less hassle than is required to configure Webpack. However, that method will not allow you to bundle dependencies, making it more difficult than it needs to be to bring in libraries from NPM.
-
-### Webpack note
-
-The bundled frontend code goes to `clasp/dist/index.js.html` which is then loaded into the HTML template in `clasp/index.html`. Unfortunately, Google Apps Script does not let you serve raw JavaScript code - it must be treated as raw HTML. Accordingly, HTML-semantic characters like `<` and `>` are escaped which naturally breaks the code.
-
-The best and only fix I have found is to wrap the generated bundle in a `<script>` tag, turning it into valid HTML that does not need to be escaped. This is accomplished with the Webpack Shell Plugin and `scripts/wrap-in-script.sh`.
 
 ## Modification/extension ideas
 
