@@ -1,5 +1,6 @@
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
+const WebpackShellPlugin = require("webpack-shell-plugin");
 
 module.exports = {
   mode: "production",
@@ -40,5 +41,11 @@ module.exports = {
   resolve: {
     extensions: [".vue", ".ts", ".js"]
   },
-  plugins: [new VueLoaderPlugin(), new GasPlugin()]
+  plugins: [
+    new VueLoaderPlugin(),
+    new GasPlugin(),
+    new WebpackShellPlugin({
+      onBuildEnd: ["./scripts/wrap-in-script.sh clasp/dist/index.js.html"]
+    })
+  ]
 };
