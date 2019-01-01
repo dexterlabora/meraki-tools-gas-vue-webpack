@@ -21,7 +21,7 @@
     "webpack-cli": "^3.1.0"
   },
   "license": "MIT",
-  "name": "gas",
+  "name": "gas-ts-vue-webpack",
   "scripts": {
     "build": "webpack --config webpack.config.js --watch",
     "clush": "./scripts/clush.sh"
