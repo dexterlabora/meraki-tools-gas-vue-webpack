@@ -1,13 +1,19 @@
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
+var path = require("path");
+
+const VuetifyLoaderPlugin = require("vuetify-loader/lib/plugin");
+module.exports = {
+  plugins: [new VuetifyLoaderPlugin()]
+};
 
 module.exports = {
   mode: "production",
   context: __dirname,
   entry: {
-    "Code.gs": "./src/index.ts",
-    "index.js.html": "./src/client/index.ts"
+    "Code.gs": "./src/google-scripts/index.ts",
+    "index.js.html": "./src/main.js"
   },
   output: {
     path: __dirname + "/clasp/dist",
@@ -16,6 +22,10 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.styl$/,
+        loader: ["style-loader", "css-loader", "stylus-loader"]
+      },
       {
         test: /\.vue$/,
         exclude: /node_modules/,
@@ -34,7 +44,11 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        use: ["css-loader"]
+      },
+      {
+        test: /\.scss$/,
+        use: ["vue-style-loader", "css-loader", "sass-loader"]
       }
     ]
   },

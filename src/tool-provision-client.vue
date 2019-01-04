@@ -1,0 +1,155 @@
+<template id="tool-provision-client">
+  <v-container>
+    <v-layout row>
+      <v-btn
+        fab
+        fixed
+        bottom
+        center
+        dark
+        color="primary"
+        @click="onWriteSheet"
+        v-if="provisionedClient.name"
+      >
+        <v-icon>view_list</v-icon>
+      </v-btn>
+      <v-btn fab fixed bottom right dark color="orange" @click="onProvisionClient()">
+        <v-icon dark>check</v-icon>
+      </v-btn>
+      <v-flex xs12 sm12>
+        <v-flex xs12 sm12>
+          <v-card>
+            <v-card-title>
+              <h3>Create a Client</h3>
+            </v-card-title>
+            <v-card-text p1>
+              <p>
+                <i>{{ net.name }}</i>
+              </p>
+              <v-flex xs12 md12 pt-4>
+                <v-text-field v-model="form.name" label="Client Name"></v-text-field>
+
+                <v-text-field v-model="form.mac" label="Client MAC"></v-text-field>
+
+                <v-select
+                  :items="policies"
+                  item-text="name"
+                  item-value="groupPolicyId"
+                  v-model="form.groupPolicyId"
+                  label="Select Group Policy"
+                  single-line
+                ></v-select>
+                <!--v-btn color="success" right round @click="onProvisionClient">
+                  <v-icon>add</v-icon> Create
+                </v-btn-->
+              </v-flex>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
+        <v-flex xs12 sm12 pt-1 v-if="provisionedClient.clientId">
+          <v-card>
+            <v-card-title>
+              <h3>Client Provisioned</h3>
+            </v-card-title>
+            <v-card-text p1>
+              <p>
+                <b>Name:</b>
+                {{ provisionedClient.name }}
+              </p>
+              <p>
+                <b>ID:</b>
+                {{ provisionedClient.clientId }}
+              </p>
+              <p>
+                <b>MAC:</b>
+                {{ provisionedClient.mac }}
+              </p>
+              <p>
+                <b>Policy Name:</b>
+                {{ provisionedClient.devicePolicy }}
+              </p>
+              <p>
+                <b>Policy ID:</b>
+                {{ provisionedClient.groupPolicyId }}
+              </p>
+              <!--v-btn color="primary" right round @click="onWriteSheet">
+                <v-icon>view_list</v-icon> Report
+              </v-btn-->
+            </v-card-text>
+          </v-card>
+        </v-flex>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</template>
+
+<script>
+import Vue from "vue";
+export default Vue.extend({
+  template: "#tool-provision-client",
+  mounted() {
+    this.fetchPolicies();
+  },
+  data() {
+    return {
+      provisionedClient: {},
+      policies: [],
+      form: {
+        mac: "",
+        name: "",
+        groupPolicyId: "",
+        devicePolicy: "Group policy" //not configurable
+      }
+    };
+  },
+  computed: {
+    apiKey: function() {
+      return this.$store.state.apiKey;
+    },
+    net: function() {
+      return this.$store.state.net;
+    }
+  },
+  watch: {
+    "net.id"() {
+      this.fetchPolicies();
+    },
+    policies() {
+      // set default policy
+      this.form.policy = this.policies[0];
+    }
+  },
+  methods: {
+    writeSheet: function(json) {
+      const csv = json2csv.parse(json);
+      google.script.run.writeCsvData(csv);
+    },
+    onWriteSheet: function() {
+      this.writeSheet(this.provisionedClient);
+    },
+    fetchPolicies: function() {
+      if (!this.net) {
+        return;
+      }
+
+      meraki.getNetworkGroupPolicies(this.apiKey, this.net.id).then(res => {
+        this.policies = res;
+        this.policy =
+          this.policies.find(policy => policy.id == this.policyId) ||
+          this.policies[0]; //this.vlans[this.ssidNum]; // set selected ssid
+      });
+    },
+    onProvisionClient() {
+      meraki
+        .createNetworkClientsProvision(this.apiKey, this.net.id, this.form)
+        .then(res => {
+          this.provisionedClient = res;
+        })
+        .catch(err => {
+          console.log("client provision Error: ", err);
+        });
+    }
+  }
+});
+</script>

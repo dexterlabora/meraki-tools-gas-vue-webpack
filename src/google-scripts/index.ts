@@ -1,4 +1,8 @@
 import { doGet } from "./do_get";
+import { fetch } from "./fetch";
+import { onOpen } from "./sidebar";
+import { onInstall } from "./sidebar";
+import { loadSidebar } from "./sidebar";
 
 /**
  * The `global` object is a helper from gas-webpack-plugin. Webpack by default
@@ -18,3 +22,7 @@ import { doGet } from "./do_get";
  * "production" or this won't work.
  */
 global.doGet = doGet;
+global.fetch = fetch;
+global.onOpen = onOpen;
+global.onInstall = onInstall;
+global.loadSidebar = loadSidebar;
