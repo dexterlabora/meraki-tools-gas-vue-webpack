@@ -1,4 +1,26 @@
-# gas-ts-vue-webpack
+# Meraki Tools for Google Sheets
+
+- Meraki API
+- VueJS w/ Vuetify
+- Webpack & GAS conversion
+
+## Features
+
+- Reports
+  - Clients
+  - Devices
+  - Networks
+  - Organizations
+  - ... more
+- Tools
+  - Create Client
+  - Configure SSIDs
+  - Configure VLANs
+  - Claim Order
+
+# Built from starter project: gas-ts-vue-webpack
+
+[repo](https://github.com/MattiasMartens/gas-ts-vue-webpack.git)
 
 Template for a project that combines some of my favourite tools: Google Apps Script, Clasp, TypeScript, Vue, and Webpack.
 
