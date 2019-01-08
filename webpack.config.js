@@ -1,6 +1,8 @@
+const webpack = require("webpack");
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
+
 var path = require("path");
 
 const VuetifyLoaderPlugin = require("vuetify-loader/lib/plugin");
@@ -18,10 +20,15 @@ module.exports = {
   output: {
     path: __dirname + "/clasp/dist",
     filename: "[name]",
-    libraryTarget: "this"
+    libraryTarget: "this",
+    publicPath: "/clasp/dist"
   },
   module: {
     rules: [
+      {
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        loader: "url-loader?limit=100000"
+      },
       {
         test: /\.styl$/,
         loader: ["style-loader", "css-loader", "stylus-loader"]
@@ -31,6 +38,9 @@ module.exports = {
         exclude: /node_modules/,
         loader: "vue-loader",
         options: {
+          loaders: {
+            js: "babel-loader"
+          },
           esModule: true
         }
       },
@@ -49,6 +59,14 @@ module.exports = {
       {
         test: /\.scss$/,
         use: ["vue-style-loader", "css-loader", "sass-loader"]
+      },
+      {
+        test: /\.js?$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: "babel-loader",
+        query: {
+          presets: ["es2015"]
+        }
       }
     ]
   },
@@ -56,6 +74,7 @@ module.exports = {
     extensions: [".vue", ".ts", ".js"]
   },
   plugins: [
+    new webpack.EnvironmentPlugin(["VUE_APP_SERVICE"]),
     new VueLoaderPlugin(),
     new GasPlugin(),
     new WebpackShellPlugin({

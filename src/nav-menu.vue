@@ -13,7 +13,7 @@
     </v-btn>
 
     <v-spacer></v-spacer>
-    <v-btn icon to="/apikey">
+    <v-btn icon to="/settings">
       <v-icon>lock</v-icon>
     </v-btn>
   </v-toolbar>

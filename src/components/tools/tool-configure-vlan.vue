@@ -99,6 +99,19 @@
             </v-list>
           </v-card>
         </v-flex>
+        <v-flex xs12 sm12 pt-1 v-if="updatedVlan.name">
+          <v-card>
+            <v-card-title>
+              <h3>VLAN Updated</h3>
+            </v-card-title>
+            <v-card-text p1>
+              <div v-for="(value, key) in updatedVlan" :key="key.id">
+                <b>{{ key }}:</b>
+                {{ value }}
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-flex>
       </v-flex>
     </v-layout>
   </v-container>
@@ -110,7 +123,14 @@ export default Vue.extend({
   template: "#tool-configure-vlan",
   data() {
     return {
-      updatedVlan: {},
+      updatedVlan: {
+        name: "",
+        subnet: "",
+        applianceIp: "",
+        fixedIpAssignment: "",
+        reservedIpRanges: "",
+        vpnNatSubnet: ""
+      },
       vlanId: 0,
       vlan: {},
       vlans: [],
@@ -135,14 +155,8 @@ export default Vue.extend({
   },
 
   computed: {
-    apiKey: function() {
-      return this.$store.state.apiKey;
-    },
     net: function() {
       return this.$store.state.net;
-    },
-    adminMode: function() {
-      return true; //this.$store.state.adminMode;
     }
   },
   watch: {
@@ -161,20 +175,16 @@ export default Vue.extend({
     this.fetchVlans();
   },
   methods: {
-    writeSheet: function(json) {
-      const csv = json2csv.parse(json);
-      google.script.run.writeCsvData(csv);
-    },
     onWriteSheet: function() {
-      this.writeSheet(this.updatedVlan);
+      this.$utilities.writeData(this.updatedVlan, google);
     },
     fetchVlans: function() {
       if (!this.net) {
         return;
       }
 
-      meraki.getNetworkVlans(this.apiKey, this.net.id).then(res => {
-        this.vlans = res;
+      this.$meraki.getNetworkVlans({ networkId: this.net.id }).then(res => {
+        this.vlans = res.data;
         this.vlan =
           this.vlans.find(vlan => vlan.id == this.vlanId) || this.vlans[0]; //this.vlans[this.ssidNum]; // set selected ssid
       });
@@ -186,17 +196,21 @@ export default Vue.extend({
       this.vlanId = this.vlanForm.id; // save vlan ID for use after refresh
 
       var data = this.vlanForm;
-      //delete data.id; //not required in body
-      //delete data.fixedIpAssignments; // debugging
-      //delete reservedIpRanges; // debugging
+      delete data.id; //not required in body
+      delete data.fixedIpAssignments; // debugging
+      delete data.reservedIpRanges; // debugging
 
       console.log("data: ", data);
-      meraki
-        .updateNetworkVlan(this.apiKey, this.net.id, this.vlanId, data)
+      this.$meraki
+        .updateNetworkVlan({
+          networkId: this.net.id,
+          vlanId: this.vlan.id,
+          body: this.vlanForm //data
+        })
         .then(res => {
-          this.updatedVlan = res;
+          this.updatedVlan = res.data;
           this.fetchVlans(); // get clean copy of VLANs list and update form
-          console.log("VLANs updated!", res);
+          console.log("VLANs updated!", res.data);
         })
         .catch(err => {
           console.log("VLAN update Error: ", err);

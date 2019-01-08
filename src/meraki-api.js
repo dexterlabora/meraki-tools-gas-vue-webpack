@@ -2,22 +2,33 @@
 import axios from 'axios'
 import qs from 'qs'
 let domain = ''
-let apiKey = ''
-const service = process.env.SERVICE || 'gas' //  'gas' or 'axios' 
-console.log('service:', service);
 export const getDomain = () => {
-    return domain
-}
-export const setDomain = ($domain) => {
-    domain = $domain
-}
+  return domain;
+};
+export const setDomain = $domain => {
+  domain = $domain;
+};
+
+// Custom
+let apiKey = ''
+let service = 'gas' //  'gas' or 'axios' 
+var JSONbig = require("json-bigint");
 
 export const setApiKey = $apiKey => {
   apiKey = $apiKey;
-    axios.defaults.headers.common["X-Cisco-Meraki-API-Key"] = apiKey; // for all requests
+  axios.defaults.headers.common["X-Cisco-Meraki-API-Key"] = apiKey; // for all requests
+};
+
+export const setService = $service => {
+    service = $service;
+};
+
+export const getService = () => {
+    return service;
 };
 
 export const request = (method, url, body, queryParameters, form, config) => {
+    console.log("service:", service);
     method = method.toLowerCase();
     let keys = Object.keys(queryParameters)
     let queryUrl = url
@@ -29,7 +40,6 @@ export const request = (method, url, body, queryParameters, form, config) => {
         const options = {
             contentType: "application/json",
             method: method,
-            payload: body,
             headers: {
                 "X-Cisco-Meraki-API-Key": apiKey
             }
@@ -37,13 +47,14 @@ export const request = (method, url, body, queryParameters, form, config) => {
         config = config || {};
         Object.assign(config,options);
         if (body) {
-            config.payload = qs.stringify(body);
-            return global.urlFetchApp(queryUrl, config);
+            config.payload = JSON.stringify(body);
+
+            return googleFetch(queryUrl, config);
         } else if (method === 'get') {
             console.log('gas fetch: queryUrl, config', queryUrl, config);
             return googleFetch(queryUrl, config);
         } else {
-            return global.urlFetchApp(queryUrl, qs.stringify(form), config); // not sure how to handle qs properly in GAS
+            return googleFetch(queryUrl, qs.stringify(form), config); // not sure how to handle qs properly in GAS
         }
     }
     if(service == "axios"){
@@ -60,7 +71,7 @@ export const request = (method, url, body, queryParameters, form, config) => {
 
 }
 
-export const googleFetch = (url, options, data) => {
+export const googleFetch = (url, options, body) => {
     
     let bigInt = true // testing, will figure this out
     //const finalOptions = Object.assign(this.options, options);
@@ -68,7 +79,7 @@ export const googleFetch = (url, options, data) => {
         "meraki service: this.fetch() url, options, data",
         url,
         options,
-        data
+        body
     );
     return new Promise((resolve, reject) => {
         if(!google){reject('not running on google apps server')}
@@ -77,13 +88,15 @@ export const googleFetch = (url, options, data) => {
                 console.log("fetch res: ", response);
                 if (bigInt) {
                     console.log("running bigInt formatting");
+                    /*
                     response = response.replace(
                         /([\[:])?(\d+)([,\}\]])/g,
                         '$1"$2"$3'
                     ); // handles IDs being converted to Integer
+                    */
                 }
                 try {
-                    var json = JSON.parse(response);
+                    var json = JSONbig.parse(response);
                     var res = {};
                     res.data = json; // match output format of axios
                     resolve(res);

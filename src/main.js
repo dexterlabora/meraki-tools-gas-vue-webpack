@@ -1,25 +1,40 @@
-import "material-design-icons-iconfont/dist/material-design-icons.css"; // works in dev but not build -- css loader issue?
-//import "font-awesome/css/font-awesome.min.css"; // Ensure you are using css-loader
-//import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import Vue from "vue";
-import './plugins/vuetify'
+//import "./plugins/vuetify.ts";
 import Router from "./router.ts";
 import App from "./app.vue";
 import Store from "./store.ts";
 
-//import { setDomain } from "./meraki-api.js";
+import Vuetify from "vuetify";
+Vue.use(Vuetify, {
+  iconfont: "md"
+});
 
 import * as meraki from "./meraki-api.js";
-meraki.setDomain("https://merakidemo.internetoflego.com/meraki/proxy");
-//meraki.setDomain("https://api.meraki.com/api/v0");
-meraki.setApiKey("093b24e85df15a3e66f1fc359f4c48493eaa1b73");
+//meraki.setDomain("https://mp.meraki.com/api/v0");
+
+// For Local Development
+console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
+if (process.env.VUE_APP_SERVICE == "axios") {
+  Store.commit(
+    "setApiUrl",
+    "https://merakidemo.internetoflego.com/meraki/proxy"
+  );
+  meraki.setService("axios");
+}
+
+meraki.setApiKey(Store.state.apiKey);
 Vue.prototype.$meraki = meraki;
 
-import "./plugins/vuetify";
+import * as utilities from "./utilities.ts";
+Vue.prototype.$utilities = utilities;
 
 new Vue({
   router: Router,
   store: Store,
   el: "#app",
+  created() {
+    this.$meraki.setDomain(this.$store.state.apiUrl);
+    this.$meraki.setApiKey(this.$store.state.apiKey);
+  },
   render: h => h(App)
 }).$mount("#app");

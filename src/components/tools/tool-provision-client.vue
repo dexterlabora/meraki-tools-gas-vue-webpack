@@ -121,30 +121,26 @@ export default Vue.extend({
     }
   },
   methods: {
-    writeSheet: function(json) {
-      const csv = json2csv.parse(json);
-      google.script.run.writeCsvData(csv);
-    },
     onWriteSheet: function() {
-      this.writeSheet(this.provisionedClient);
+      this.$utilities.writeData(his.provisionedClient);
     },
     fetchPolicies: function() {
       if (!this.net) {
         return;
       }
 
-      meraki.getNetworkGroupPolicies(this.apiKey, this.net.id).then(res => {
-        this.policies = res;
+      this.$meraki.getNetworkGroupPolicies({ id: this.net.id }).then(res => {
+        this.policies = res.data;
         this.policy =
           this.policies.find(policy => policy.id == this.policyId) ||
           this.policies[0]; //this.vlans[this.ssidNum]; // set selected ssid
       });
     },
     onProvisionClient() {
-      meraki
-        .createNetworkClientsProvision(this.apiKey, this.net.id, this.form)
+      this.$meraki
+        .createNetworkClientProvision({ networkId: this.net.id }, this.form)
         .then(res => {
-          this.provisionedClient = res;
+          this.provisionedClient = res.data;
         })
         .catch(err => {
           console.log("client provision Error: ", err);

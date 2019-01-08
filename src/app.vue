@@ -1,39 +1,45 @@
 <template>
-  <v-app>
-    <v-toolbar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        flat
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>open_in_new</v-icon>
-      </v-btn>
-    </v-toolbar>
-
-    <v-content>
-      <HelloWorld/>
-    </v-content>
-  </v-app>
+  <div>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+    >
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <div id="app">
+      <v-app>
+        <v-content>
+          <v-container>
+            <nav-menu></nav-menu>
+            <org-selector></org-selector>
+            <net-selector></net-selector>
+            <router-view></router-view>
+          </v-container>
+        </v-content>
+      </v-app>
+    </div>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import NavMenu from "./nav-menu.vue";
+import OrgSelector from "./components/shared/OrgSelector.vue";
+import NetSelector from "./components/shared/NetSelector.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    "nav-menu": NavMenu,
+    "org-selector": OrgSelector,
+    "net-selector": NetSelector
   },
-  data () {
+  data() {
     return {
       //
-    }
+    };
+  },
+  mounted() {
+    this.$router.push("/home");
   }
-}
+};
 </script>

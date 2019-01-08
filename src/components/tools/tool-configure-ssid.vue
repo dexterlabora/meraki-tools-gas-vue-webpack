@@ -237,11 +237,14 @@ export default Vue.extend({
     net: function() {
       this.ssids = [];
       this.ssid = {};
-      if (this.net.type != ("wireless" || "combined")) {
+      if (
+        this.net.type.includes("wireless") ||
+        this.net.type.includes("combined")
+      ) {
+        this.fetchSsids();
+      } else {
         //this.notify('error', 'Not a wireless network')
         return;
-      } else {
-        this.fetchSsids();
       }
     },
     ssid: function() {
@@ -253,33 +256,30 @@ export default Vue.extend({
     this.fetchSsids();
   },
   methods: {
-    writeSheet: function(json) {
-      const csv = json2csv.parse(json);
-      google.script.run.writeCsvData(csv);
-    },
     onWriteSheet: function() {
-      this.writeSheet(this.ssidUpdated);
+      this.$utilities.writeData(this.ssidUpdated, google);
     },
     fetchSsids: function() {
-      if (!this.net) {
+      if (!this.net.id) {
         return;
       }
 
-      meraki.getNetworkSsids(this.apiKey, this.net.id).then(res => {
-        this.ssids = res;
+      this.$meraki.getNetworkSsids({ networkId: this.net.id }).then(res => {
+        console.log("getNetworkSsids res.data", res.data);
+        this.ssids = res.data;
         this.ssid = this.ssids[this.ssidNum]; // set selected ssid
       });
     },
     updateSsid: function($index) {
-      meraki
-        .updateNetworkSsid(
-          this.apiKey,
-          this.net.id,
-          this.ssidForm.number,
-          this.ssidForm
-        )
+      console.log("updateSsid form", this.ssidForm);
+      this.$meraki
+        .updateNetworkSsid({
+          networkId: this.net.id,
+          number: this.ssidForm.number,
+          body: this.ssidForm
+        })
         .then(res => {
-          this.ssidUpdated = res;
+          this.ssidUpdated = res.data;
           this.fetchSsids(); // get clean copy of SSID list and update form
           console.log("SSID updated!", res);
         })

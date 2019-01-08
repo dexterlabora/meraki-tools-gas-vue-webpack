@@ -94,20 +94,13 @@ export default Vue.extend({
     };
   },
   computed: {
-    apiKey: function() {
-      return this.$store.state.apiKey;
-    },
     org: function() {
       return this.$store.state.org;
     }
   },
   methods: {
-    writeSheet: function(json) {
-      const csv = json2csv.parse(json);
-      google.script.run.writeCsvData(csv);
-    },
     onWriteSheet: function() {
-      this.writeSheet(this.orderClaimed);
+      this.$utilities.writeData(this.orderClaimed);
     },
     onClaim() {
       var body = {};
@@ -116,15 +109,15 @@ export default Vue.extend({
       }
       body[this.form.type] = this.form.value;
 
-      meraki
-        .createOrganizationClaim(this.apiKey, this.org.id, body)
+      this.$meraki
+        .claimOrganization({ id: this.org.id }, body)
         .then(res => {
           // this endpoint does not return any data other than status code 200
           // so just pull license info entirely
-          meraki
-            .getOrganizationLicenseState(this.apiKey, this.org.id)
+          this.$meraki
+            .getOrganizationLicenseState({ id: this.org.id })
             .then(res => {
-              this.orderClaimed = res;
+              this.orderClaimed = res.data;
             });
         })
         .catch(err => {
