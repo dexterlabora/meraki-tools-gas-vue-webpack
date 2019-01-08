@@ -20,7 +20,8 @@
 
 ## Installation
 
-Pre-reqs:
+### Pre-reqs
+
 Installed and can run them from the command line with `yarn`, `webpack`, and `clasp` respectively.
 
 - [Yarn](https://yarnpkg.com/en/)
@@ -35,13 +36,16 @@ Installed and can run them from the command line with `yarn`, `webpack`, and `cl
 
   `npm install @google/clasp -g`
 
+### Install
+
 1. Clone this repo
 2. Load dependencies with `yarn install`
 3. Make the JS bundles with `yarn build`
 4. Update `clasp/.clasp.json`, setting `"scriptId"` to your project's ID (so if your project's URL was https://script.google.com/d/foo123bar321) then `"scriptId"` should be `"foo123bar321"`)
 5. Build and deploy with `yarn clush`
 6. Serve dev server with `yarn serve`
-   2. A proxy server is required for local api development.
+
+- An API proxy server is required for local api development.
 
 ## To Do
 
