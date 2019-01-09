@@ -260,6 +260,18 @@ export default Vue.extend({
           formComponents: [],
           group: "HTTP Servers (Webhooks)"
         },
+        // Meraki Auth
+        {
+          title: "List the splash or RADIUS Meraki Auth users for a network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkMerakiAuthUsers({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Meraki Auth"
+        },
         // Firewalled Services
         {
           title: "List the appliance services and their accessibility rules",
