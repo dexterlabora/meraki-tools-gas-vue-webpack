@@ -349,6 +349,15 @@ export default Vue.extend({
           formComponents: [],
           group: "Organizations"
         },
+        {
+          title: "List Organization License State",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationLicenseState({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
         // Static Routes
         {
           title: "List the static routes for this network",
