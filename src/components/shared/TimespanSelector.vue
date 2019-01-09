@@ -21,7 +21,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      time: this.timespan || 0,
+      time: "",
       times: [
         {
           name: "2 hours",
@@ -47,6 +47,9 @@ export default Vue.extend({
     time() {
       this.$store.commit("setTimespan", this.time);
     }
+  },
+  mounted() {
+    this.time = this.timespan;
   }
 });
 </script>

@@ -8,9 +8,19 @@
           </v-card-title>
           <v-card-text>
             <div>
-              <v-btn fab fixed bottom center dark color="primary" @click="onReportToSheet">
-                <v-icon>view_list</v-icon>
+              <v-btn
+                fab
+                fixed
+                bottom
+                left
+                dark
+                color="primary"
+                @click="onRunReport"
+                v-if="selectedReport.action"
+              >
+                <v-icon>play_arrow</v-icon>
               </v-btn>
+
               <v-flex xs12 sm6 md6 pt-2 d-flex>
                 <v-select
                   v-model="selectedGroup"
@@ -24,7 +34,7 @@
               <v-flex xs12 sm6 md6 pt-2 d-flex>
                 <v-select
                   v-model="selectedReport"
-                  :items="reports.filter(r => r.group === selectedGroup.group)"
+                  :items="reportItems"
                   item-text="title"
                   return-object
                   label="Reports"
@@ -45,6 +55,28 @@
             </div>
           </v-card-text>
         </v-card>
+
+        <v-flex xs12 sm12 md12 pt-2 v-if="reportData.length > 0">
+          <v-card>
+            <v-card-title>
+              <h3>JSON Results</h3>
+              <v-btn
+                absolute
+                right
+                dark
+                color="primary"
+                @click="saveFile"
+                v-if="selectedReport.action"
+              >
+                <v-icon>save_alt</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text p1>
+              <vue-json-pretty showLength :data="reportData"></vue-json-pretty>
+            </v-card-text>
+            <v-card-actions></v-card-actions>
+          </v-card>
+        </v-flex>
       </v-flex>
     </v-layout>
   </v-container>
@@ -58,6 +90,7 @@ import DeviceSelector from "../shared/DeviceSelector";
 import DevicesSelector from "../shared/DevicesSelector";
 import SsidSelector from "../shared/SsidSelector";
 import TimespanSelector from "../shared/TimespanSelector";
+import VueJsonPretty from "vue-json-pretty";
 
 import * as reports from "../../meraki-custom-reports.ts";
 
@@ -68,7 +101,8 @@ export default Vue.extend({
     DeviceSelector,
     DevicesSelector,
     SsidSelector,
-    TimespanSelector
+    TimespanSelector,
+    VueJsonPretty
   },
   data() {
     return {
@@ -78,8 +112,14 @@ export default Vue.extend({
         action: "",
         formComponents: [],
         group: ""
-      }
+      },
+      reportData: []
     };
+  },
+  watch: {
+    selectedGroup() {
+      this.selectedReport = this.reportItems[0];
+    }
   },
   computed: {
     client: function() {
@@ -105,6 +145,9 @@ export default Vue.extend({
     },
     timespan: function() {
       return this.$store.state.timespan;
+    },
+    reportItems: function() {
+      return this.reports.filter(r => r.group === this.selectedGroup.group);
     },
     // Meraki Report Handlers
     reports: function() {
@@ -135,7 +178,7 @@ export default Vue.extend({
         },
         // Bluetooth Clients
         {
-          title: "List the Bluetooth clients seen by APs in this networks",
+          title: "List the Bluetooth clients seen by APs in this network",
           action: async () =>
             await this.$meraki
               .getNetworkBluetoothClients({
@@ -394,6 +437,18 @@ export default Vue.extend({
           formComponents: [],
           group: "Organizations"
         },
+        // SAML
+        {
+          title: "List the SAML roles for organization",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationSamlRoles({
+                organizationId: this.org.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "SAML"
+        },
         // Static Routes
         {
           title: "List the static routes for this network",
@@ -584,13 +639,48 @@ export default Vue.extend({
     }
   },
   methods: {
-    onReportToSheet() {
+    onRunReport() {
+      this.$store.commit("setLoading", true);
       this.selectedReport.action().then(res => {
-        console.log("onReportToSheet data", res);
-        if (typeof google !== "undefined") {
-          this.$utilities.writeData(res, google);
+        if (!Array.isArray(res)) {
+          res = [res];
         }
+        this.reportData = res;
+        this.reportToSheet();
+        this.$store.commit("setLoading", false);
       });
+    },
+    saveFile() {
+      const data = JSON.stringify(this.reportData);
+      const blob = new Blob([data], { type: "text/plain" });
+      const e = document.createEvent("MouseEvents"),
+        a = document.createElement("a");
+      a.download = `meraki-report ${this.selectedReport.title}.json`;
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+      e.initEvent(
+        "click",
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
+      a.dispatchEvent(e);
+    },
+    reportToSheet() {
+      if (typeof google !== "undefined") {
+        this.$utilities.writeData(res, google);
+      }
     }
   }
 });

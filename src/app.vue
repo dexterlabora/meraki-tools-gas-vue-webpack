@@ -11,8 +11,12 @@
         <v-content>
           <v-container>
             <nav-menu></nav-menu>
+
             <org-selector></org-selector>
             <net-selector></net-selector>
+            <v-dialog v-model="loading" persistent max-width>
+              <v-progress-linear indeterminate color="green" class="mb-0"></v-progress-linear>
+            </v-dialog>
             <router-view></router-view>
           </v-container>
         </v-content>
@@ -37,6 +41,11 @@ export default {
     return {
       //
     };
+  },
+  computed: {
+    loading() {
+      return this.$store.state.loading;
+    }
   },
   mounted() {
     this.$router.push("/home");
