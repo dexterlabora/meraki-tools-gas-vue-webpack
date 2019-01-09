@@ -98,7 +98,7 @@ export default Vue.extend({
       return this.$store.state.device;
     },
     devices: function() {
-      return this.$store.state.device;
+      return this.$store.state.devices;
     },
     ssid: function() {
       return this.$store.state.ssid;
