@@ -40,23 +40,21 @@ export default new Vuex.Store({
       state.device = payload;
     },
     setDevices: (state, payload) => (state.devices = payload),
-    setOrg(state, payload) {
-      state.org = payload;
-    },
-    setOrgs: (state, payload) => (state.orgs = payload),
     setNet(state, payload) {
       state.net = payload;
     },
     setNets: (state, payload) => (state.nets = payload),
+    setOrg(state, payload) {
+      state.org = payload;
+    },
+    setOrgs: (state, payload) => (state.orgs = payload),
     setSsid(state, payload) {
       state.ssid = payload;
     },
     setSsids: (state, payload) => (state.ssids = payload),
-    setClients: (state, payload) => (state.clients = payload),
     setTimespan(state, payload) {
       state.timespan = payload;
     },
-    setAdminMode: (state, payload) => (state.adminMode = payload),
     setLoading: (state, payload) => (state.loading = payload)
   },
   plugins: []
