@@ -358,6 +358,42 @@ export default Vue.extend({
           formComponents: [],
           group: "Organizations"
         },
+        {
+          title: "List Organization Inventory",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationInventory({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "List Organization Device Status",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationDeviceStatuses({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "List Organization SNMP Settings",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationSnmp({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "List Organization Thirdparty VPN Peers",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationThirdPartyVPNPeers({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
         // Static Routes
         {
           title: "List the static routes for this network",
