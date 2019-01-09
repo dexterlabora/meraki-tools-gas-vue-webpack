@@ -47,7 +47,7 @@ export default Vue.extend({
   },
   watch: {
     devicesSelected() {
-      this.$store.commit("setDevice", this.devicesSelected); // set state
+      this.$store.commit("setDevices", this.devicesSelected); // set state
     },
     net: function() {
       this.fetchDevices();

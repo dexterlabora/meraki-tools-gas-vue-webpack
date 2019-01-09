@@ -44,8 +44,8 @@ export async function getDevicesClients(parameters = {}) {
           }
         })
         .then(res => {
-          console.log("pushing client, ", res);
-          clients = clients.concat(res);
+          console.log("pushing client, ", res.data);
+          clients = clients.concat(res.data);
         })
         .catch(err => {
           console.log("getClients error: ", err);
@@ -55,7 +55,7 @@ export async function getDevicesClients(parameters = {}) {
       continue;
     }
   }
-  console.log("getNetworksSsids ssids: ", clients);
+  console.log("getDevicesClients clients: ", clients);
   res["data"] = clients;
   return res;
 }

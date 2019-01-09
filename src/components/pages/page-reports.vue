@@ -52,18 +52,23 @@
 
 <script>
 import Vue from "vue";
-import SsidSelector from "../shared/SsidSelector";
+
+import ClientSelector from "../shared/ClientSelector";
 import DeviceSelector from "../shared/DeviceSelector";
 import DevicesSelector from "../shared/DevicesSelector";
+import SsidSelector from "../shared/SsidSelector";
 import TimespanSelector from "../shared/TimespanSelector";
+
 import * as reports from "../../meraki-custom-reports.ts";
 
 export default Vue.extend({
   template: "#page-reports",
   components: {
-    SsidSelector,
+    ClientSelector,
     DeviceSelector,
-    DevicesSelector
+    DevicesSelector,
+    SsidSelector,
+    TimespanSelector
   },
   data() {
     return {
@@ -77,6 +82,9 @@ export default Vue.extend({
     };
   },
   computed: {
+    client: function() {
+      return this.$store.state.client;
+    },
     org: function() {
       return this.$store.state.org;
     },
@@ -101,6 +109,7 @@ export default Vue.extend({
     // Meraki Report Handlers
     reports: function() {
       return [
+        // Clients
         {
           title: "List Device Clients",
           action: async () =>
@@ -124,6 +133,34 @@ export default Vue.extend({
               .then(res => res.data),
           formComponents: [DevicesSelector, TimespanSelector],
           group: "Clients"
+        },
+        {
+          title: "List the security events",
+          action: async () =>
+            await this.$meraki
+              .getNetworkClientSecurityEvents({
+                networkId: this.net.id,
+                clientId: this.client.mac,
+                $queryParameters: {
+                  timespan: this.timespan,
+                  perPage: 100
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DevicesSelector, ClientSelector, TimespanSelector],
+          group: "Clients"
+        },
+        // Configuration Templates
+        {
+          title: "List the configuration templates for this organization",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationConfigTemplates({
+                organizationId: this.org.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Configuration Templates"
         },
         {
           title: "List Network Device",
@@ -158,6 +195,31 @@ export default Vue.extend({
           formComponents: [DeviceSelector],
           group: "Devices"
         },
+        // Group Policies
+        {
+          title: "List the group policies in a network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkGroupPolicies({
+                id: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Group Policies"
+        },
+        // Firewalled Services
+        {
+          title: "List the appliance services and their accessibility rules",
+          action: async () =>
+            await this.$meraki
+              .getNetworkFirewalledServices({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Firewalled Services"
+        },
+        // SSIDS
         {
           title: "List Organization SSIDs",
           action: async () =>
@@ -221,6 +283,185 @@ export default Vue.extend({
             await this.$meraki.getOrganizations().then(res => res.data),
           formComponents: [],
           group: "Organizations"
+        },
+        // Static Routes
+        {
+          title: "List the static routes for this network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkStaticRoutes({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Static Routes"
+        },
+
+        // wireless health
+        {
+          // getNetworkConnectionStats query: ?t0={{t0}}&t1={{t1}}&vlan&ssid
+          title: "Network Connection Stats",
+          action: async () =>
+            await this.$meraki
+              .getNetworkConnectionStats({
+                networkId: this.net.id,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title:
+            "Aggregated connectivity info for this network, grouped by node",
+          action: async () =>
+            await this.$meraki
+              .getNetworkDevicesConnectionStats({
+                networkId: this.net.id,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "Aggregated connectivity info for a given AP on this network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkDeviceConnectionStats({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title:
+            "Aggregated connectivity info for this network, grouped by clients",
+          action: async () =>
+            await this.$meraki
+              .getNetworkClientsConnectionStats({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "Aggregated latency info for this network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkLatencyStats({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "Aggregated latency info for this network, grouped by node",
+          action: async () =>
+            await this.$meraki
+              .getNetworkDevicesLatencyStats({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "Aggregated latency info for a given AP on this network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkDeviceLatencyStats({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "Aggregated latency info for this network, grouped by clients",
+          action: async () =>
+            await this.$meraki
+              .getNetworkClientsLatencyStats({
+                networkId: this.net.id,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "List of all failed client connection events on this network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkFailedConnections({
+                networkId: this.net.id,
+                $queryParameters: {
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Wireless Health"
+        },
+        {
+          title: "List Network VLANs",
+          action: async () =>
+            await this.$meraki
+              .getNetworkVlans({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "VLANs"
+        },
+        {
+          title: "Returns the enabled status of VLANs for the network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkVlansEnabledState({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "VLANs"
         }
       ];
     },

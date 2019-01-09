@@ -21,37 +21,31 @@ export default Vue.extend({
   },
   data() {
     return {
-      time: this.timespan || 0, 
+      time: this.timespan || 0,
       times: [
         {
-        name: "2 hours",
-        time: 7200
+          name: "2 hours",
+          time: 7200
         },
         {
-        name: "12 hours",
-        time: 43200
+          name: "12 hours",
+          time: 43200
         },
         {
-        name: "1 day",
-        time: 86400
+          name: "1 day",
+          time: 86400
         },
         {
-        name: "1 week",
-        time: 604800
-        },
-        {
-        name: "1 month",
-        time: 2592000
-        },
+          name: "1 week",
+          time: 604800
+        }
       ]
     };
   },
-  methods: {
-    
-  },
+  methods: {},
   watch: {
     time() {
-      this.$store.commit("setTimespan", this.timespan);
+      this.$store.commit("setTimespan", this.time);
     }
   }
 });

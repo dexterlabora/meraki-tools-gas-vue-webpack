@@ -8,19 +8,19 @@ Vue.use(Vuex);
 // *****
 export default new Vuex.Store({
   state: {
-    device: {},
-    devices: [],
-    org: {},
-    orgs: [],
-    net: {},
-    nets: [],
-    ssid: {},
-    ssids: [],
-    clients: [],
     apiKey: "093b24e85df15a3e66f1fc359f4c48493eaa1b73", // Meraki Sandbox
     apiUrl: "https://api.meraki.com/api/v0",
+    client: {},
+    clients: [],
+    device: {},
+    devices: [],
+    net: {},
+    nets: [],
+    org: {},
+    orgs: [],
+    ssid: {},
+    ssids: [],
     timespan: "7200",
-    adminMode: false,
     loading: false
   },
   mutations: {
@@ -32,6 +32,10 @@ export default new Vuex.Store({
       state.apiUrl = payload;
       meraki.setDomain(payload);
     },
+    setClient(state, payload) {
+      state.client = payload;
+    },
+    setClients: (state, payload) => (state.clients = payload),
     setDevice(state, payload) {
       state.device = payload;
     },
