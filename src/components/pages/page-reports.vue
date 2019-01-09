@@ -248,6 +248,18 @@ export default Vue.extend({
           formComponents: [],
           group: "Group Policies"
         },
+        // HTTP Servers
+        {
+          title: "List the HTTP servers for a network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkHttpServers({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "HTTP Servers (Webhooks)"
+        },
         // Firewalled Services
         {
           title: "List the appliance services and their accessibility rules",
