@@ -121,6 +121,35 @@ export default Vue.extend({
           formComponents: [],
           group: "Admins"
         },
+        // Alert Settings
+        {
+          title: "Network Alert Settings",
+          action: async () =>
+            await this.$meraki
+              .getNetworkAlertSettings({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Alert Settings"
+        },
+        // Bluetooth Clients
+        {
+          title: "List the Bluetooth clients seen by APs in this networks",
+          action: async () =>
+            await this.$meraki
+              .getNetworkBluetoothClients({
+                networkId: this.net.id,
+                $queryParameters: {
+                  timespan: this.timespan,
+                  includeConnectivityHistory: true,
+                  perPage: 20
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Bluetooth Clients"
+        },
         // Clients
         {
           title: "List Device Clients",
