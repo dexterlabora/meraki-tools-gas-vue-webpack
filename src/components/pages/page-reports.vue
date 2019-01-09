@@ -109,6 +109,18 @@ export default Vue.extend({
     // Meraki Report Handlers
     reports: function() {
       return [
+        // Admins
+        {
+          title: "List the dashboard administrators",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationAdmins({
+                organizationId: this.org.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Admins"
+        },
         // Clients
         {
           title: "List Device Clients",
