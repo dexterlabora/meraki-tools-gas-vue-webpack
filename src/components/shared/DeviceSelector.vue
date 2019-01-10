@@ -7,7 +7,14 @@
       return-object
       v-model="device"
       label="Devices"
-    ></v-select>
+    >
+      <template slot="selection" slot-scope="{ item, index }">
+        <v-chip v-if="index === 0">
+          <span>{{ item.name }} | {{ item.model }}</span>
+        </v-chip>
+        <span v-if="index === 1" class="grey--text caption">(+{{ value.length - 1 }} others)</span>
+      </template>
+    </v-select>
   </div>
 </template>
 
@@ -18,6 +25,9 @@ export default Vue.extend({
   computed: {
     net: function() {
       return this.$store.state.net;
+    },
+    deviceName: function() {
+      return this.device.name + " - " + this.device.model;
     }
   },
   created: function() {

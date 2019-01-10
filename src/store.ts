@@ -23,6 +23,8 @@ export default new Vuex.Store({
     ssid: {},
     ssids: [],
     timespan: "7200",
+    zone: {},
+    zones: [],
     loading: false
   },
   mutations: {
@@ -57,6 +59,10 @@ export default new Vuex.Store({
     setTimespan(state, payload) {
       state.timespan = payload;
     },
+    setZone(state, payload) {
+      state.zone = payload;
+    },
+    setZones: (state, payload) => (state.zones = payload),
     setLoading: (state, payload) => (state.loading = payload)
   },
   plugins: [

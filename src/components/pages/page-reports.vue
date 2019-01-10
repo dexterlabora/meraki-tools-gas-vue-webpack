@@ -91,6 +91,7 @@ import DeviceSelector from "../shared/DeviceSelector";
 import DevicesSelector from "../shared/DevicesSelector";
 import SsidSelector from "../shared/SsidSelector";
 import TimespanSelector from "../shared/TimespanSelector";
+import ZoneSelector from "../shared/ZoneSelector";
 import VueJsonPretty from "vue-json-pretty";
 
 import * as reports from "../../meraki-custom-reports.ts";
@@ -150,6 +151,9 @@ export default Vue.extend({
     timespan: function() {
       return this.$store.state.timespan;
     },
+    zone: function() {
+      return this.$store.state.zone;
+    },
     reportItems: function() {
       return this.reports.filter(r => r.group === this.selectedGroup.group);
     },
@@ -158,7 +162,7 @@ export default Vue.extend({
       return [
         // Admins
         {
-          title: "List the dashboard administrators",
+          title: "the dashboard administrators",
           action: async () =>
             await this.$meraki
               .getOrganizationAdmins({
@@ -182,7 +186,7 @@ export default Vue.extend({
         },
         // Bluetooth Clients
         {
-          title: "List the Bluetooth clients seen by APs in this network",
+          title: "the Bluetooth clients seen by APs in this network",
           action: async () =>
             await this.$meraki
               .getNetworkBluetoothClients({
@@ -197,9 +201,25 @@ export default Vue.extend({
           formComponents: [TimespanSelector],
           group: "Bluetooth Clients"
         },
+        // Cameras
+        {
+          title: "Returns video link for a specified camera",
+          action: async () =>
+            await this.$meraki
+              .getNetworkCameraVideoLink({
+                networkId: this.net.id,
+                serial: this.device.serial,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Cameras"
+        },
         // Clients
         {
-          title: "List Device Clients",
+          title: "Device Clients",
           action: async () =>
             await this.$meraki
               .getDeviceClients({
@@ -211,7 +231,7 @@ export default Vue.extend({
           group: "Clients"
         },
         {
-          title: "List Network Clients",
+          title: "Network Clients",
           action: async () =>
             await reports
               .getDevicesClients({
@@ -223,7 +243,7 @@ export default Vue.extend({
           group: "Clients"
         },
         {
-          title: "List the security events",
+          title: "the security events",
           action: async () =>
             await this.$meraki
               .getNetworkClientSecurityEvents({
@@ -240,7 +260,7 @@ export default Vue.extend({
         },
         // Configuration Templates
         {
-          title: "List the configuration templates for this organization",
+          title: "the configuration templates for this organization",
           action: async () =>
             await this.$meraki
               .getOrganizationConfigTemplates({
@@ -251,7 +271,7 @@ export default Vue.extend({
           group: "Configuration Templates"
         },
         {
-          title: "List Network Device",
+          title: "Network Device",
           action: async () =>
             await this.$meraki
               .getNetworkDevice({
@@ -263,7 +283,7 @@ export default Vue.extend({
           group: "Devices"
         },
         {
-          title: "List Network Devices",
+          title: "Network Devices",
           action: async () =>
             await this.$meraki
               .getNetworkDevices({ networkId: this.net.id })
@@ -272,7 +292,7 @@ export default Vue.extend({
           group: "Devices"
         },
         {
-          title: "List Device Uplink",
+          title: "Device Uplink",
           action: async () =>
             await this.$meraki
               .getNetworkDeviceUplink({
@@ -285,7 +305,7 @@ export default Vue.extend({
         },
         // Group Policies
         {
-          title: "List the group policies in a network",
+          title: "the group policies in a network",
           action: async () =>
             await this.$meraki
               .getNetworkGroupPolicies({
@@ -297,7 +317,7 @@ export default Vue.extend({
         },
         // HTTP Servers
         {
-          title: "List the HTTP servers for a network",
+          title: "the HTTP servers for a network",
           action: async () =>
             await this.$meraki
               .getNetworkHttpServers({
@@ -307,21 +327,9 @@ export default Vue.extend({
           formComponents: [],
           group: "HTTP Servers (Webhooks)"
         },
-        // Meraki Auth
-        {
-          title: "List the splash or RADIUS Meraki Auth users for a network",
-          action: async () =>
-            await this.$meraki
-              .getNetworkMerakiAuthUsers({
-                networkId: this.net.id
-              })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Meraki Auth"
-        },
         // Firewalled Services
         {
-          title: "List the appliance services and their accessibility rules",
+          title: "the appliance services and their accessibility rules",
           action: async () =>
             await this.$meraki
               .getNetworkFirewalledServices({
@@ -331,9 +339,287 @@ export default Vue.extend({
           formComponents: [],
           group: "Firewalled Services"
         },
+        // Meraki Auth
+        {
+          title: "the splash or RADIUS Meraki Auth users for a network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkMerakiAuthUsers({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Meraki Auth"
+        },
+        // MR L3 Firewall Rules
+        {
+          title: "L3 Firewall Rules for an SSID",
+          action: async () =>
+            await this.$meraki
+              .getNetworkSsidL3FirewallRules({
+                networkId: this.net.id,
+                number: this.ssid.number
+              })
+              .then(res => res.data),
+          formComponents: [SsidSelector],
+          group: "MR L3 Firewall Rules"
+        },
+        // MX Cellular Firewall Rules
+        {
+          title: "Cellular firewall rules for a Network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkCellularFirewallRules({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "MX Cellular Firewall Rules"
+        },
+        // MX L3 Firewall Rules
+        {
+          title: "L3 Firewall Rules for a Network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkL3FirewallRules({
+                networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "MX L3 Firewall Rules"
+        },
+        // MX VPN Firewall Rules
+        {
+          title: "Site-to-site VPN Firewall Rules",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationVpnFirewallRules({
+                organizationId: this.org.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "MX VPN Firewall Rules"
+        },
+        // Networks
+        {
+          title: "Network",
+          action: async () =>
+            await this.$meraki
+              .getNetwork({ id: this.net.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Networks"
+        },
+        {
+          title: "Networks",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationNetworks({ organizationId: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Networks"
+        },
+        {
+          title: "Bluetooth Settings",
+          action: async () =>
+            await this.$meraki
+              .getNetworkBluetoothSettings({ id: this.net.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Networks"
+        },
+        // MS Access Policies
+        {
+          title: "MS Access Policies for a Network",
+          action: async () =>
+            await this.$meraki
+              .getNetworkAccessPolicies({
+                id: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Networks"
+        },
+        {
+          title: "Traffic Analysis",
+          action: async () =>
+            await this.$meraki
+              .getNetworkTraffic({
+                id: this.net.id,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Networks"
+        },
+        {
+          title: "Air Marshal",
+          action: async () =>
+            await this.$meraki
+              .getNetworkAirMarshal({
+                id: this.net.id,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [TimespanSelector],
+          group: "Networks"
+        },
+        // Organizations
+        {
+          title: "Organization",
+          action: async () =>
+            await this.$meraki
+              .getOrganization({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organizations",
+          action: async () =>
+            await this.$meraki.getOrganizations().then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organization License State",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationLicenseState({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organization Inventory",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationInventory({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organization Device Status",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationDeviceStatuses({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organization SNMP Settings",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationSnmp({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        {
+          title: "Organization Thirdparty VPN Peers",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationThirdPartyVPNPeers({ id: this.org.id })
+              .then(res => res.data),
+          formComponents: [],
+          group: "Organizations"
+        },
+        // Sense
+        {
+          title: "Aggregate analytics overview",
+          action: async () =>
+            await this.$meraki
+              .getDeviceCameraAnalyticsOverview({
+                serial: this.device.serial,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Sense"
+        },
+        {
+          title: "Configured analytic zones for this camera",
+          action: async () =>
+            await this.$meraki
+              .getDeviceCameraAnalyticsZones({
+                serial: this.device.serial,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Sense"
+        },
+        {
+          title: "Historical records for analytic zones",
+          action: async () =>
+            await this.$meraki
+              .getDeviceCameraAnalyticsZoneHistory({
+                serial: this.device.serial,
+                zoneId: this.zone.zoneId,
+                $queryParameters: {
+                  perPage: "100",
+                  t0: Math.round(new Date() / 1000) - this.timespan,
+                  t1: Math.round(new Date() / 1000)
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, ZoneSelector, TimespanSelector],
+          group: "Sense"
+        },
+        {
+          title: "Recent record for analytics zones",
+          action: async () =>
+            await this.$meraki
+              .getDeviceCameraAnalyticsRecent({
+                serial: this.device.serial,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Sense"
+        },
+        {
+          title: "Live state from camera of analytics zones",
+          action: async () =>
+            await this.$meraki
+              .getDeviceCameraAnalyticsRecent({
+                serial: this.device.serial,
+                $queryParameters: {
+                  timespan: this.timespan
+                }
+              })
+              .then(res => res.data),
+          formComponents: [DeviceSelector, TimespanSelector],
+          group: "Sense"
+        },
+        // Splash Settings
+        {
+          title: "Splash Settings for an SSID",
+          action: async () =>
+            await this.$meraki
+              .getNetworkSsidSplashSettings({
+                networkId: this.net.id,
+                number: this.ssid.number
+              })
+              .then(res => res.data),
+          formComponents: [SsidSelector],
+          group: "Splash Settings"
+        },
         // SSIDS
         {
-          title: "List Organization SSIDs",
+          title: "Organization SSIDs",
           action: async () =>
             await reports
               .getNetworksSsids({ networkIds: this.nets.map(n => n.id) })
@@ -342,7 +628,7 @@ export default Vue.extend({
           group: "SSIDs"
         },
         {
-          title: "List Network SSIDs",
+          title: "Network SSIDs",
           action: async () =>
             await this.$meraki
               .getNetworkSsids({ networkId: this.net.id })
@@ -351,7 +637,7 @@ export default Vue.extend({
           group: "SSIDs"
         },
         {
-          title: "List An SSID",
+          title: "An SSID",
           action: async () =>
             await this.$meraki
               .getNetworkSsid({
@@ -362,88 +648,22 @@ export default Vue.extend({
           formComponents: [SsidSelector],
           group: "SSIDs"
         },
+        // Syslog Servers
         {
-          title: "List Network",
+          title: "Syslog servers of a Network",
           action: async () =>
             await this.$meraki
-              .getNetwork({ id: this.net.id })
+              .getNetworkSyslogServers({
+                networkId: this.net.id
+              })
               .then(res => res.data),
           formComponents: [],
-          group: "Networks"
+          group: "Syslog Servers"
         },
-        {
-          title: "List Networks",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationNetworks({ organizationId: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Networks"
-        },
-        {
-          title: "List Organization",
-          action: async () =>
-            await this.$meraki
-              .getOrganization({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organizations",
-          action: async () =>
-            await this.$meraki.getOrganizations().then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organization License State",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationLicenseState({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organization Inventory",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationInventory({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organization Device Status",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationDeviceStatuses({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organization SNMP Settings",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationSnmp({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
-        {
-          title: "List Organization Thirdparty VPN Peers",
-          action: async () =>
-            await this.$meraki
-              .getOrganizationThirdPartyVPNPeers({ id: this.org.id })
-              .then(res => res.data),
-          formComponents: [],
-          group: "Organizations"
-        },
+
         // SAML
         {
-          title: "List the SAML roles for organization",
+          title: "the SAML roles for organization",
           action: async () =>
             await this.$meraki
               .getOrganizationSamlRoles({
@@ -455,7 +675,7 @@ export default Vue.extend({
         },
         // Static Routes
         {
-          title: "List the static routes for this network",
+          title: "the static routes for this network",
           action: async () =>
             await this.$meraki
               .getNetworkStaticRoutes({
@@ -596,7 +816,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "List of all failed client connection events on this network",
+          title: "of all failed client connection events on this network",
           action: async () =>
             await this.$meraki
               .getNetworkFailedConnections({
@@ -611,7 +831,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "List Network VLANs",
+          title: "Network VLANs",
           action: async () =>
             await this.$meraki
               .getNetworkVlans({
