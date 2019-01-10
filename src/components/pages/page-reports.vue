@@ -897,3 +897,8 @@ export default Vue.extend({
   }
 });
 </script>
+<style>
+.v-list__tile__content {
+  font-size: small;
+}
+</style>
