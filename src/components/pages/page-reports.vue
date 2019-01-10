@@ -162,7 +162,7 @@ export default Vue.extend({
       return [
         // Admins
         {
-          title: "the dashboard administrators",
+          title: "Administrators of Organization",
           action: async () =>
             await this.$meraki
               .getOrganizationAdmins({
@@ -186,7 +186,7 @@ export default Vue.extend({
         },
         // Bluetooth Clients
         {
-          title: "the Bluetooth clients seen by APs in this network",
+          title: "Clients seen in Network",
           action: async () =>
             await this.$meraki
               .getNetworkBluetoothClients({
@@ -203,7 +203,7 @@ export default Vue.extend({
         },
         // Cameras
         {
-          title: "Returns video link for a specified camera",
+          title: "Video link for a camera",
           action: async () =>
             await this.$meraki
               .getNetworkCameraVideoLink({
@@ -243,7 +243,7 @@ export default Vue.extend({
           group: "Clients"
         },
         {
-          title: "the security events",
+          title: "Security events",
           action: async () =>
             await this.$meraki
               .getNetworkClientSecurityEvents({
@@ -260,7 +260,7 @@ export default Vue.extend({
         },
         // Configuration Templates
         {
-          title: "the configuration templates for this organization",
+          title: "Configuration Templates for Organization",
           action: async () =>
             await this.$meraki
               .getOrganizationConfigTemplates({
@@ -305,7 +305,7 @@ export default Vue.extend({
         },
         // Group Policies
         {
-          title: "the group policies in a network",
+          title: "Group Policies in a Network",
           action: async () =>
             await this.$meraki
               .getNetworkGroupPolicies({
@@ -317,7 +317,7 @@ export default Vue.extend({
         },
         // HTTP Servers
         {
-          title: "the HTTP servers for a network",
+          title: "HTTP servers for a Network",
           action: async () =>
             await this.$meraki
               .getNetworkHttpServers({
@@ -329,7 +329,7 @@ export default Vue.extend({
         },
         // Firewalled Services
         {
-          title: "the appliance services and their accessibility rules",
+          title: "Appliance services and rules",
           action: async () =>
             await this.$meraki
               .getNetworkFirewalledServices({
@@ -341,7 +341,7 @@ export default Vue.extend({
         },
         // Meraki Auth
         {
-          title: "the splash or RADIUS Meraki Auth users for a network",
+          title: "Splash or RADIUS Meraki Auth users for a Network",
           action: async () =>
             await this.$meraki
               .getNetworkMerakiAuthUsers({
@@ -663,7 +663,7 @@ export default Vue.extend({
 
         // SAML
         {
-          title: "the SAML roles for organization",
+          title: "SAML roles for Organization",
           action: async () =>
             await this.$meraki
               .getOrganizationSamlRoles({
@@ -675,7 +675,7 @@ export default Vue.extend({
         },
         // Static Routes
         {
-          title: "the static routes for this network",
+          title: "Static Routes for this Network",
           action: async () =>
             await this.$meraki
               .getNetworkStaticRoutes({
@@ -704,8 +704,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title:
-            "Aggregated connectivity info for this network, grouped by node",
+          title: "Aggregated connectivity by Network Device",
           action: async () =>
             await this.$meraki
               .getNetworkDevicesConnectionStats({
@@ -720,24 +719,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "Aggregated connectivity info for a given AP on this network",
-          action: async () =>
-            await this.$meraki
-              .getNetworkDeviceConnectionStats({
-                networkId: this.net.id,
-                serial: this.device.serial,
-                $queryParameters: {
-                  t0: Math.round(new Date() / 1000) - this.timespan,
-                  t1: Math.round(new Date() / 1000)
-                }
-              })
-              .then(res => res.data),
-          formComponents: [DeviceSelector, TimespanSelector],
-          group: "Wireless Health"
-        },
-        {
-          title:
-            "Aggregated connectivity info for this network, grouped by clients",
+          title: "Aggregated connectivity by Network Client",
           action: async () =>
             await this.$meraki
               .getNetworkClientsConnectionStats({
@@ -753,7 +735,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "Aggregated latency info for this network",
+          title: "Aggregated Latency for Network",
           action: async () =>
             await this.$meraki
               .getNetworkLatencyStats({
@@ -769,12 +751,11 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "Aggregated latency info for this network, grouped by node",
+          title: "Aggregated Latency by Network Node",
           action: async () =>
             await this.$meraki
               .getNetworkDevicesLatencyStats({
                 networkId: this.net.id,
-                serial: this.device.serial,
                 $queryParameters: {
                   t0: Math.round(new Date() / 1000) - this.timespan,
                   t1: Math.round(new Date() / 1000)
@@ -785,7 +766,7 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "Aggregated latency info for a given AP on this network",
+          title: "Aggregated Latency by Network AP",
           action: async () =>
             await this.$meraki
               .getNetworkDeviceLatencyStats({
