@@ -10,28 +10,21 @@
             <h3>Getting Started</h3>
             <v-flex xs12 md12 pt-4>
               <p>
-                Update your API key.
-                <span>
-                  <v-btn icon to="/settings">
-                    <v-icon>lock</v-icon>
-                  </v-btn>
-                </span>
+                <v-btn icon to="/settings">
+                  <v-icon>lock</v-icon>
+                </v-btn>Update your API key.
               </p>
               <p>
-                Generate a report by selecting a cell in the sheet, then select
-                a report to run
-                <span>
-                  <v-btn icon to="/reports">
-                    <v-icon>view_list</v-icon>
-                  </v-btn>
-                </span>
+                <v-btn icon to="/reports">
+                  <v-icon>view_list</v-icon>
+                </v-btn>Generate a Report into the active cell.
               </p>
-              <p>Use the tools to update the network.</p>
-              <span>
+
+              <p>
                 <v-btn icon to="/tools">
                   <v-icon>build</v-icon>
-                </v-btn>
-              </span>
+                </v-btn>Use the Tools to make changes.
+              </p>
             </v-flex>
           </v-card-text>
         </v-card>
