@@ -1,9 +1,17 @@
 import { doGet } from "./do_get";
 import { fetch } from "./fetch";
-import { onOpen } from "./sidebar";
-import { onInstall } from "./sidebar";
 import { loadSidebar } from "./sidebar";
 import { writeCsvData } from "./writeCsvData";
+import { loadMenu } from "./menu";
+
+function onOpen() {
+  //loadSidebar();
+  loadMenu();
+}
+
+function onInstall() {
+  onOpen();
+}
 
 /**
  * The `global` object is a helper from gas-webpack-plugin. Webpack by default
@@ -22,6 +30,7 @@ import { writeCsvData } from "./writeCsvData";
  * Note that no matter your deployment target, you must set webpack's mode to
  * "production" or this won't work.
  */
+global.loadMenu = loadMenu;
 global.doGet = doGet;
 global.fetch = fetch;
 global.onOpen = onOpen;
