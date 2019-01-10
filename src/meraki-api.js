@@ -27,15 +27,17 @@ export const getService = () => {
     return service;
 };
 
+
+
+
 export const request = (method, url, body, queryParameters, form, config) => {
-    console.log("service:", service);
+    console.log("API service:", service);
     method = method.toLowerCase();
     let keys = Object.keys(queryParameters)
     let queryUrl = url
     if (keys.length > 0) {
         queryUrl = url + '?' + qs.stringify(queryParameters)
     }
-    // let queryUrl = url+(keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
     if(service == "gas"){
         const options = {
             contentType: "application/json",
@@ -72,29 +74,11 @@ export const request = (method, url, body, queryParameters, form, config) => {
 }
 
 export const googleFetch = (url, options, body) => {
-    
-    let bigInt = true // testing, will figure this out
-    //const finalOptions = Object.assign(this.options, options);
-    console.log(
-        "meraki service: this.fetch() url, options, data",
-        url,
-        options,
-        body
-    );
     return new Promise((resolve, reject) => {
         if(!google){reject('not running on google apps server')}
         google.script.run
             .withSuccessHandler(response => {
-                console.log("fetch res: ", response);
-                if (bigInt) {
-                    console.log("running bigInt formatting");
-                    /*
-                    response = response.replace(
-                        /([\[:])?(\d+)([,\}\]])/g,
-                        '$1"$2"$3'
-                    ); // handles IDs being converted to Integer
-                    */
-                }
+                //console.log("fetch res: ", response);
                 try {
                     var json = JSONbig.parse(response);
                     var res = {};
@@ -116,6 +100,76 @@ export const googleFetch = (url, options, body) => {
 /*==========================================================
  *                    This collection of API calls provides an easy way to interact with a Cisco Meraki network
  ==========================================================*/
+
+// custom
+
+/**
+* Add a static route
+    
+## SAMPLE REQUEST
+    
+```
+curl -L -H 'X-Cisco-Meraki-API-Key: <key>' -H 'Content-Type: application/json' -X POST --data-binary '{"name":"My route","subnet":"192.168.1.0/24","gatewayIp":"1.2.3.5"}' 'https://api.meraki.com/api/v0/networks/[networkId]/staticRoutes'
+```
+* request: createNetworkStaticRoutes
+* url: createNetworkStaticRoutesURL
+* method: createNetworkStaticRoutes_TYPE
+* raw_url: createNetworkStaticRoutes_RAW_URL
+     * @param networkId - 
+     * @param body - 
+*/
+export const createNetworkClientProvision = function (parameters = {}) {
+    const domain = parameters.$domain ? parameters.$domain : getDomain()
+    const config = parameters.$config
+    let path = "/networks/{networkId}/clients/provision";
+    let body
+    let queryParameters = {}
+    let form = {}
+    path = path.replace('{networkId}', `${parameters['networkId']}`)
+    if (parameters['networkId'] === undefined) {
+        return Promise.reject(new Error('Missing required  parameter: networkId'))
+    }
+    if (parameters['body'] !== undefined) {
+        body = parameters['body']
+    }
+    if (parameters.$queryParameters) {
+        Object.keys(parameters.$queryParameters).forEach(function (parameterName) {
+            queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+        });
+    }
+    return request('post', domain + path, body, queryParameters, form, config)
+}
+export const createNetworkClientProvision_RAW_URL = function () {
+    return "/networks/{networkId}/clients/provision";
+}
+export const createNetworkClientProvision_TYPE = function () {
+    return 'post'
+}
+export const createNetworkClientProvisionURL = function(parameters = {}) {
+         let queryParameters = {};
+         const domain = parameters.$domain ? parameters.$domain : getDomain();
+         let path = "/networks/{networkId}/clients/provision";
+         path = path.replace("{networkId}", `${parameters["networkId"]}`);
+         if (parameters.$queryParameters) {
+           Object.keys(parameters.$queryParameters).forEach(function(
+             parameterName
+           ) {
+             queryParameters[parameterName] =
+               parameters.$queryParameters[parameterName];
+           });
+         }
+         let keys = Object.keys(queryParameters);
+         return domain + path + (keys.length > 0 ? "?" + keys
+                 .map(
+                   key =>
+                     key + "=" + encodeURIComponent(queryParameters[key])
+                 )
+                 .join("&") : "");
+       };
+
+// end custom
+
+
 /**
 * Return the firewall rules for an organization's site-to-site VPN
     

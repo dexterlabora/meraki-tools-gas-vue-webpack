@@ -13,7 +13,7 @@
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn fab fixed bottom right dark color="orange" @click="updateVlan()">
+      <v-btn :loading="loading" fab fixed bottom right dark color="orange" @click="updateVlan()">
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
@@ -157,6 +157,9 @@ export default Vue.extend({
   computed: {
     net: function() {
       return this.$store.state.net;
+    },
+    loading: function() {
+      return this.$store.state.loading;
     }
   },
   watch: {
@@ -190,6 +193,7 @@ export default Vue.extend({
       });
     },
     updateVlan: function() {
+      this.$store.commit("setLoading", true);
       //console.log("updating vlan ", this.vlan);
       //console.log("vlanForm ", this.vlanForm);
 
@@ -214,6 +218,9 @@ export default Vue.extend({
         })
         .catch(err => {
           console.log("VLAN update Error: ", err);
+        })
+        .finally(() => {
+          this.$store.commit("setLoading", false);
         });
     }
   }

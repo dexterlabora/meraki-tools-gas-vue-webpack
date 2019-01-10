@@ -13,7 +13,16 @@
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn fab fixed bottom right dark color="orange" @click="onProvisionClient()">
+      <v-btn
+        :loading="loading"
+        fab
+        fixed
+        bottom
+        right
+        dark
+        color="orange"
+        @click="onProvisionClient()"
+      >
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
@@ -109,6 +118,9 @@ export default Vue.extend({
     },
     net: function() {
       return this.$store.state.net;
+    },
+    loading: function() {
+      return this.$store.state.loading;
     }
   },
   watch: {
@@ -137,13 +149,20 @@ export default Vue.extend({
       });
     },
     onProvisionClient() {
+      this.$store.commit("setLoading", true);
       this.$meraki
-        .createNetworkClientProvision({ networkId: this.net.id }, this.form)
+        .createNetworkClientProvision({
+          networkId: this.net.id,
+          body: this.form
+        })
         .then(res => {
           this.provisionedClient = res.data;
         })
         .catch(err => {
           console.log("client provision Error: ", err);
+        })
+        .finally(() => {
+          this.$store.commit("setLoading", false);
         });
     }
   }

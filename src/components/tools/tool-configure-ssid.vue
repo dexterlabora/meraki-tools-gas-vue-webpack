@@ -13,7 +13,7 @@
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn fab fixed bottom right dark color="orange" @click="updateSsid()">
+      <v-btn :loading="loading" fab fixed bottom right dark color="orange" @click="updateSsid()">
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
@@ -231,6 +231,9 @@ export default Vue.extend({
     },
     adminMode: function() {
       return true; //this.$store.state.adminMode;
+    },
+    loading: function() {
+      return this.$store.state.loading;
     }
   },
   watch: {
@@ -271,6 +274,7 @@ export default Vue.extend({
       });
     },
     updateSsid: function($index) {
+      this.$store.commit("setLoading", true);
       console.log("updateSsid form", this.ssidForm);
       this.$meraki
         .updateNetworkSsid({
@@ -285,6 +289,9 @@ export default Vue.extend({
         })
         .catch(err => {
           console.log("SSID update Error: ", err);
+        })
+        .finally(() => {
+          this.$store.commit("setLoading", false);
         });
     }
   }

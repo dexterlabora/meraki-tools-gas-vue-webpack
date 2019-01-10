@@ -13,7 +13,7 @@
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn fab fixed bottom right dark color="orange" @click="onClaim()">
+      <v-btn :loading="loading" fab fixed bottom right dark color="orange" @click="onClaim()">
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
@@ -67,6 +67,11 @@
         </v-flex>
       </v-flex>
     </v-layout>
+
+    <v-snackbar v-model="snackbar" bottom multi-line :timeout="3000">
+      {{ errorText }}
+      <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -76,6 +81,8 @@ export default Vue.extend({
   template: "#tool-claim-order",
   data() {
     return {
+      errorText: "",
+      snackbar: false,
       orderClaimed: "",
       licenseModeOptions: [
         { text: "Add Devices", value: "addDevices" },
@@ -96,6 +103,9 @@ export default Vue.extend({
   computed: {
     org: function() {
       return this.$store.state.org;
+    },
+    loading: function() {
+      return this.$store.state.loading;
     }
   },
   methods: {
@@ -103,6 +113,7 @@ export default Vue.extend({
       this.$utilities.writeData(this.orderClaimed);
     },
     onClaim() {
+      this.$store.commit("setLoading", true);
       var body = {};
       if (this.form.type == "licenseKey") {
         body["licenseMode"] = this.form.licenseMode;
@@ -110,7 +121,7 @@ export default Vue.extend({
       body[this.form.type] = this.form.value;
 
       this.$meraki
-        .claimOrganization({ id: this.org.id }, body)
+        .claimOrganization({ id: this.org.id, body: body })
         .then(res => {
           // this endpoint does not return any data other than status code 200
           // so just pull license info entirely
@@ -122,7 +133,15 @@ export default Vue.extend({
         })
         .catch(err => {
           console.log("claim Error: ", err);
+          this.onSnackbar(err);
+        })
+        .finally(() => {
+          this.$store.commit("setLoading", false);
         });
+    },
+    onSnackbar(msg) {
+      this.snackbarText = msg;
+      this.snackbar = true;
     }
   }
 });
