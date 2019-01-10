@@ -812,11 +812,22 @@ export default Vue.extend({
           group: "Wireless Health"
         },
         {
-          title: "Network VLANs",
+          title: "VLANs of Network",
           action: async () =>
             await this.$meraki
               .getNetworkVlans({
                 networkId: this.net.id
+              })
+              .then(res => res.data),
+          formComponents: [],
+          group: "VLANs"
+        },
+        {
+          title: "VLANs of Organization",
+          action: async () =>
+            await reports
+              .getNetworksVlans({
+                networks: this.nets.map(n => n.id)
               })
               .then(res => res.data),
           formComponents: [],

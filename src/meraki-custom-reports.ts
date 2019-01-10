@@ -59,3 +59,34 @@ export async function getDevicesClients(parameters = {}) {
   res["data"] = clients;
   return res;
 }
+
+export async function getNetworksVlans(parameters = {}) {
+  console.log("getNetworksVlans parameters", parameters);
+  var res = {};
+  var clients = [];
+  for (var i = 0; i < parameters["networks"].length; i++) {
+    try {
+      var params = {
+        networkId: parameters["networks"][i]
+      };
+      console.log("params ", params);
+      const api = await meraki
+        .getNetworkVlans({
+          networkId: parameters["networks"][i]
+        })
+        .then(res => {
+          console.log("pushing vlans, ", res.data);
+          clients = clients.concat(res.data);
+        })
+        .catch(err => {
+          console.log("getVlans error: ", err);
+        });
+    } catch (e) {
+      console.log("try report catch error", e);
+      continue;
+    }
+  }
+  console.log("getNetworkVlans vlans: ", clients);
+  res["data"] = clients;
+  return res;
+}
