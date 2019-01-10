@@ -10,7 +10,7 @@ Vue.use(Vuex);
 // *****
 export default new Vuex.Store({
   state: {
-    apiKey: "093b24e85df15a3e66f1fc359f4c48493eaa1b73", // Meraki Sandbox
+    apiKey: "", // Meraki Sandbox
     apiUrl: "https://api.meraki.com/api/v0",
     client: {},
     clients: [],

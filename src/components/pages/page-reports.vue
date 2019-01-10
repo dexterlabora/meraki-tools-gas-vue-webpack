@@ -14,6 +14,7 @@
                 bottom
                 left
                 dark
+                :loading="loading"
                 color="primary"
                 @click="onRunReport"
                 v-if="selectedReport.action"
@@ -122,6 +123,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    loading: function() {
+      return this.$store.state.loading;
+    },
     client: function() {
       return this.$store.state.client;
     },
@@ -641,14 +645,21 @@ export default Vue.extend({
   methods: {
     onRunReport() {
       this.$store.commit("setLoading", true);
-      this.selectedReport.action().then(res => {
-        if (!Array.isArray(res)) {
-          res = [res];
-        }
-        this.reportData = res;
-        this.reportToSheet();
-        this.$store.commit("setLoading", false);
-      });
+      this.selectedReport
+        .action()
+        .then(res => {
+          if (!Array.isArray(res)) {
+            res = [res];
+          }
+          this.reportData = res;
+          this.reportToSheet();
+        })
+        .catch(e => {
+          console.log("onRunReport error ", e);
+        })
+        .finally(() => {
+          this.$store.commit("setLoading", false);
+        });
     },
     saveFile() {
       const data = JSON.stringify(this.reportData);
@@ -679,7 +690,7 @@ export default Vue.extend({
     },
     reportToSheet() {
       if (typeof google !== "undefined") {
-        this.$utilities.writeData(res, google);
+        this.$utilities.writeData(this.reportData, google);
       }
     }
   }

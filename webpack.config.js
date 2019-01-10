@@ -23,11 +23,16 @@ module.exports = {
     libraryTarget: "this",
     publicPath: "/clasp/dist"
   },
+  devServer: {
+    proxy: {
+      "/api": "http://localhost:8085"
+    }
+  },
   module: {
     rules: [
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-        loader: "url-loader?limit=100000"
+        loader: ["url-loader?limit=100000", "file-loader"]
       },
       {
         test: /\.styl$/,

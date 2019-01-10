@@ -14,9 +14,11 @@
 
             <org-selector></org-selector>
             <net-selector></net-selector>
-            <v-dialog v-model="loading" persistent max-width>
+            <!--
+            <v-dialog v-model="loading" max-width hide-overlay>
               <v-progress-linear indeterminate color="green" class="mb-0"></v-progress-linear>
             </v-dialog>
+            -->
             <router-view></router-view>
           </v-container>
         </v-content>

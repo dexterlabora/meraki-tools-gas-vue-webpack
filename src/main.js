@@ -11,18 +11,17 @@ Vue.use(Vuetify, {
 
 import * as meraki from "./meraki-api.js";
 //meraki.setDomain("https://mp.meraki.com/api/v0");
+meraki.setApiKey(
+  Store.state.apiKey || "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
+); // demo API key
 
 // For Local Development
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
 if (process.env.VUE_APP_SERVICE == "axios") {
-  Store.commit(
-    "setApiUrl",
-    "https://merakidemo.internetoflego.com/meraki/proxy"
-  );
+  Store.commit("setApiUrl", "http://localhost:8085/api");
   meraki.setService("axios");
 }
 
-meraki.setApiKey(Store.state.apiKey);
 Vue.prototype.$meraki = meraki;
 
 import * as utilities from "./utilities.ts";
