@@ -20,8 +20,18 @@
               <p>
                 Generate a report by selecting a cell in the sheet, then select
                 a report to run
+                <span>
+                  <v-btn icon to="/reports">
+                    <v-icon>view_list</v-icon>
+                  </v-btn>
+                </span>
               </p>
               <p>Use the tools to update the network.</p>
+              <span>
+                <v-btn icon to="/tools">
+                  <v-icon>build</v-icon>
+                </v-btn>
+              </span>
             </v-flex>
           </v-card-text>
         </v-card>
