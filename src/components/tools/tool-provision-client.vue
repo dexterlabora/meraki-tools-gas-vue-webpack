@@ -39,8 +39,14 @@
                 <v-text-field v-model="form.name" label="Client Name"></v-text-field>
 
                 <v-text-field v-model="form.mac" label="Client MAC"></v-text-field>
-
                 <v-select
+                  :items="devicePolicies"
+                  v-model="form.devicePolicy"
+                  label="Policy Type"
+                  single-line
+                ></v-select>
+                <v-select
+                  v-if="form.devicePolicy == 'Group policy'"
                   :items="policies"
                   item-text="name"
                   item-value="groupPolicyId"
@@ -102,13 +108,14 @@ export default Vue.extend({
   },
   data() {
     return {
+      devicePolicies: ["Whitelisted", "Blocked", "Group policy"],
       provisionedClient: {},
       policies: [],
       form: {
         mac: "",
         name: "",
         groupPolicyId: "",
-        devicePolicy: "Group policy" //not configurable
+        devicePolicy: "" //not configurable
       }
     };
   },
@@ -134,7 +141,10 @@ export default Vue.extend({
   },
   methods: {
     onWriteSheet: function() {
-      this.$utilities.writeData(this.provisionedClient);
+      console.log(this.provisionedClient);
+      if (typeof google !== "undefined") {
+        this.$utilities.writeData(this.provisionedClient, google);
+      }
     },
     fetchPolicies: function() {
       if (!this.net) {
