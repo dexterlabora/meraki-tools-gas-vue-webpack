@@ -134,7 +134,7 @@ export default Vue.extend({
   },
   methods: {
     onWriteSheet: function() {
-      this.$utilities.writeData(his.provisionedClient);
+      this.$utilities.writeData(this.provisionedClient);
     },
     fetchPolicies: function() {
       if (!this.net) {
