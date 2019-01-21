@@ -11,7 +11,9 @@
     <v-btn icon to="/tools">
       <v-icon>build</v-icon>
     </v-btn>
-
+    <!--v-btn icon to="/swagger">
+      <v-icon>info</v-icon>
+    </v-btn-->
     <v-spacer></v-spacer>
     <v-btn icon to="/settings">
       <v-icon>lock</v-icon>

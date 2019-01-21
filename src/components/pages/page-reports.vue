@@ -22,26 +22,45 @@
                 <v-icon>play_arrow</v-icon>
               </v-btn>
 
-              <v-flex xs12 sm6 md6 pt-2 d-flex>
-                <v-select
-                  v-model="selectedGroup"
-                  :items="groups"
-                  item-text="group"
-                  return-object
-                  label="Group"
-                  outline
-                ></v-select>
-              </v-flex>
-              <v-flex xs12 sm6 md6 pt-2 d-flex>
-                <v-select
+              <v-flex xs12 sm6 md6>
+                <v-autocomplete
+                  prepend-inner-icon="search"
                   v-model="selectedReport"
-                  :items="reportItems"
-                  item-text="title"
                   return-object
-                  label="Reports"
+                  :items="reports"
+                  :filter="customFilter"
+                  color="white"
+                  item-text="title"
+                  label="Search"
                   outline
-                ></v-select>
+                  @change="onSearch"
+                ></v-autocomplete>
               </v-flex>
+              <v-flex xs12 sm6 md6>
+                <v-btn @click="browseByGroup = !browseByGroup">Browse by Group</v-btn>
+              </v-flex>
+              <div v-if="browseByGroup">
+                <v-flex xs12 sm6 md4 pt-2 d-flex>
+                  <v-select
+                    v-model="selectedGroup"
+                    :items="groups"
+                    item-text="group"
+                    label="Group"
+                    outline
+                  ></v-select>
+                </v-flex>
+                <v-flex xs12 sm6 md6 pt-2 d-flex>
+                  <v-select
+                    v-model="selectedReport"
+                    :items="groupReports"
+                    item-text="title"
+                    return-object
+                    label="Reports"
+                    outline
+                  ></v-select>
+                </v-flex>
+              </div>
+
               <v-flex
                 xs12
                 sm6
@@ -108,20 +127,16 @@ export default Vue.extend({
   },
   data() {
     return {
+      browseByGroup: false,
       selectedGroup: "",
       selectedReport: {
         title: "",
         action: "",
         formComponents: [],
-        group: ""
+        group: "All"
       },
       reportData: []
     };
-  },
-  watch: {
-    selectedGroup() {
-      this.selectedReport = this.reportItems[0];
-    }
   },
   computed: {
     loading: function() {
@@ -846,15 +861,37 @@ export default Vue.extend({
         }
       ];
     },
+
     // Dynamic Selectors
     groups: function() {
-      return this.reports.filter(g => g.group);
+      let g = this.reports.filter(r => r.group);
+      g.push({ group: "All" });
+      return g;
     },
     groupReports() {
-      return this.reports.filter(g => this.reports[selectedGroup]);
+      return this.reports.filter(r => {
+        if (r.group === this.selectedGroup) {
+          return r;
+        } else if (this.selectedGroup == "All") {
+          return this.reports;
+        }
+      });
     }
   },
   methods: {
+    onSearch(report) {
+      console.log("onSearch event", report.group);
+      this.selectedGroup = report.group; //{ group: report.group };
+    },
+    customFilter(item, queryText, itemText) {
+      const textOne = item.title.toLowerCase();
+      const textTwo = item.group.toLowerCase();
+      const searchText = queryText.toLowerCase();
+
+      return (
+        textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1
+      );
+    },
     onRunReport() {
       this.$store.commit("setLoading", true);
       this.selectedReport

@@ -1,51 +1,53 @@
-<template id="page-tools">
+<template id="page-reports">
   <v-container>
-    <v-layout>
-      <v-flex xs12 md12>
-        <v-card>
-          <v-card-title>
-            <h3>Tools</h3>
-          </v-card-title>
-          <v-card-text>
-            <v-flex xs12 md12 pt-1>
-              <v-list>
-                <v-list-tile v-for="(tool, i) in tools" :key="i" :to="tool.path">
-                  <v-list-tile-title v-text="tool.title"></v-list-tile-title>
-                  <v-list-tile-action>
-                    <!-- v-icon v-text="tool.icon"></v-icon -->
-                  </v-list-tile-action>
-                </v-list-tile>
-              </v-list>
-            </v-flex>
-          </v-card-text>
-        </v-card>
+    <v-layout wrap>
+      <v-flex xs12 sm6 md6>
+        <v-select
+          v-model="selectedTool"
+          :items="tools"
+          item-text="title"
+          return-object
+          label="Select a Tool"
+          outline
+        ></v-select>
+      </v-flex>
+
+      <v-flex xs12 sm12 md12>
+        <component :is="selectedTool.component"></component>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
+
 <script>
+import ToolProvisionClient from "../tools/tool-provision-client.vue";
+import ToolClaimOrder from "../tools/tool-claim-order.vue";
+import ToolConfigureSsid from "../tools/tool-configure-ssid.vue";
+import ToolConfigureVlan from "../tools/tool-configure-vlan.vue";
+
 import Vue from "vue";
 export default Vue.extend({
   template: "#page-tools",
   data() {
     return {
+      selectedTool: {},
       tools: [
         {
           title: "Provision Client",
-          path: "/provision-client"
+          component: ToolProvisionClient
         },
         {
           title: "Configure SSID",
-          path: "/configure-ssid"
+          component: ToolConfigureSsid
         },
         {
           title: "Update VLANs",
-          path: "/configure-vlan"
+          component: ToolConfigureVlan
         },
         {
           title: "Claim Order",
-          path: "/claim-order"
+          component: ToolClaimOrder
         }
       ]
     };
@@ -53,3 +55,8 @@ export default Vue.extend({
   methods: {}
 });
 </script>
+<style>
+.v-list__tile__content {
+  font-size: small;
+}
+</style>
