@@ -186,8 +186,8 @@ export default Vue.extend({
         return;
       }
 
-      this.$meraki.getNetworkVlans({ networkId: this.net.id }).then(res => {
-        this.vlans = res.data;
+      this.$merakiSdk.VLANsController.getNetworkVlans(this.net.id).then(res => {
+        this.vlans = res;
         this.vlan =
           this.vlans.find(vlan => vlan.id == this.vlanId) || this.vlans[0]; //this.vlans[this.ssidNum]; // set selected ssid
       });
@@ -205,16 +205,15 @@ export default Vue.extend({
       delete data.reservedIpRanges; // debugging
 
       console.log("data: ", data);
-      this.$meraki
-        .updateNetworkVlan({
-          networkId: this.net.id,
-          vlanId: this.vlan.id,
-          body: this.vlanForm //data
-        })
+      this.$merakiSdk.VLANsController.updateNetworkVlan(
+        this.net.id,
+        this.vlan.id,
+        this.vlanForm //data
+      )
         .then(res => {
-          this.updatedVlan = res.data;
+          this.updatedVlan = res;
           this.fetchVlans(); // get clean copy of VLANs list and update form
-          console.log("VLANs updated!", res.data);
+          console.log("VLANs updated!", res);
         })
         .catch(err => {
           console.log("VLAN update Error: ", err);

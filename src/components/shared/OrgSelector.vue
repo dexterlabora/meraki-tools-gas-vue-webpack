@@ -51,9 +51,9 @@ export default Vue.extend({
         id: "",
         name: ""
       };
-      this.$meraki.getOrganizations().then(res => {
+      this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
         console.log("getOrganizations res", res);
-        this.orgs = res.data;
+        this.orgs = res;
       });
     }
   },

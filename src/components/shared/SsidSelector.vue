@@ -31,8 +31,8 @@ export default Vue.extend({
   },
   methods: {
     fetchSsids() {
-      this.$meraki.getNetworkSsids({ networkId: this.net.id }).then(res => {
-        this.ssids = res.data;
+      this.$merakiSdk.SSIDsController.getNetworkSsids(this.net.id).then(res => {
+        this.ssids = res;
         this.ssid = this.ssids[0]; // set default ssid
       });
     }

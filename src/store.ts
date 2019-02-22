@@ -16,6 +16,7 @@ export default new Vuex.Store({
     clients: [],
     device: {},
     devices: [],
+    input: "",
     net: {},
     nets: [],
     org: {},
@@ -46,6 +47,9 @@ export default new Vuex.Store({
     setDevices: (state, payload) => (state.devices = payload),
     setNet(state, payload) {
       state.net = payload;
+    },
+    setInput(state, payload) {
+      state.input = payload;
     },
     setNets: (state, payload) => (state.nets = payload),
     setOrg(state, payload) {

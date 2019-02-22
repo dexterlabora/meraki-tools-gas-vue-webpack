@@ -41,10 +41,12 @@ export default Vue.extend({
   },
   methods: {
     fetchDevices() {
-      this.$meraki.getNetworkDevices({ networkId: this.net.id }).then(res => {
-        this.devices = res.data;
-        this.device = this.devices[0]; // set default ssid
-      });
+      this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
+        res => {
+          this.devices = res;
+          this.device = this.devices[0]; // set default ssid
+        }
+      );
     }
   },
   watch: {

@@ -4,6 +4,7 @@ import Router from "vue-router";
 import PageHome from "./components/pages/page-home.vue";
 import PageSettings from "./components/pages/page-settings.vue";
 import PageReports from "./components/pages/page-reports.vue";
+import PageReportsAuto from "./components/pages/page-reports-auto.vue";
 import PageTools from "./components/pages/page-tools.vue";
 import PageSwagger from "./components/pages/page-swagger.vue";
 
@@ -22,6 +23,7 @@ export default new Router({
     { path: "/home", component: PageHome },
     { path: "/settings", component: PageSettings },
     { path: "/reports", component: PageReports },
+    { path: "/reports-auto", component: PageReportsAuto },
     { path: "/tools", component: PageTools },
     { path: "/swagger", component: PageSwagger },
     { path: "/provision-client", component: ToolProvisionClient },

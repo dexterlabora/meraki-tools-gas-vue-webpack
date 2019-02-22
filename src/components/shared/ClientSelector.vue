@@ -13,7 +13,6 @@
 
 <script>
 import Vue from "vue";
-import * as reports from "../../meraki-custom-reports.ts";
 
 export default Vue.extend({
   template: "#client-selector",
@@ -41,16 +40,17 @@ export default Vue.extend({
     };
   },
   methods: {
-    fetchClients() {
-      reports
-        .getDevicesClients({
-          serials: this.devices.map(d => d.serial),
-          $queryParameters: { timespan: this.timespan }
-        })
-        .then(res => {
-          this.clients = res.data;
-          this.client = this.clients[0]; // set default client
-        });
+    async fetchClients() {
+      this.clients = [];
+
+      for (let d = 0; d < this.devices.length; d++) {
+        const api = await this.$merakiSdk.ClientsController.getDeviceClients(
+          this.devices[d].serial,
+          this.timespan
+        )
+          .then(res => (this.clients = this.clients.concat(res)))
+          .catch(e => console.log(e));
+      }
     }
   },
   watch: {

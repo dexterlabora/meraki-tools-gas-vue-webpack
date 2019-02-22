@@ -38,6 +38,7 @@ module.exports = {
         test: /\.styl$/,
         loader: ["style-loader", "css-loader", "stylus-loader"]
       },
+      //{ test: /\.json$/, loader: "json-loader" },
       {
         test: /\.vue$/,
         exclude: /node_modules/,
@@ -77,6 +78,12 @@ module.exports = {
   },
   resolve: {
     extensions: [".vue", ".ts", ".js"]
+  },
+  node: {
+    console: true,
+    fs: "empty",
+    net: "empty",
+    tls: "empty"
   },
   plugins: [
     new webpack.EnvironmentPlugin(["VUE_APP_SERVICE"]),

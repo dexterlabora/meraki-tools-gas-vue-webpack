@@ -24,6 +24,13 @@
               <i>{{ org.name }}</i>
             </v-card-title>
             <v-card-text p1>
+              <v-btn @click="showScanner = !showScanner">Barcode Scanner</v-btn>
+              <quagga-scanner
+                v-if="showScanner"
+                :onDetected="onScanner"
+                :readerSize="readerSize"
+                :readerType="'ean_reader'"
+              ></quagga-scanner>
               <v-flex xs12 md12 pt-4>
                 <v-select
                   v-model="form.type"
@@ -69,7 +76,7 @@
     </v-layout>
 
     <v-snackbar v-model="snackbar" bottom multi-line :timeout="3000">
-      {{ errorText }}
+      {{ snackbarText }}
       <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
     </v-snackbar>
   </v-container>
@@ -77,12 +84,22 @@
 
 <script>
 import Vue from "vue";
+import { QuaggaScanner } from "vue-quaggajs";
+
 export default Vue.extend({
   template: "#tool-claim-order",
+  components: {
+    QuaggaScanner
+  },
   data() {
     return {
-      errorText: "",
+      showScanner: false,
+      readerSize: {
+        width: 640,
+        height: 480
+      },
       snackbar: false,
+      snackbarText: "",
       orderClaimed: "",
       licenseModeOptions: [
         { text: "Add Devices", value: "addDevices" },
@@ -109,6 +126,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    onScanner: function(res) {
+      console.log("scanner res", res);
+    },
     onWriteSheet: function() {
       this.$utilities.writeData(this.orderClaimed);
     },
@@ -120,20 +140,22 @@ export default Vue.extend({
       }
       body[this.form.type] = this.form.value;
 
-      this.$meraki
-        .claimOrganization({ id: this.org.id, body: body })
+      this.$merakiSdk.OrganizationsController.createClaimOrganization(
+        this.org.id,
+        body
+      )
         .then(res => {
           // this endpoint does not return any data other than status code 200
           // so just pull license info entirely
-          this.$meraki
-            .getOrganizationLicenseState({ id: this.org.id })
-            .then(res => {
-              this.orderClaimed = res.data;
-            });
+          this.$merakiSdk.OrganizationsController.getOrganizationLicenseState(
+            this.org.id
+          ).then(res => {
+            this.orderClaimed = res;
+          });
         })
         .catch(err => {
           console.log("claim Error: ", err);
-          this.onSnackbar(err);
+          this.onSnackbar(JSON.parse(err.errorResponse).errors[0]);
         })
         .finally(() => {
           this.$store.commit("setLoading", false);

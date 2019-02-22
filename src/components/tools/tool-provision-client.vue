@@ -151,8 +151,10 @@ export default Vue.extend({
         return;
       }
 
-      this.$meraki.getNetworkGroupPolicies({ id: this.net.id }).then(res => {
-        this.policies = res.data;
+      this.$merakiSdk.GroupPoliciesController.getNetworkGroupPolicies(
+        this.net.id
+      ).then(res => {
+        this.policies = res;
         this.policy =
           this.policies.find(policy => policy.id == this.policyId) ||
           this.policies[0]; //this.vlans[this.ssidNum]; // set selected ssid
@@ -160,13 +162,12 @@ export default Vue.extend({
     },
     onProvisionClient() {
       this.$store.commit("setLoading", true);
-      this.$meraki
-        .createNetworkClientProvision({
-          networkId: this.net.id,
-          body: this.form
-        })
+      this.$merakiSdk.ClientsController.createProvisionNetworkClients(
+        this.net.id,
+        this.form
+      )
         .then(res => {
-          this.provisionedClient = res.data;
+          this.provisionedClient = res;
         })
         .catch(err => {
           console.log("client provision Error: ", err);

@@ -49,13 +49,13 @@ export default Vue.extend({
       if (!this.org.id) {
         return;
       }
-      this.$meraki
-        .getOrganizationNetworks({ organizationId: this.org.id })
-        .then(res => {
-          this.nets = res.data;
-          this.form.net = this.nets[0]; // set default
-          this.$store.commit("setNets", this.nets); // set state
-        });
+      this.$merakiSdk.NetworksController.getOrganizationNetworks(
+        this.org.id
+      ).then(res => {
+        this.nets = res;
+        this.form.net = this.nets[0]; // set default
+        this.$store.commit("setNets", this.nets); // set state
+      });
     }
   },
   watch: {
