@@ -24,7 +24,7 @@
               <i>{{ org.name }}</i>
             </v-card-title>
             <v-card-text p1>
-              <v-btn @click="showScanner = !showScanner">Barcode Scanner</v-btn>
+              <v-btn @click="showScanner = !showScanner" v-if="beta">Barcode Scanner</v-btn>
               <quagga-scanner
                 v-if="showScanner"
                 :onDetected="onScanner"
@@ -123,6 +123,9 @@ export default Vue.extend({
     },
     loading: function() {
       return this.$store.state.loading;
+    },
+    beta: function() {
+      return this.$store.state.beta;
     }
   },
   methods: {

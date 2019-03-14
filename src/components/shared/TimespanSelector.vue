@@ -17,6 +17,15 @@ export default Vue.extend({
   computed: {
     timespan: function() {
       return this.$store.state.timespan;
+    },
+    t0: function() {
+      let time = this.t1 - this.timespan;
+      return time;
+    },
+    t1: function() {
+      let date = new Date();
+      let time = date.getTime();
+      return time;
     }
   },
   data() {
@@ -46,6 +55,8 @@ export default Vue.extend({
   watch: {
     time() {
       this.$store.commit("setTimespan", this.time);
+      this.$store.commit("setT0", this.t0);
+      this.$store.commit("setT1", this.t1);
     }
   },
   mounted() {

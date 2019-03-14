@@ -247,6 +247,30 @@ export default Vue.extend({
         },
         {
           title: "Network Clients",
+          action: async () => {
+            try {
+              let allClients = [];
+              for (let d of this.devices) {
+                let clients = await this.$meraki
+                  .getDeviceClients({
+                    serial: d.serial,
+                    $queryParameters: { timespan: this.timespan }
+                  })
+                  .then(res => res.data);
+                clients.map(c => (c.device = d));
+                allClients = [...allClients, ...clients];
+                return allClients;
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          },
+          formComponents: [DevicesSelector, TimespanSelector],
+          group: "Clients"
+        },
+        /*
+        {
+          title: "Network Clients",
           action: async () =>
             await reports
               .getDevicesClients({
@@ -257,6 +281,7 @@ export default Vue.extend({
           formComponents: [DevicesSelector, TimespanSelector],
           group: "Clients"
         },
+        */
         {
           title: "Security events",
           action: async () =>

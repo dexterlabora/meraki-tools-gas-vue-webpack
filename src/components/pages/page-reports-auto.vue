@@ -8,7 +8,6 @@
           </v-card-title>
           <v-card-text>
             <div>
-              <v-btn @click="test">test</v-btn>
               <v-btn
                 fab
                 fixed
@@ -38,7 +37,11 @@
                 ></v-autocomplete>
               </v-flex>
               <v-flex xs12 sm6 md6>
-                <v-btn @click="browseByGroup = !browseByGroup">Browse by Group</v-btn>
+                <v-btn
+                  round
+                  color="secondary"
+                  @click="browseByGroup = !browseByGroup"
+                >Browse by Group</v-btn>
               </v-flex>
               <div v-if="browseByGroup">
                 <v-flex xs12 sm6 md4 pt-2 d-flex>
@@ -105,39 +108,40 @@
 
 <script>
 import Vue from "vue";
+import getFunctionArguments from "get-function-arguments";
+import lodash from "lodash";
 
+import ActionBatchSelector from "../shared/ActionBatchSelector";
 import ClientSelector from "../shared/ClientSelector";
 import DeviceSelector from "../shared/DeviceSelector";
 import DevicesSelector from "../shared/DevicesSelector";
 import OrgSelector from "../shared/OrgSelector";
 import NetSelector from "../shared/NetSelector";
 import SsidSelector from "../shared/SsidSelector";
+import SwitchPortSelector from "../shared/SwitchPortSelector";
+import VlanSelector from "../shared/VlanSelector";
 import TimespanSelector from "../shared/TimespanSelector";
 import ZoneSelector from "../shared/ZoneSelector";
 import InputSelector from "../shared/InputSelector";
 import VueJsonPretty from "vue-json-pretty";
-
-import getFunctionArguments from "get-function-arguments";
-//import * as rg from "../../report-generator.ts";
-//const reportGenerator = rg.reportGenerator;
+import FirewalledServiceSelector from "../shared/FirewalledServiceSelector.vue";
 
 export default Vue.extend({
   template: "#page-reports-auto",
   components: {
+    ActionBatchSelector,
     InputSelector,
     ClientSelector,
     DeviceSelector,
     DevicesSelector,
     SsidSelector,
+    SwitchPortSelector,
+    VlanSelector,
     TimespanSelector,
     VueJsonPretty,
     OrgSelector,
     NetSelector
   },
-  mounted() {
-    this.onGenerateReports();
-  },
-
   data() {
     return {
       browseByGroup: false,
@@ -148,14 +152,12 @@ export default Vue.extend({
         formComponents: [],
         group: "All"
       },
-      reports: [],
       reportData: []
       //reports: []
     };
   },
   watch: {
     reports() {
-      // refresh report with updated params
       if (!this.selectedReport.title) return;
       this.selectedReport = this.reports.find(
         r => r.title == this.selectedReport.title
@@ -163,6 +165,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    actionBatch: function() {
+      return this.$store.state.actionBatch;
+    },
     apiKey: function() {
       return this.$store.state.apiKey;
     },
@@ -171,6 +176,9 @@ export default Vue.extend({
     },
     client: function() {
       return this.$store.state.client;
+    },
+    bleClient: function() {
+      return this.$store.state.bleClient;
     },
     org: function() {
       return this.$store.state.org;
@@ -187,11 +195,32 @@ export default Vue.extend({
     devices: function() {
       return this.$store.state.devices;
     },
+    firewalledService: function() {
+      return this.$store.state.firewalledService;
+    },
     ssid: function() {
       return this.$store.state.ssid;
     },
+    switchPorts: function() {
+      return this.$store.state.switchPorts;
+    },
+    switchPort: function() {
+      return this.$store.state.switchPort;
+    },
     timespan: function() {
       return this.$store.state.timespan;
+    },
+    t0: function() {
+      return this.$store.state.t0;
+    },
+    t1: function() {
+      return this.$store.state.t1;
+    },
+    vlan: function() {
+      return this.$store.state.vlan;
+    },
+    vlans: function() {
+      return this.$store.state.vlans;
     },
     zone: function() {
       return this.$store.state.zone;
@@ -200,13 +229,22 @@ export default Vue.extend({
       return this.reports.filter(r => r.group === this.selectedGroup.group);
     },
 
-    // Dynamic Selectors
+    // Group Selectors
     groups: function() {
-      let g = this.reports.filter(r => r.group);
-      g.push({ group: "All" });
-      return g;
+      let groups = this.reports.filter(r => r.group);
+
+      return groups.sort(function(a, b) {
+        if (a.group < b.group) return -1;
+        if (a.group > b.group) return 1;
+        return 0;
+      });
     },
     groupReports() {
+      this.reports.sort(function(a, b) {
+        if (a.group < b.group) return -1;
+        if (a.group > b.group) return 1;
+        return 0;
+      });
       return this.reports.filter(r => {
         if (r.group === this.selectedGroup) {
           return r;
@@ -215,37 +253,232 @@ export default Vue.extend({
         }
       });
     },
-    paramComponents() {
+
+    paramComponentMap() {
       return {
-        clientId: ClientSelector,
-        clientMac: ClientSelector,
-        serial: DeviceSelector,
-        serials: DevicesSelector,
-        ssidNum: SsidSelector,
-        timespan: TimespanSelector,
-        input: InputSelector,
-        networkId: NetSelector,
-        organizationId: OrgSelector
+        actionBatchId: {
+          component: ActionBatchSelector,
+          paramVal: this.actionBatch.id
+        },
+        service: {
+          component: FirewalledServiceSelector,
+          paramVal: this.firewalledService
+        },
+        number: {
+          component: SwitchPortSelector, // switches (may need to adjust this)
+          paramVal: this.switchPort.number
+        },
+        idOrMacOrIp: {
+          component: ClientSelector,
+          paramVal: this.client.id
+        },
+        mac: {
+          component: ClientSelector,
+          paramVal: this.client.mac
+        },
+        clientId: {
+          component: ClientSelector,
+          paramVal: this.client.id
+        },
+        clientMac: {
+          component: ClientSelector,
+          paramVal: this.client.mac
+        },
+        serial: {
+          component: DeviceSelector,
+          paramVal: this.device.serial
+        },
+        serials: {
+          component: DevicesSelector,
+          paramVal: this.devices.filter(d => d.serial)
+        },
+        ssid: {
+          component: SsidSelector,
+          paramVal: this.ssid.number
+        },
+        ssidNum: {
+          component: SsidSelector,
+          paramVal: this.ssid.number
+        },
+        timespan: {
+          component: TimespanSelector,
+          paramVal: this.timespan
+        },
+        t1: {
+          component: TimespanSelector,
+          paramVal: this.t1
+        },
+        vlanId: {
+          component: VlanSelector,
+          paramVal: this.vlan.id
+        },
+        input: {
+          component: InputSelector,
+          paramVal: this.input
+        },
+        networkId: {
+          component: "", // NetSelector,
+          paramVal: this.net.id
+        },
+        organizationId: {
+          component: "", //OrgSelector,
+          paramVal: this.org.id
+        },
+        connectivityHistoryTimespan: {
+          component: TimespanSelector,
+          paramVal: this.timespan
+        },
+        zoneId: {
+          component: ZoneSelector,
+          paramVal: this.zone.id
+        }
       };
     },
-    params() {
-      return {
-        clientId: this.client.mac,
-        clientMac: this.client.mac,
-        serial: this.device.serial,
-        serials: this.serials,
-        ssidNum: this.ssid.number,
-        timespan: this.timespan,
-        input: this.input,
-        networkId: this.net.id,
-        organizationId: this.org.id,
-        startingAfter: "", // Left blank intentionally
-        endingBefore: "", // Left blank intentionally
-        perPage: "200" // ToDo - tie this to selector
-      };
+
+    /*
+    get controllers 
+    get methods forEach controller
+    set method title
+    set method group
+    get params forEach method
+    get paramSelectors forEach param
+    get paramVals forEach param
+    return report
+
+    */
+    /*
+    reports() {
+      let library = this.$merakiSdk;
+      let reports = [];
+
+      // Get Controllers
+      let controllers = this.getControllerNames(library);
+
+      // Get Methods
+      let methods = [];
+      controllers.forEach(c => {
+        //methods.push(this.getMethodNames(library[c]));
+        methods = [...methods, ...this.getMethodNames(library[c])];
+        console.log("methods ", methods);
+      });
+
+      // Get Params
+      // BROKEN 
+      let params = [];
+      methods.forEach(m => {
+        // Set Params
+        r.params = this.getParamNames(library[c][m]).filter(
+          p => !p.includes("callback")
+        );
+        r.params = this.adjustMerakiParams(m, r.params);
+      });
+    
+
+      //  Assign Title, Group, Selectors and ParamVals for each method
+      methods
+        .filter(m => m.includes("get"))
+        .forEach(m => {
+          let r = {};
+          r.group = lodash.startCase(c).replace("Controller", "");
+          r.title = m.replace(/([A-Z])/g, " $1").replace("get ", "");
+          r.action = library[c][m];
+
+          // Set Components and ParamVal
+          r.formComponents = [];
+          r.paramVals = [];
+          r.params.forEach(p => {
+            if (!this.paramComponentMap[p]) {
+              return;
+            }
+            r.formComponents.push(this.paramComponentMap[p].component);
+            r.paramVals.push(this.paramComponentMap[p].paramVal);
+          });
+
+          // DEBUGGING
+          console.log("r ", r);
+          console.log("r.params", r.params);
+          console.log("r.paramVals", r.paramVals);
+          console.log("r.formComponents", r.formComponents);
+
+          reports.push(r);
+        });
+
+      reports.sort(function(a, b) {
+        if (a.title < b.title) return -1;
+        if (a.title > b.title) return 1;
+        return 0;
+      });
+      return reports;
+    }
+    */
+
+    reports() {
+      let library = this.$merakiSdk;
+      let reports = [];
+      this.getControllerNames(library).forEach(c => {
+        this.getMethodNames(library[c])
+          .filter(m => m.includes("get"))
+          .forEach(m => {
+            let r = {};
+            r.group = lodash.startCase(c).replace("Controller", "");
+            r.title = m.replace(/([A-Z])/g, " $1").replace("get ", "");
+            r.action = library[c][m];
+
+            // Set Params
+            r.params = this.getParamNames(library[c][m]).filter(
+              p => !p.includes("callback")
+            );
+            r.params = this.adjustMerakiParams(m, r.params);
+
+            // Set Components and Param
+            r.formComponents = [];
+            r.paramVals = [];
+            r.params.forEach(p => {
+              if (!this.paramComponentMap[p]) {
+                return;
+              }
+              r.formComponents.push(this.paramComponentMap[p].component);
+              r.paramVals.push(this.paramComponentMap[p].paramVal);
+            });
+
+            // DEBUGGING
+            console.log("r ", r);
+            console.log("r.params", r.params);
+            console.log("r.formComponents", r.formComponents);
+
+            reports.push(r);
+          });
+      });
+      reports.sort(function(a, b) {
+        if (a.title < b.title) return -1;
+        if (a.title > b.title) return 1;
+        return 0;
+      });
+      return reports;
     }
   },
   methods: {
+    adjustMerakiParams(methodName, params) {
+      params.forEach((p, i) => {
+        if (p == "id" && methodName.includes("Network")) {
+          params[i] = "networkId";
+        }
+        if (p == "id" && methodName.includes("Organization")) {
+          params[i] = "organizationId";
+        }
+        if (p == "id" && methodName.includes("Bluetooth")) {
+          params[i] = "bleClientId";
+        }
+        if (p == "timespan") {
+          params = params.map(p => (p == "t0" ? p : undefined));
+          params = params.map(p => (p == "t1" ? p : undefined));
+        }
+        if (p == "id" && methodName.includes("ActionBatch")) {
+          params[i] = "actionBatchId";
+        }
+      });
+      return params;
+    },
     getParamNames(func) {
       return getFunctionArguments(func);
     },
@@ -259,49 +492,21 @@ export default Vue.extend({
         return typeof controller[p] === "function";
       });
     },
-    generateReports(library) {
-      let reports = [];
-      this.getControllerNames(library).forEach(c => {
-        this.getMethodNames(library[c])
-          .filter(m => m.includes("get"))
-          .forEach(m => {
-            let r = {};
-            r.group = c;
-            r.title = m.replace(/([A-Z])/g, " $1").replace("get ", "");
-            r.action = library[c][m];
-
-            r.params = this.getParamNames(library[c][m]).filter(
-              p => !p.includes("callback")
-            );
-
-            r.formComponents = [];
-            r.params.forEach(p => {
-              if (!this.paramComponents[p]) {
-                return;
-              }
-              r.formComponents.push(this.paramComponents[p]);
-            });
-
-            // moves param map to single argument
-            /*
-            if (r.params) {
-              r.params = r.params[0];
-            }
-            */
-            console.log("r ", r); // DEBUGGING
-            console.log("r.params", r.params);
-            console.log("r.formComponents", r.formComponents);
-
-            reports.push(r);
-          });
+    getSelectors(params) {
+      let selectors = [];
+      params.forEach(p => {
+        selectors.push(this.paramComponentMap[p].components);
       });
-      reports.sort(function(a, b) {
-        if (a.title < b.title) return -1;
-        if (a.title > b.title) return 1;
-        return 0;
-      });
-      return reports;
+      return selectors;
     },
+    getParamVals(params) {
+      let paramVals = [];
+      params.forEach(p => {
+        paramVals.push(this.paramComponentMap[p].paramsVal);
+      });
+      return paramVals;
+    },
+
     test() {
       let test = this.$merakiSdk.DevicesController.getNetworkDevice(
         this.net.id,
@@ -311,10 +516,9 @@ export default Vue.extend({
         .catch(e => console.log(e));
     },
 
-    onGenerateReports() {
-      //this.reports = this.generateReports(merakiSdk);
-      this.reports = this.generateReports(this.$merakiSdk);
-    },
+    // *****
+    // UI
+    // *****
     onSearch(report) {
       console.log("onSearch event", report.group);
       this.selectedGroup = report.group; //{ group: report.group };
@@ -329,26 +533,12 @@ export default Vue.extend({
       );
     },
     onRunReport() {
-      //this.$store.commit("setLoading", true);
-      console.log("this.selectedReport.params", this.selectedReport.params);
-      let params = this.selectedReport.params;
-      let paramVals = [];
-      params.forEach(p => paramVals.push(this.params[p]));
-      console.log("onRunReport params", params);
-      console.log("onRunReport paramsVals", paramVals);
-      this.selectedReport.action // if method only requires one paramater, extram param object to just single value
-        .apply(null, paramVals)
-        //.action(Object.values(this.selectedReport.params))
-        /*
-        .action(
-          this.selectedReport.params.length > 0
-            ? this.selectedReport.params
-            : Object.values(this.selectedReport.params)[0]
-        )
-        */
+      // Run Report
+      this.selectedReport.action
+        .apply(null, this.selectedReport.paramVals)
         .then(res => {
           if (!Array.isArray(res)) {
-            res = [res];
+            res = [res]; // if single param, convert array to single value
           }
           this.reportData = res;
           this.reportToSheet();

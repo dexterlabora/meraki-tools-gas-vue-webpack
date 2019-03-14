@@ -8,6 +8,10 @@
       <v-icon>view_list</v-icon>
     </v-btn>
 
+    <v-btn icon to="/reports-auto" v-if="beta">
+      <v-icon>view_list</v-icon>
+    </v-btn>
+
     <v-btn icon to="/tools">
       <v-icon>build</v-icon>
     </v-btn>
@@ -28,6 +32,12 @@ export default Vue.extend({
   data() {
     return {};
   },
+  computed: {
+    beta: function() {
+      return this.$store.state.beta;
+    }
+  },
+
   methods: {}
 });
 </script>

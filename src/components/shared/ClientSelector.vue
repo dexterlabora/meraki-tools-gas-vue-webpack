@@ -1,5 +1,6 @@
 <template id="client-selector">
   <div>
+    <devices-selector></devices-selector>
     <v-select
       v-bind:items="clients"
       item-text="dhcpHostname"
@@ -13,9 +14,13 @@
 
 <script>
 import Vue from "vue";
+import DevicesSelector from "./DevicesSelector";
 
 export default Vue.extend({
   template: "#client-selector",
+  components: {
+    DevicesSelector
+  },
   computed: {
     devices: function() {
       return this.$store.state.devices;
@@ -43,7 +48,7 @@ export default Vue.extend({
     async fetchClients() {
       this.clients = [];
 
-      for (let d = 0; d < this.devices.length; d++) {
+      for (let d in this.devices) {
         const api = await this.$merakiSdk.ClientsController.getDeviceClients(
           this.devices[d].serial,
           this.timespan

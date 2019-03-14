@@ -12,10 +12,16 @@ export default new Vuex.Store({
   state: {
     apiKey: "", // Meraki Sandbox
     apiUrl: "https://api.meraki.com/api/v0",
+    actionBatch: {},
+    actionBatches: [],
+    beta: false,
+    bleClient: {},
+    bleClients: [],
     client: {},
     clients: [],
     device: {},
     devices: [],
+    firewalledService: "",
     input: "",
     net: {},
     nets: [],
@@ -23,7 +29,13 @@ export default new Vuex.Store({
     orgs: [],
     ssid: {},
     ssids: [],
+    switchPort: {},
+    switchPorts: [],
     timespan: "7200",
+    t0: 0,
+    t1: 0,
+    vlan: {},
+    vlans: [],
     zone: {},
     zones: [],
     loading: false
@@ -37,10 +49,21 @@ export default new Vuex.Store({
       state.apiUrl = payload;
       meraki.setDomain(payload);
     },
+    setActionBatch(state, payload) {
+      state.actionBatch = payload;
+    },
+    setActionBatches: (state, payload) => (state.actionBatches = payload),
     setClient(state, payload) {
       state.client = payload;
     },
     setClients: (state, payload) => (state.clients = payload),
+    setBleClient(state, payload) {
+      state.bleClient = payload;
+    },
+    setBeta(state, payload) {
+      state.beta = payload;
+    },
+    setBleClients: (state, payload) => (state.bleClients = payload),
     setDevice(state, payload) {
       state.device = payload;
     },
@@ -55,7 +78,10 @@ export default new Vuex.Store({
     setOrg(state, payload) {
       state.org = payload;
     },
+
     setOrgs: (state, payload) => (state.orgs = payload),
+    setFirewalledService: (state, payload) =>
+      (state.firewalledService = payload),
     setSsid(state, payload) {
       state.ssid = payload;
     },
@@ -63,6 +89,16 @@ export default new Vuex.Store({
     setTimespan(state, payload) {
       state.timespan = payload;
     },
+    setT0(state, payload) {
+      state.t0 = payload;
+    },
+    setT1(state, payload) {
+      state.t1 = payload;
+    },
+    setSwitchPort: (state, payload) => (state.switchPort = payload),
+    setSwitchPorts: (state, payload) => (state.switchPorts = payload),
+    setVlan: (state, payload) => (state.vlan = payload),
+    setVlans: (state, payload) => (state.vlans = payload),
     setZone(state, payload) {
       state.zone = payload;
     },

@@ -1,41 +1,63 @@
 <template id="devices-selector">
-  <v-select
-    :items="devices"
-    v-model="devicesSelected"
-    label="Devices"
-    item-text="name"
-    :menu-props="{ maxHeight: '400' }"
-    return-object
-    chips
-    multiple
-    clearable
-  >
-    <template slot="selection" slot-scope="{ item, index }">
-      <v-chip v-if="index === 0">
-        <span>{{ item.name }}</span>
-      </v-chip>
-      <span v-if="index === 1" class="grey--text caption">(+{{ devicesSelected.length - 1 }} others)</span>
-    </template>
-  </v-select>
+  <div>
+    <v-select
+      :items="models"
+      v-model="modelSelected"
+      label="Model"
+      class="input-group--focused"
+      single-line
+    ></v-select>
+    <v-select
+      :items="filteredDevices"
+      v-model="devicesSelected"
+      label="Devices"
+      item-text="name"
+      :menu-props="{ maxHeight: '400' }"
+      return-object
+      chips
+      multiple
+      clearable
+    >
+      <template slot="selection" slot-scope="{ item, index }">
+        <v-chip v-if="index === 0">
+          <span>{{ item.name }}</span>
+        </v-chip>
+        <span
+          v-if="index === 1"
+          class="grey--text caption"
+        >(+{{ devicesSelected.length - 1 }} others)</span>
+      </template>
+    </v-select>
+  </div>
 </template>
 
 <script>
 import Vue from "vue";
 export default Vue.extend({
   template: "#devices-selector",
+  data() {
+    return {
+      devicesSelected: [],
+      modelSelected: {},
+      devices: [],
+      models: ["MX", "MR", "MS", "MV"]
+    };
+  },
   computed: {
     net: function() {
       return this.$store.state.net;
+    },
+    /*
+    devices: function() {
+      return this.$store.state.devices;
+    },
+    */
+    filteredDevices() {
+      return this.devices.filter(d => d.model.includes(this.modelSelected));
     }
   },
   created: function() {
     this.fetchDevices();
-  },
-  data() {
-    return {
-      devicesSelected: {},
-      devices: []
-    };
   },
   methods: {
     fetchDevices() {
@@ -50,6 +72,9 @@ export default Vue.extend({
   watch: {
     devicesSelected() {
       this.$store.commit("setDevices", this.devicesSelected); // set state
+    },
+    modelSelected() {
+      this.devicesSelected = this.filteredDevices;
     },
     net: function() {
       this.fetchDevices();

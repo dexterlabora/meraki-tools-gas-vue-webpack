@@ -1,5 +1,9 @@
 <template id="page-reports">
   <v-container>
+    <!--
+    <org-selector></org-selector>
+    <net-selector></net-selector>
+    -->
     <v-layout wrap>
       <v-flex xs12 sm6 md6>
         <v-select
@@ -25,10 +29,16 @@ import ToolProvisionClient from "../tools/tool-provision-client.vue";
 import ToolClaimOrder from "../tools/tool-claim-order.vue";
 import ToolConfigureSsid from "../tools/tool-configure-ssid.vue";
 import ToolConfigureVlan from "../tools/tool-configure-vlan.vue";
+import OrgSelector from "../shared/OrgSelector.vue";
+import NetSelector from "../shared/NetSelector.vue";
 
 import Vue from "vue";
 export default Vue.extend({
   template: "#page-tools",
+  components: {
+    "org-selector": OrgSelector,
+    "net-selector": NetSelector
+  },
   data() {
     return {
       selectedTool: {},

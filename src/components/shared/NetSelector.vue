@@ -1,16 +1,14 @@
 <template id="net-selector">
-  <v-layout row>
-    <v-flex xs12 sm6 md6 pt-2>
-      <v-select
-        v-bind:items="nets"
-        item-text="name"
-        item-value="id"
-        return-object
-        v-model="form.net"
-        label="Networks"
-      ></v-select>
-    </v-flex>
-  </v-layout>
+  <div>
+    <v-select
+      v-bind:items="nets"
+      item-text="name"
+      item-value="id"
+      return-object
+      v-model="form.net"
+      label="Networks"
+    ></v-select>
+  </div>
 </template>
 
 <script>

@@ -1,18 +1,16 @@
 <template id="org-selector">
-  <v-layout row>
-    <v-flex xs12 sm6 md6 pt-2>
-      <v-select
-        v-bind:items="orgs"
-        item-text="name"
-        item-value="id"
-        return-object
-        v-model="form.org"
-        label="Organizations"
-        mask
-        :disabled="!apiKey"
-      ></v-select>
-    </v-flex>
-  </v-layout>
+  <div>
+    <v-select
+      v-bind:items="orgs"
+      item-text="name"
+      item-value="id"
+      return-object
+      v-model="form.org"
+      label="Organizations"
+      mask
+      :disabled="!apiKey"
+    ></v-select>
+  </div>
 </template>
 
 <script>
@@ -36,6 +34,9 @@ export default Vue.extend({
     },
     apiUrl: function() {
       return this.$store.state.apiUrl;
+    },
+    org: function() {
+      return this.$store.state.org;
     }
   },
   created() {
@@ -65,6 +66,9 @@ export default Vue.extend({
     apiUrl(newVal, oldVal) {
       console.log("apiUrl updated, fetching orgs");
       this.fetchOrgs();
+    },
+    org() {
+      this.form.org = this.org;
     },
     orgs() {
       this.form.org = this.orgs[0] || "";

@@ -7,6 +7,9 @@
       <v-flex xs12 md12 lg12 pt-5>
         <api-url-input></api-url-input>
       </v-flex>
+      <v-flex xs12 md12 lg12 pt-5>
+        <v-switch v-model="form.beta" label="Use beta code" @change="onBeta"></v-switch>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -25,13 +28,17 @@ export default Vue.extend({
     return {
       showApiKey: false,
       form: {
-        apiKey: ""
+        apiKey: "",
+        beta: false
       }
     };
   },
   computed: {
     apiKey: function() {
       return this.$store.state.apiKey;
+    },
+    beta: function() {
+      return this.$store.state.beta;
     }
   },
   mounted: function() {
@@ -42,6 +49,9 @@ export default Vue.extend({
     updateApiKey: function() {
       this.$store.commit("setApiKey", this.form.apiKey);
       this.$meraki.setApiKey(this.form.apiKey);
+    },
+    onBeta: function() {
+      this.$store.commit("setBeta", this.form.beta);
     }
   }
 });
