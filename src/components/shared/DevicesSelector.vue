@@ -14,13 +14,13 @@
       item-text="name"
       :menu-props="{ maxHeight: '400' }"
       return-object
-      chips
+      small-chips
       multiple
       clearable
     >
       <template slot="selection" slot-scope="{ item, index }">
-        <v-chip v-if="index === 0">
-          <span>{{ item.name }}</span>
+        <v-chip small v-if="index === 0">
+          <span class="small-chips">{{ item.name }}</span>
         </v-chip>
         <span
           v-if="index === 1"
@@ -84,4 +84,7 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.small-chips {
+  font-size: xx-small;
+}
 </style>

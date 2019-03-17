@@ -5,8 +5,12 @@ export function writeCsvData(csvContent) {
   var sheet = ss.getActiveSheet();
 */
   // Display Data
-
-  var csvData = Utilities.parseCsv(csvContent);
+  var csvData;
+  if (!csvContent) {
+    csvData = "no data";
+  } else {
+    csvData = Utilities.parseCsv(csvContent);
+  }
 
   var sheet = SpreadsheetApp.getActiveSheet();
   sheet

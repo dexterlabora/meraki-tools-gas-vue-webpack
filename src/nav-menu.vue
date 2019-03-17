@@ -9,7 +9,7 @@
     </v-btn>
 
     <v-btn icon to="/reports-auto" v-if="beta">
-      <v-icon>view_list</v-icon>
+      <v-icon>stars</v-icon>
     </v-btn>
 
     <v-btn icon to="/tools">

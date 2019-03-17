@@ -1,6 +1,6 @@
 <template id="page-reports">
-  <v-container>
-    <v-layout>
+  <v-container class="pa-1">
+    <v-layout fluid>
       <v-flex xs12 md12>
         <v-card>
           <v-card-title>
@@ -40,7 +40,7 @@
                 <v-btn @click="browseByGroup = !browseByGroup">Browse by Group</v-btn>
               </v-flex>
               <div v-if="browseByGroup">
-                <v-flex xs12 sm6 md4 pt-2 d-flex>
+                <v-flex xs12 sm6 md6 pt-2 d-flex>
                   <v-select
                     v-model="selectedGroup"
                     :items="groups"
@@ -76,7 +76,7 @@
           </v-card-text>
         </v-card>
 
-        <v-flex xs12 sm12 md12 pt-2 v-if="reportData.length > 0">
+        <v-flex xs12 sm12 md12 pt-2 v-if="displayJson">
           <v-card>
             <v-card-title>
               <h3>JSON Results</h3>
@@ -144,6 +144,9 @@ export default Vue.extend({
     },
     client: function() {
       return this.$store.state.client;
+    },
+    displayJson: function() {
+      return this.$store.state.displayJson;
     },
     org: function() {
       return this.$store.state.org;
@@ -257,10 +260,20 @@ export default Vue.extend({
                     $queryParameters: { timespan: this.timespan }
                   })
                   .then(res => res.data);
-                clients.map(c => (c.device = d));
+                // add device details to report
+                clients.map(c => {
+                  c.usageSent = c.usage.sent;
+                  c.usageRecv = c.usage.recv;
+                  c.deviceName = d.name;
+                  c.deviceSerial = d.serial;
+                  c.deviceMac = d.mac;
+                  c.deviceModel = d.model;
+                  delete c.usage;
+                  return c;
+                });
                 allClients = [...allClients, ...clients];
-                return allClients;
               }
+              return allClients;
             } catch (error) {
               console.log(error);
             }
@@ -725,7 +738,25 @@ export default Vue.extend({
           formComponents: [],
           group: "Static Routes"
         },
-
+        // Switch Ports -- NEW LIBRARY
+        {
+          title: "Get Device Switch Ports",
+          action: async () =>
+            await this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
+              this.device.serial
+            ),
+          formComponents: [DeviceSelector],
+          group: "Switch Ports"
+        },
+        {
+          title: "Get Network Switch Settings",
+          action: async () =>
+            await this.$merakiSdk.SwitchSettingsController.getNetworkSwitchSettings(
+              this.net.id
+            ),
+          formComponents: [],
+          group: "Switch Settings"
+        },
         // wireless health
         {
           // getNetworkConnectionStats query: ?t0={{t0}}&t1={{t1}}&vlan&ssid
@@ -926,7 +957,14 @@ export default Vue.extend({
             res = [res];
           }
           this.reportData = res;
-          this.reportToSheet();
+          console.log("onRunReport reportData ", res);
+          /*
+          let bigIntFix = JSON.stringify(res).replace(
+            /:([0-9]{15,}),/g,
+            ':"$1",'
+          );
+          */
+          this.reportToSheet(res);
         })
         .catch(e => {
           console.log("onRunReport error ", e);
@@ -964,6 +1002,7 @@ export default Vue.extend({
     },
     reportToSheet() {
       if (typeof google !== "undefined") {
+        //const flatData = _.flattenDepth(this.reportData, 2);
         this.$utilities.writeData(this.reportData, google);
       }
     }

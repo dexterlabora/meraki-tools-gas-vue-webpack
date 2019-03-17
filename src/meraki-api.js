@@ -12,7 +12,7 @@ export const setDomain = $domain => {
 // Custom
 let apiKey = ''
 let service = 'gas' //  'gas' or 'axios' 
-var JSONbig = require("json-bigint");
+var JSONbig = require("json-bigint")({ "storeAsString": true });
 
 export const setApiKey = $apiKey => {
   apiKey = $apiKey;

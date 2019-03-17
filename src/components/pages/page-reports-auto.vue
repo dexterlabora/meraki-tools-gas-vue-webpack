@@ -2,9 +2,10 @@
   <v-container>
     <v-layout>
       <v-flex xs12 md12>
+        <p>BETA - These reports are dynamically generated and have not been fully tested</p>
         <v-card>
           <v-card-title>
-            <h3>Reports</h3>
+            <h3>Generated Reports</h3>
           </v-card-title>
           <v-card-text>
             <div>

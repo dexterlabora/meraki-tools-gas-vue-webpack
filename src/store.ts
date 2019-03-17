@@ -3,6 +3,10 @@ import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import * as Cookies from "js-cookie";
 import * as meraki from "./meraki-api.js";
+import * as merakiSdk from "./lib";
+
+const configuration = merakiSdk.Configuration;
+
 Vue.use(Vuex);
 // *****
 // Central State Mangement
@@ -21,6 +25,7 @@ export default new Vuex.Store({
     clients: [],
     device: {},
     devices: [],
+    displayJson: false,
     firewalledService: "",
     input: "",
     net: {},
@@ -44,10 +49,12 @@ export default new Vuex.Store({
     setApiKey: (state, payload) => {
       state.apiKey = payload;
       meraki.setApiKey(payload);
+      configuration.xCiscoMerakiAPIKey = payload;
     },
     setApiUrl(state, payload) {
       state.apiUrl = payload;
       meraki.setDomain(payload);
+      configuration.BASEURI = payload;
     },
     setActionBatch(state, payload) {
       state.actionBatch = payload;
@@ -68,6 +75,7 @@ export default new Vuex.Store({
       state.device = payload;
     },
     setDevices: (state, payload) => (state.devices = payload),
+    setDisplayJson: (state, payload) => (state.displayJson = payload),
     setNet(state, payload) {
       state.net = payload;
     },

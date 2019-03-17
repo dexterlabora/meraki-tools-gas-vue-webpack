@@ -9,7 +9,7 @@
     <div id="app">
       <v-app>
         <v-content>
-          <v-container>
+          <v-container class="pa-1">
             <nav-menu></nav-menu>
 
             <org-selector></org-selector>
@@ -50,9 +50,13 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit("setLoading", false); // clears any loaders at init
     //this.$router.push("/home");
   }
 };
 </script>
 <style>
+.tight {
+  padding: 1px !important;
+}
 </style>
