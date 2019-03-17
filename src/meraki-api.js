@@ -11,7 +11,7 @@ export const setDomain = $domain => {
 
 // Custom
 let apiKey = ''
-let service = 'gas' //  'gas' or 'axios' 
+let service = process.env.VUE_APP_SERVICE;'' //  'gas' or 'axios' 
 var JSONbig = require("json-bigint")({ "storeAsString": true });
 
 export const setApiKey = $apiKey => {
@@ -38,7 +38,7 @@ export const request = (method, url, body, queryParameters, form, config) => {
     if (keys.length > 0) {
         queryUrl = url + '?' + qs.stringify(queryParameters)
     }
-    if(service == "gas"){
+    if(service !== "dev"){
         const options = {
             contentType: "application/json",
             method: method,
@@ -59,7 +59,7 @@ export const request = (method, url, body, queryParameters, form, config) => {
             return googleFetch(queryUrl, qs.stringify(form), config); // not sure how to handle qs properly in GAS
         }
     }
-    if(service == "axios"){
+    else {
         if (body) {
             return axios[method](queryUrl, body, config)
         } else if (method === 'get') {
@@ -75,7 +75,7 @@ export const request = (method, url, body, queryParameters, form, config) => {
 
 export const googleFetch = (url, options, body) => {
     return new Promise((resolve, reject) => {
-        if(!google){reject('not running on google apps server')}
+        if (typeof google == "undefined") {reject('not running on google apps server')}
         google.script.run
             .withSuccessHandler(response => {
                 //console.log("fetch res: ", response);

@@ -12,18 +12,18 @@
               <p>
                 <v-btn icon to="/settings">
                   <v-icon>lock</v-icon>
-                </v-btn>Update your API key.
+                </v-btn>Update your API key
               </p>
               <p>
                 <v-btn icon to="/reports">
                   <v-icon>view_list</v-icon>
-                </v-btn>Generate a Report into the active cell.
+                </v-btn>Generate a Report
               </p>
 
               <p>
                 <v-btn icon to="/tools">
                   <v-icon>build</v-icon>
-                </v-btn>Use the Tools to make changes.
+                </v-btn>Network Tools
               </p>
             </v-flex>
           </v-card-text>

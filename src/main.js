@@ -25,13 +25,13 @@ const configuration = merakiSdk.Configuration;
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
 if (process.env.VUE_APP_SERVICE == "axios") {
   Store.commit("setApiUrl", "http://localhost:8085/api");
-  meraki.setService("axios");
+  meraki.setService("dev");
 }
 
 Vue.prototype.$meraki = meraki;
 Vue.prototype.$merakiSdk = merakiSdk;
 
-import * as utilities from "./utilities.ts";
+import * as utilities from "./utilities.js";
 Vue.prototype.$utilities = utilities;
 
 new Vue({
@@ -43,6 +43,7 @@ new Vue({
     this.$meraki.setDomain(this.$store.state.apiUrl);
     this.$meraki.setApiKey(this.$store.state.apiKey);
 
+    // new
     configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
     configuration.BASEURI = this.$store.state.apiUrl;
   },

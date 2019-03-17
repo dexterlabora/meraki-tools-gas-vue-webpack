@@ -1,7 +1,7 @@
 <template id="device-selector">
   <div>
     <v-select
-      v-bind:items="devices"
+      v-bind:items="filteredDevices"
       item-text="name"
       item-value="serial"
       return-object
@@ -22,12 +22,20 @@
 import Vue from "vue";
 export default Vue.extend({
   template: "#device-selector",
+  props: ["model"],
   computed: {
     net: function() {
       return this.$store.state.net;
     },
     deviceName: function() {
       return this.device.name + " - " + this.device.model;
+    },
+    filteredDevices: function() {
+      if (this.model) {
+        return this.devices.filter(d => d.model.includes(this.model));
+      } else {
+        return this.devices;
+      }
     }
   },
   created: function() {

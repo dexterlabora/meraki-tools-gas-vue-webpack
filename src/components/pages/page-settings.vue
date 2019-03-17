@@ -35,7 +35,6 @@ export default Vue.extend({
     return {
       showApiKey: false,
       form: {
-        //apiKey: "",
         beta: false,
         displayJson: false
       }
@@ -49,11 +48,15 @@ export default Vue.extend({
     */
     beta: function() {
       return this.$store.state.beta;
+    },
+    displayJson: function() {
+      return this.$store.state.displayJson;
     }
   },
   mounted: function() {
     //this.form.apiKey = this.apiKey;
     this.form.beta = this.beta;
+    this.form.displayJson = this.displayJson;
     //this.$meraki.setApiKey(this.apiKey);
   },
   methods: {

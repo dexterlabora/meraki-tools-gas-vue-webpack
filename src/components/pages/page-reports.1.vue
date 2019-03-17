@@ -68,9 +68,9 @@
                 pt-2
                 d-flex
                 v-for="component in selectedReport.formComponents"
-                :key="component.component.title"
+                :key="component.title"
               >
-                <component :is="component.component" v-bind="component.attributes"></component>
+                <component :is="component"></component>
               </v-flex>
             </div>
           </v-card-text>
@@ -216,7 +216,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Bluetooth Clients"
         },
         // Cameras
@@ -232,10 +232,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Cameras"
         },
         // Clients
@@ -248,10 +245,7 @@ export default Vue.extend({
                 $queryParameters: { timespan: this.timespan }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Clients"
         },
         {
@@ -284,10 +278,7 @@ export default Vue.extend({
               console.log(error);
             }
           },
-          formComponents: [
-            { component: DevicesSelector },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DevicesSelector, TimespanSelector],
           group: "Clients"
         },
         /*
@@ -317,11 +308,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DevicesSelector },
-            { component: ClientSelector },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DevicesSelector, ClientSelector, TimespanSelector],
           group: "Clients"
         },
         // Configuration Templates
@@ -345,7 +332,7 @@ export default Vue.extend({
                 serial: this.device.serial
               })
               .then(res => res.data),
-          formComponents: [{ component: DeviceSelector }],
+          formComponents: [DeviceSelector],
           group: "Devices"
         },
         {
@@ -366,19 +353,7 @@ export default Vue.extend({
                 serial: this.device.serial
               })
               .then(res => res.data),
-          formComponents: [{ component: DeviceSelector }],
-          group: "Devices"
-        },
-        // Devices
-        {
-          title: "Network Device Loss And Latency History",
-          action: async () =>
-            await this.$merakiSdk.DevicesController.getNetworkDeviceLossAndLatencyHistory(
-              this.net.id,
-              this.device.serial,
-              "8.8.8.8"
-            ).then(res => res.data),
-          formComponents: [{ component: DeviceSelector }],
+          formComponents: [DeviceSelector],
           group: "Devices"
         },
         // Group Policies
@@ -439,7 +414,7 @@ export default Vue.extend({
                 number: this.ssid.number
               })
               .then(res => res.data),
-          formComponents: [{ component: SsidSelector }],
+          formComponents: [SsidSelector],
           group: "MR L3 Firewall Rules"
         },
         // MX Cellular Firewall Rules
@@ -529,7 +504,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Networks"
         },
         {
@@ -543,7 +518,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Networks"
         },
         // Organizations
@@ -620,10 +595,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Sense"
         },
         {
@@ -637,10 +609,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Sense"
         },
         {
@@ -657,11 +626,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: ZoneSelector },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, ZoneSelector, TimespanSelector],
           group: "Sense"
         },
         {
@@ -675,10 +640,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Sense"
         },
         {
@@ -692,10 +654,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MV" } },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Sense"
         },
         // Splash Settings
@@ -708,7 +667,7 @@ export default Vue.extend({
                 number: this.ssid.number
               })
               .then(res => res.data),
-          formComponents: [{ component: SsidSelector }],
+          formComponents: [SsidSelector],
           group: "Splash Settings"
         },
         // SSIDS
@@ -739,7 +698,7 @@ export default Vue.extend({
                 number: this.ssid.number
               })
               .then(res => res.data),
-          formComponents: [{ component: SsidSelector }],
+          formComponents: [SsidSelector],
           group: "SSIDs"
         },
         // Syslog Servers
@@ -786,9 +745,7 @@ export default Vue.extend({
             await this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
               this.device.serial
             ),
-          formComponents: [
-            { component: DeviceSelector, attributes: { model: "MS" } }
-          ],
+          formComponents: [DeviceSelector],
           group: "Switch Ports"
         },
         {
@@ -814,7 +771,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -829,7 +786,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -845,7 +802,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -861,7 +818,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -876,7 +833,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -892,10 +849,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [
-            { component: DeviceSelector },
-            { component: TimespanSelector }
-          ],
+          formComponents: [DeviceSelector, TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -910,7 +864,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {
@@ -925,7 +879,7 @@ export default Vue.extend({
                 }
               })
               .then(res => res.data),
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [TimespanSelector],
           group: "Wireless Health"
         },
         {

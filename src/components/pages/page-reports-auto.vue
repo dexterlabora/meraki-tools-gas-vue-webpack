@@ -3,7 +3,7 @@
     <v-layout>
       <v-flex xs12 md12>
         <p>BETA - These reports are dynamically generated and have not been fully tested</p>
-        <v-card>
+        <v-card pb-4>
           <v-card-title>
             <h3>Generated Reports</h3>
           </v-card-title>
