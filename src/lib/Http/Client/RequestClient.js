@@ -60,13 +60,17 @@ const appendFormdata = function appendFormdata(form, data) {
 };
 
 const convertHttpResponse = function convertHttpResponse(resp) {
+  console.log("convertHttpResponse, resp", resp);
   const response = new HttpResponse();
   if (resp) {
-    response.body = JSONbig.parse(JSON.stringify(resp.body));
+    //response.body = JSONbig.parse(JSON.stringify(resp.body));
+    //response.body = JSONbig.parse(resp.body);
+    //response.body = resp.body;
+    response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
     response.headers = resp.headers;
     response.statusCode = resp.statusCode;
   }
-  console.log("convertHttpResponse, response", response);
+  console.log("convertHttpResponse, response (after JSONBig)", response);
   return response;
 };
 

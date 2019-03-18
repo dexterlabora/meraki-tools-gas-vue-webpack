@@ -2,8 +2,7 @@
 
 const HttpResponse = require("../Response/HttpResponse");
 
-/*
-var JSONbig = require("json-bigint")({ storeAsString: true });
+const JSONbig = require("json-bigint")({ storeAsString: true });
 
 // regex all
 function regexall(input) {
@@ -11,16 +10,16 @@ function regexall(input) {
 }
 
 // regex big
+
 function regexbig(input) {
   return JSON.parse(input.replace(/:([0-9]{15,}),/g, ':"$1",'));
 }
-*/
 
 const convertHttpResponse = function convertHttpResponse(resp) {
   const response = new HttpResponse();
   if (resp) {
     response.body = resp;
-    response.headers = resp.headers;
+    response.headers = resp.headers; //this is not right
     response.statusCode = 200; // hard coded status code. could be better ...
   }
   return response;
@@ -39,7 +38,10 @@ const gasRequest = function gasRequest(req, callback) {
     .withSuccessHandler(response => {
       console.log("gasRequest  .fetch res: ", response);
       try {
-        const parsed = response;
+        //const parsed = regexbig(response);
+        //const parsed = JSONbig.parse(JSON.stringify(response));
+        const parsed = JSONbig.parse(response);
+        console.log("gasRequest  .fetch parsed: ", parsed);
         return callback(null, convertHttpResponse(parsed));
       } catch (e) {
         return callback(null, convertHttpResponse(response));
