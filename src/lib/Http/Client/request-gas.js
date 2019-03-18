@@ -2,7 +2,8 @@
 
 const HttpResponse = require("../Response/HttpResponse");
 
-var JSONbig = require("json-bigint");
+/*
+var JSONbig = require("json-bigint")({ storeAsString: true });
 
 // regex all
 function regexall(input) {
@@ -13,6 +14,7 @@ function regexall(input) {
 function regexbig(input) {
   return JSON.parse(input.replace(/:([0-9]{15,}),/g, ':"$1",'));
 }
+*/
 
 const convertHttpResponse = function convertHttpResponse(resp) {
   const response = new HttpResponse();
@@ -37,7 +39,7 @@ const gasRequest = function gasRequest(req, callback) {
     .withSuccessHandler(response => {
       console.log("gasRequest  .fetch res: ", response);
       try {
-        const parsed = regexbig(response);
+        const parsed = response;
         return callback(null, convertHttpResponse(parsed));
       } catch (e) {
         return callback(null, convertHttpResponse(response));

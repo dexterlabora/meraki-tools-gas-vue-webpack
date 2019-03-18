@@ -9,11 +9,12 @@
 const HttpContext = require("./HttpContext");
 const HttpResponse = require("../Response/HttpResponse");
 //const request = require("request");
-//const request = require("./request-gas");
 const APIHelper = require("../../APIHelper");
 
-// CUSTOM GOOGLE APPS REQUEST HANDLER - BY CORY
+// CUSTOM Meraki Big ID numbers
+const JSONbig = require("json-bigint")({ storeAsString: true });
 
+// CUSTOM GOOGLE APPS REQUEST HANDLER - BY CORY
 var request;
 if (process.env.VUE_APP_SERVICE == "dev") {
   request = require("request");
@@ -61,11 +62,11 @@ const appendFormdata = function appendFormdata(form, data) {
 const convertHttpResponse = function convertHttpResponse(resp) {
   const response = new HttpResponse();
   if (resp) {
-    response.body = resp.body;
+    response.body = JSONbig.parse(JSON.stringify(resp.body));
     response.headers = resp.headers;
     response.statusCode = resp.statusCode;
   }
-
+  console.log("convertHttpResponse, response", response);
   return response;
 };
 

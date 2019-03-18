@@ -23,7 +23,7 @@ const configuration = merakiSdk.Configuration;
 
 // For Local Development
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
-if (process.env.VUE_APP_SERVICE == "axios") {
+if (process.env.VUE_APP_SERVICE == "dev") {
   Store.commit("setApiUrl", "http://localhost:8085/api");
   meraki.setService("dev");
 }
