@@ -200,7 +200,7 @@ export default Vue.extend({
               .getOrganizationAdmins({
                 organizationId: this.org.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Admins"
         },
@@ -217,7 +217,7 @@ export default Vue.extend({
                   method: this.method
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: TimespanSelector },
             { component: MethodSelector }
@@ -232,7 +232,7 @@ export default Vue.extend({
               .getNetworkAlertSettings({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Alert Settings"
         },
@@ -249,7 +249,7 @@ export default Vue.extend({
                   perPage: 20
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Bluetooth Clients"
         },
@@ -265,7 +265,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: TimespanSelector }
@@ -281,7 +281,7 @@ export default Vue.extend({
                 serial: this.device.serial,
                 $queryParameters: { timespan: this.timespan }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector },
             { component: TimespanSelector }
@@ -313,7 +313,8 @@ export default Vue.extend({
                 });
                 allClients = [...allClients, ...clients];
               }
-              return allClients;
+              this.toReport(allClients);
+              //return allClients;
             } catch (error) {
               console.log(error);
             }
@@ -324,20 +325,114 @@ export default Vue.extend({
           ],
           group: "Clients"
         },
-        /*
         {
-          title: "Network Clients",
-          action: async () =>
-            await reports
-              .getDevicesClients({
-                serials: this.devices.map(d => d.serial),
-                $queryParameters: { timespan: this.timespan }
-              })
-              .then(res => res.data),
-          formComponents: [DevicesSelector, TimespanSelector],
+          title: "Network Clients (streaming)",
+          action: async () => {
+            try {
+              let allClients = [];
+              //for (let [i, d] of this.devices) {
+
+              for (let i = 0; i < this.devices.length; i++) {
+                let d = this.devices[i];
+                let clients = await this.$meraki
+                  .getDeviceClients({
+                    serial: d.serial,
+                    $queryParameters: { timespan: this.timespan }
+                  })
+                  .then(res => res.data);
+                // add device details to report
+                clients.map(c => {
+                  c.usageSent = c.usage.sent;
+                  c.usageRecv = c.usage.recv;
+                  c.deviceName = d.name;
+                  c.deviceSerial = d.serial;
+                  c.deviceMac = d.mac;
+                  c.deviceModel = d.model;
+                  delete c.usage;
+                  return c;
+                });
+                if (i > 0) {
+                  this.toReport(clients, true);
+                } else {
+                  this.toReport(clients);
+                }
+
+                //allClients = [...allClients, ...clients];
+              }
+              //this.toReport(allClients);
+              //return allClients;
+            } catch (error) {
+              console.log(error);
+            }
+          },
+          formComponents: [
+            { component: DevicesSelector },
+            { component: TimespanSelector }
+          ],
           group: "Clients"
         },
-        */
+        {
+          title: "Organization Clients (streaming)",
+          action: async () => {
+            try {
+              // loop through organization networks
+              for (let n = 0; n < this.nets.length; n++) {
+                const net = this.nets[n];
+                console.log("Organization Clients net ", net);
+                const devices = await this.$meraki
+                  .getNetworkDevices({ networkId: net.id })
+                  .then(res => res.data);
+
+                // loop through network devices
+                if (!devices) {
+                  continue;
+                }
+                for (let i = 0; i < devices.length; i++) {
+                  const device = devices[i];
+                  // get clients for each device
+                  const clients = await this.$meraki
+                    .getDeviceClients({
+                      serial: device.serial,
+                      $queryParameters: { timespan: this.timespan }
+                    })
+                    .then(res => res.data)
+                    .catch(e =>
+                      console.log(
+                        "error getting clients for serial",
+                        device.serial,
+                        e
+                      )
+                    );
+                  // add device details to report
+                  if (!clients) {
+                    continue;
+                  }
+                  clients.map(c => {
+                    c.usageSent = c.usage.sent;
+                    c.usageRecv = c.usage.recv;
+                    c.deviceName = device.name;
+                    c.deviceSerial = device.serial;
+                    c.deviceMac = device.mac;
+                    c.deviceModel = device.model;
+                    c.networkId = net.id;
+                    c.networkName = net.name;
+                    delete c.usage;
+                    return c;
+                  });
+                  if (i > 0) {
+                    this.toReport(clients, true);
+                  } else {
+                    this.toReport(clients);
+                  }
+                }
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          },
+          formComponents: [{ component: TimespanSelector }],
+          group: "Clients"
+        },
         {
           title: "Security events",
           action: async () =>
@@ -350,9 +445,8 @@ export default Vue.extend({
                   perPage: 100
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
-            { component: DevicesSelector },
             { component: ClientSelector },
             { component: TimespanSelector }
           ],
@@ -366,7 +460,7 @@ export default Vue.extend({
               .getOrganizationConfigTemplates({
                 organizationId: this.org.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Configuration Templates"
         },
@@ -378,7 +472,7 @@ export default Vue.extend({
                 networkId: this.net.id,
                 serial: this.device.serial
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: DeviceSelector }],
           group: "Devices"
         },
@@ -387,7 +481,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getNetworkDevices({ networkId: this.net.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Devices"
         },
@@ -399,7 +493,7 @@ export default Vue.extend({
                 networkId: this.net.id,
                 serial: this.device.serial
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: DeviceSelector }],
           group: "Devices"
         },
@@ -411,7 +505,7 @@ export default Vue.extend({
               this.net.id,
               this.device.serial,
               "8.8.8.8"
-            ).then(res => res.data),
+            ).then(res => this.toReport(res.data)),
           formComponents: [{ component: DeviceSelector }],
           group: "Devices"
         },
@@ -423,7 +517,7 @@ export default Vue.extend({
               .getNetworkGroupPolicies({
                 id: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Group Policies"
         },
@@ -435,7 +529,7 @@ export default Vue.extend({
               .getNetworkHttpServers({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "HTTP Servers (Webhooks)"
         },
@@ -447,7 +541,7 @@ export default Vue.extend({
               .getNetworkFirewalledServices({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Firewalled Services"
         },
@@ -459,7 +553,7 @@ export default Vue.extend({
               .getNetworkMerakiAuthUsers({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Meraki Auth"
         },
@@ -472,7 +566,7 @@ export default Vue.extend({
                 networkId: this.net.id,
                 number: this.ssid.number
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: SsidSelector }],
           group: "MR L3 Firewall Rules"
         },
@@ -484,7 +578,7 @@ export default Vue.extend({
               .getNetworkCellularFirewallRules({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "MX Cellular Firewall Rules"
         },
@@ -496,7 +590,7 @@ export default Vue.extend({
               .getNetworkL3FirewallRules({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "MX L3 Firewall Rules"
         },
@@ -508,7 +602,7 @@ export default Vue.extend({
               .getOrganizationVpnFirewallRules({
                 organizationId: this.org.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "MX VPN Firewall Rules"
         },
@@ -518,7 +612,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getNetwork({ id: this.net.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Networks"
         },
@@ -527,7 +621,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationNetworks({ organizationId: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Networks"
         },
@@ -536,7 +630,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getNetworkBluetoothSettings({ id: this.net.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Networks"
         },
@@ -548,7 +642,7 @@ export default Vue.extend({
               .getNetworkAccessPolicies({
                 id: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Networks"
         },
@@ -562,7 +656,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Networks"
         },
@@ -576,7 +670,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Networks"
         },
@@ -586,14 +680,16 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganization({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
         {
           title: "Organizations",
           action: async () =>
-            await this.$meraki.getOrganizations().then(res => res.data),
+            await this.$meraki
+              .getOrganizations()
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -602,7 +698,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationLicenseState({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -611,7 +707,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationInventory({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -620,7 +716,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationDeviceStatuses({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -629,7 +725,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationSnmp({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -638,7 +734,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getOrganizationThirdPartyVPNPeers({ id: this.org.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Organizations"
         },
@@ -653,7 +749,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: TimespanSelector }
@@ -670,7 +766,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: TimespanSelector }
@@ -690,7 +786,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: ZoneSelector },
@@ -708,7 +804,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: TimespanSelector }
@@ -725,7 +821,7 @@ export default Vue.extend({
                   timespan: this.timespan
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MV" } },
             { component: TimespanSelector }
@@ -741,7 +837,7 @@ export default Vue.extend({
                 networkId: this.net.id,
                 number: this.ssid.number
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: SsidSelector }],
           group: "Splash Settings"
         },
@@ -751,7 +847,7 @@ export default Vue.extend({
           action: async () =>
             await reports
               .getNetworksSsids({ networkIds: this.nets.map(n => n.id) })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "SSIDs"
         },
@@ -760,7 +856,7 @@ export default Vue.extend({
           action: async () =>
             await this.$meraki
               .getNetworkSsids({ networkId: this.net.id })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "SSIDs"
         },
@@ -772,7 +868,7 @@ export default Vue.extend({
                 networkId: this.net.id,
                 number: this.ssid.number
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: SsidSelector }],
           group: "SSIDs"
         },
@@ -784,7 +880,7 @@ export default Vue.extend({
               .getNetworkSyslogServers({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Syslog Servers"
         },
@@ -797,7 +893,7 @@ export default Vue.extend({
               .getOrganizationSamlRoles({
                 organizationId: this.org.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "SAML"
         },
@@ -809,7 +905,7 @@ export default Vue.extend({
               .getNetworkStaticRoutes({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "Static Routes"
         },
@@ -847,7 +943,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -862,7 +958,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -878,7 +974,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -894,7 +990,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -909,7 +1005,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -925,7 +1021,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [
             { component: DeviceSelector },
             { component: TimespanSelector }
@@ -943,7 +1039,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -958,7 +1054,7 @@ export default Vue.extend({
                   t1: Math.round(new Date() / 1000)
                 }
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Wireless Health"
         },
@@ -969,7 +1065,7 @@ export default Vue.extend({
               .getNetworkVlans({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "VLANs"
         },
@@ -980,7 +1076,8 @@ export default Vue.extend({
               .getNetworksVlans({
                 networks: this.nets.map(n => n.id)
               })
-              .then(res => res.data),
+              //.then(res => res.data)
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "VLANs"
         },
@@ -991,7 +1088,7 @@ export default Vue.extend({
               .getNetworkVlansEnabledState({
                 networkId: this.net.id
               })
-              .then(res => res.data),
+              .then(res => this.toReport(res.data)),
           formComponents: [],
           group: "VLANs"
         }
@@ -1030,16 +1127,19 @@ export default Vue.extend({
     },
     onRunReport() {
       this.$store.commit("setLoading", true);
+      this.reportData = []; // Clear Current Report
       this.selectedReport
         .action()
+        /*
         .then(res => {
           if (!Array.isArray(res)) {
             res = [res];
           }
           this.reportData = res;
           console.log("onRunReport reportData ", res);
-          this.reportToSheet(res);
+          this.reportToSheet();
         })
+        */
         .catch(e => {
           console.log("onRunReport error ", e);
         })
@@ -1074,11 +1174,18 @@ export default Vue.extend({
       );
       a.dispatchEvent(e);
     },
-    reportToSheet() {
-      if (typeof google !== "undefined") {
-        //const flatData = _.flattenDepth(this.reportData, 2);
-        this.$utilities.writeData(this.reportData, google);
+    toReport(report, noHeaders) {
+      // format all responses into an array
+      if (!Array.isArray(report)) {
+        report = [report];
       }
+      // store data
+      //this.reportData = report;
+      this.reportData = [...this.reportData, ...report];
+      console.log("reportToSheet report ", report);
+      console.log("reportToSheet report, noHeaders ", noHeaders);
+      //this.reportToSheet();
+      this.$utilities.writeData(this.reportData, noHeaders);
     }
   }
 });

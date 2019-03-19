@@ -113,26 +113,31 @@ export function writeData(json, google) {
 }
 */
 
-// json2csv issues with BigNumber too...
-export function writeData(json, google) {
-  console.log("writeData json", json);
-  try {
-    const report = formatReport(json);
-    const options = {
-      defaultValue: "undefined",
-      //flatten: true,
-      includeEmptyRows: true,
-      fields: report.fields
-    };
-    const csv = json2csv.parse(report.data, options);
-    console.log("writeData csv ", csv);
+/**
+ * Writes report data to the Google Sheet
+ * @param {*} json array of report data
+ */
+export function writeData(json, noHeaders) {
+  if (typeof google !== "undefined") {
+    console.log("writeData json", json);
+    try {
+      const report = formatReport(json);
+      const options = {
+        defaultValue: "undefined",
+        //flatten: true,
+        noHeaders,
+        includeEmptyRows: true,
+        fields: report.fields
+      };
+      const csv = json2csv.parse(report.data, options);
+      console.log("writeData csv ", csv);
 
-    // Send CSV to Google Sheet via GAS function
-    if (google) {
-      let data = csv || "no data";
-      google.script.run.writeCsvData(csv);
+      // Send CSV to Google Sheet via GAS function
+      if (csv) {
+        google.script.run.writeCsvData(csv);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
   }
 }
