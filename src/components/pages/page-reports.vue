@@ -212,17 +212,21 @@ export default Vue.extend({
         // API Usage
         {
           title: "API requests made by an organization",
-          action: async () =>
+          action: async () => {
+            let options = {
+              organizationId: this.org.id,
+              $queryParameters: {
+                timespan: this.timespan,
+                perPage: 1000
+              }
+            };
+            if (this.method) {
+              options.$queryParameters.method = this.method;
+            }
             await this.$meraki
-              .getOrganizationApiRequests({
-                organizationId: this.org.id,
-                $queryParameters: {
-                  timespan: this.timespan,
-                  perPage: 1000,
-                  method: this.method
-                }
-              })
-              .then(res => this.toReport(res.data)),
+              .getOrganizationApiRequests(options)
+              .then(res => this.toReport(res.data));
+          },
           formComponents: [
             { component: TimespanSelector },
             { component: MethodSelector }

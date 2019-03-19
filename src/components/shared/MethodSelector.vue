@@ -16,7 +16,7 @@ export default Vue.extend({
   data() {
     return {
       form: {
-        method: ""
+        method: undefined
       },
       methods: ["GET", "PUT", "POST", "DELETE"]
     };
@@ -26,9 +26,6 @@ export default Vue.extend({
     "form.method"() {
       this.$store.commit("setMethod", this.form.method);
     }
-  },
-  mounted() {
-    this.time = this.timespan;
   }
 });
 </script>
