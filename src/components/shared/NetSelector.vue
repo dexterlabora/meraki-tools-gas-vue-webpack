@@ -7,6 +7,7 @@
       return-object
       v-model="form.net"
       label="Networks"
+      autofocus
     ></v-select>
   </div>
 </template>
@@ -50,7 +51,12 @@ export default Vue.extend({
       this.$merakiSdk.NetworksController.getOrganizationNetworks(
         this.org.id
       ).then(res => {
-        this.nets = res;
+        // order and save the networks
+        this.nets = res.sort(function(a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
         this.form.net = this.nets[0]; // set default
         this.$store.commit("setNets", this.nets); // set state
       });

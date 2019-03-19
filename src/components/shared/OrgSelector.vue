@@ -54,7 +54,12 @@ export default Vue.extend({
       };
       this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
         console.log("getOrganizations res", res);
-        this.orgs = res;
+        // order and save orgs
+        this.orgs = res.sort(function(a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
       });
     }
   },
