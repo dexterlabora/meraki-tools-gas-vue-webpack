@@ -1,6 +1,7 @@
 <template id="devices-selector">
   <div>
     <v-select
+      v-if="!model"
       :items="models"
       v-model="modelSelected"
       label="Model"
@@ -35,6 +36,7 @@
 import Vue from "vue";
 export default Vue.extend({
   template: "#devices-selector",
+  props: ["model"],
   data() {
     return {
       devicesSelected: [],
@@ -57,14 +59,16 @@ export default Vue.extend({
     }
   },
   created: function() {
+    this.modelSelected = this.model;
     this.fetchDevices();
   },
   methods: {
     fetchDevices() {
+      this.devices = [];
       this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
         res => {
           this.devices = res;
-          this.devicesSelected = this.devices; // set default ssid
+          this.devicesSelected = this.filteredDevices; // set default ssid
         }
       );
     }
@@ -74,9 +78,11 @@ export default Vue.extend({
       this.$store.commit("setDevices", this.devicesSelected); // set state
     },
     modelSelected() {
+      this.devicesSelected = [];
       this.devicesSelected = this.filteredDevices;
     },
     net: function() {
+      this.devicesSelected = [];
       this.fetchDevices();
     }
   }

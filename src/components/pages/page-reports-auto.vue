@@ -119,6 +119,7 @@ import DevicesSelector from "../shared/DevicesSelector";
 import OrgSelector from "../shared/OrgSelector";
 import NetSelector from "../shared/NetSelector";
 import MethodSelector from "../shared/MethodSelector";
+import ModelSelector from "../shared/ModelSelector";
 import SsidSelector from "../shared/SsidSelector";
 import SwitchPortSelector from "../shared/SwitchPortSelector";
 import VlanSelector from "../shared/VlanSelector";
@@ -140,6 +141,8 @@ export default Vue.extend({
     SwitchPortSelector,
     VlanSelector,
     TimespanSelector,
+    MethodSelector,
+    ModelSelector,
     VueJsonPretty,
     OrgSelector,
     NetSelector
@@ -187,6 +190,9 @@ export default Vue.extend({
     },
     method: function() {
       return this.$store.state.method;
+    },
+    model: function() {
+      return this.$store.state.model;
     },
     net: function() {
       return this.$store.state.net;
@@ -542,22 +548,32 @@ export default Vue.extend({
       );
     },
     onRunReport() {
+      this.$store.commit("setLoading", true);
+      this.reportData = []; // Clear Current Report
       // Run Report
       this.selectedReport.action
         .apply(null, this.selectedReport.paramVals)
-        .then(res => {
-          if (!Array.isArray(res)) {
-            res = [res]; // if single param, convert array to single value
-          }
-          this.reportData = res;
-          this.reportToSheet();
-        })
+        .then(res => this.toReport(res)) // This is where I could add headers per report
         .catch(e => {
           console.log("onRunReport error ", e);
         })
         .finally(() => {
           this.$store.commit("setLoading", false);
         });
+    },
+    toReport(report, headers, noHeaders) {
+      // format all responses into an array
+      if (!Array.isArray(report)) {
+        report = [report];
+      }
+      // store data
+      //this.reportData = report;
+      this.reportData = [...this.reportData, ...report];
+      console.log("reportToSheet report ", report);
+      console.log("reportToSheet report, headers ", headers);
+      console.log("reportToSheet report, noHeaders ", noHeaders);
+      //this.reportToSheet();
+      this.$utilities.writeData(this.reportData, headers, noHeaders);
     },
     saveFile() {
       const data = JSON.stringify(this.reportData);

@@ -121,6 +121,7 @@ import SsidSelector from "../shared/SsidSelector";
 import TimespanSelector from "../shared/TimespanSelector";
 import ZoneSelector from "../shared/ZoneSelector";
 import MethodSelector from "../shared/MethodSelector";
+import ModelSelector from "../shared/ModelSelector";
 import VueJsonPretty from "vue-json-pretty";
 
 import * as reports from "../../meraki-custom-reports.ts";
@@ -134,7 +135,8 @@ export default Vue.extend({
     DevicesSelector,
     SsidSelector,
     TimespanSelector,
-    VueJsonPretty
+    VueJsonPretty,
+    ModelSelector
   },
   data() {
     return {
@@ -164,6 +166,9 @@ export default Vue.extend({
     },
     method: function() {
       return this.$store.state.method;
+    },
+    model: function() {
+      return this.$store.state.model;
     },
     net: function() {
       return this.$store.state.net;
@@ -308,6 +313,7 @@ export default Vue.extend({
                   c.deviceSerial = d.serial;
                   c.deviceMac = d.mac;
                   c.deviceModel = d.model;
+                  c.networkId = d.networkId;
                   delete c.usage;
                   return c;
                 });
@@ -348,13 +354,27 @@ export default Vue.extend({
                   c.deviceSerial = d.serial;
                   c.deviceMac = d.mac;
                   c.deviceModel = d.model;
+                  c.networkId = d.networkId;
                   delete c.usage;
                   return c;
                 });
+
+                // define headers, attach on first run only
+                const headers = [
+                  "description",
+                  "dhcpHostname",
+                  "mac",
+                  "usageSent",
+                  "usageRecv",
+                  "switchport",
+                  "deviceSerial",
+                  "deviceModel"
+                ];
                 if (i > 0) {
-                  this.toReport(clients, true);
+                  this.toReport(clients, headers, true);
+                  //this.toReport(clients, true);
                 } else {
-                  this.toReport(clients);
+                  this.toReport(clients, headers);
                 }
 
                 //allClients = [...allClients, ...clients];
@@ -387,8 +407,19 @@ export default Vue.extend({
                 if (!devices) {
                   continue;
                 }
-                for (let i = 0; i < devices.length; i++) {
-                  const device = devices[i];
+
+                // filter devices based on model
+                let filteredDevices = [];
+                if (this.model) {
+                  filteredDevices = devices.filter(d =>
+                    d.model.includes(this.model)
+                  );
+                } else {
+                  filteredDevices = devices;
+                }
+
+                for (let i = 0; i < filteredDevices.length; i++) {
+                  const device = filteredDevices[i];
                   // get clients for each device
                   const clients = await this.$meraki
                     .getDeviceClients({
@@ -419,10 +450,23 @@ export default Vue.extend({
                     delete c.usage;
                     return c;
                   });
+                  // define headers, attach on first run only
+                  const headers = [
+                    "description",
+                    "dhcpHostname",
+                    "mac",
+                    "usageSent",
+                    "usageRecv",
+                    "switchport",
+                    "deviceSerial",
+                    "deviceModel",
+                    "networkId",
+                    "networkName"
+                  ];
                   if (i > 0) {
-                    this.toReport(clients, true);
+                    this.toReport(clients, headers, true);
                   } else {
-                    this.toReport(clients);
+                    this.toReport(clients, headers);
                   }
                 }
               }
@@ -430,7 +474,10 @@ export default Vue.extend({
               console.log(error);
             }
           },
-          formComponents: [{ component: TimespanSelector }],
+          formComponents: [
+            { component: ModelSelector },
+            { component: TimespanSelector }
+          ],
           group: "Clients"
         },
         {
@@ -911,22 +958,111 @@ export default Vue.extend({
         },
         // Switch Ports -- NEW LIBRARY
         {
-          title: "Get Device Switch Ports",
+          title: "Device Switch Ports",
           action: async () =>
             await this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
               this.device.serial
-            ),
+            ).then(res => this.toReport(res)),
           formComponents: [
             { component: DeviceSelector, attributes: { model: "MS" } }
           ],
           group: "Switch Ports"
         },
         {
-          title: "Get Network Switch Settings",
+          title: "Network Switch Ports",
+          action: async () => {
+            let allPorts = [];
+            try {
+              // loop through selected devices
+              for (let i = 0; i < this.devices.length; i++) {
+                const device = this.devices[i];
+                let ports = await this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
+                  device.serial
+                );
+                // add device details to report
+                ports.map(p => {
+                  p.device = device;
+                  return p;
+                });
+                if (!ports) {
+                  continue;
+                }
+                allPorts = [...allPorts, ...ports];
+                // define headers, attach on first run only
+              }
+              const headers = [
+                "number",
+                "name",
+                "tags",
+                "enabled",
+                "poeEnabled",
+                "type",
+                "vlan",
+                "voiceVlan",
+                "allowedVlans",
+                "isolationEnabled",
+                "rstpEnabled",
+                "stpGuard",
+                "accessPolicyNumber",
+                "linkNegotiation",
+                "device.lanIp",
+                "device.serial",
+                "device.mac",
+                "device.address",
+                "device.tags",
+                "device.name",
+                "device.model",
+                "device.networkId"
+              ];
+              this.toReport(allPorts, headers);
+            } catch (error) {
+              console.log(error);
+            }
+          },
+          formComponents: [
+            { component: DevicesSelector, attributes: { model: "MS" } }
+          ],
+          group: "Switch Ports"
+        },
+        {
+          title: "Network Switch Settings",
           action: async () =>
             await this.$merakiSdk.SwitchSettingsController.getNetworkSwitchSettings(
               this.net.id
             ),
+          formComponents: [],
+          group: "Switch Settings"
+        },
+        {
+          title: "Organization Switch Settings",
+          action: async () => {
+            try {
+              //let allSwitchSettings = [];
+              for (let n = 0; n < this.nets.length; n++) {
+                const net = this.nets[n];
+                let switchSettings = await this.$merakiSdk.SwitchSettingsController.getNetworkSwitchSettings(
+                  net.id
+                ).catch(e => {
+                  console.log(
+                    "error getting switch settings from network ",
+                    net,
+                    e
+                  );
+                });
+                if (n > 0) {
+                  this.toReport(switchSettings, "", true);
+                  //this.toReport(clients, true);
+                } else {
+                  this.toReport(switchSettings);
+                }
+                //allSwitchSettings = [...allSwitchSettings, ...switchSettings];
+              }
+              //this.toReport(allSwitchSettings);
+              //return allClients;
+            } catch (error) {
+              console.log(error);
+            }
+          },
           formComponents: [],
           group: "Switch Settings"
         },
@@ -1023,7 +1159,7 @@ export default Vue.extend({
               })
               .then(res => this.toReport(res.data)),
           formComponents: [
-            { component: DeviceSelector },
+            { component: DeviceSelector, attributes: { model: "MR" } },
             { component: TimespanSelector }
           ],
           group: "Wireless Health"
@@ -1130,16 +1266,6 @@ export default Vue.extend({
       this.reportData = []; // Clear Current Report
       this.selectedReport
         .action()
-        /*
-        .then(res => {
-          if (!Array.isArray(res)) {
-            res = [res];
-          }
-          this.reportData = res;
-          console.log("onRunReport reportData ", res);
-          this.reportToSheet();
-        })
-        */
         .catch(e => {
           console.log("onRunReport error ", e);
         })
@@ -1174,7 +1300,7 @@ export default Vue.extend({
       );
       a.dispatchEvent(e);
     },
-    toReport(report, noHeaders) {
+    toReport(report, headers, noHeaders) {
       // format all responses into an array
       if (!Array.isArray(report)) {
         report = [report];
@@ -1183,9 +1309,10 @@ export default Vue.extend({
       //this.reportData = report;
       this.reportData = [...this.reportData, ...report];
       console.log("reportToSheet report ", report);
+      console.log("reportToSheet report, headers ", headers);
       console.log("reportToSheet report, noHeaders ", noHeaders);
       //this.reportToSheet();
-      this.$utilities.writeData(this.reportData, noHeaders);
+      this.$utilities.writeData(this.reportData, headers, noHeaders);
     }
   }
 });

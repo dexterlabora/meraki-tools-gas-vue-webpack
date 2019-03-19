@@ -29,6 +29,7 @@ export default new Vuex.Store({
     firewalledService: "",
     input: "",
     method: "",
+    model: "",
     net: {},
     nets: [],
     org: {},
@@ -84,6 +85,7 @@ export default new Vuex.Store({
       state.input = payload;
     },
     setMethod: (state, payload) => (state.method = payload),
+    setModel: (state, payload) => (state.model = payload),
     setNets: (state, payload) => (state.nets = payload),
     setOrg(state, payload) {
       state.org = payload;

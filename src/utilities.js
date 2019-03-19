@@ -117,23 +117,26 @@ export function writeData(json, google) {
  * Writes report data to the Google Sheet
  * @param {*} json array of report data
  */
-export function writeData(json, noHeaders) {
+export function writeData(json, headers, noHeaders) {
   if (typeof google !== "undefined") {
     console.log("writeData json", json);
     try {
       const report = formatReport(json);
+
       const options = {
         defaultValue: "undefined",
         //flatten: true,
-        noHeaders,
+        noHeaders: noHeaders, //headers ? false : true,
         includeEmptyRows: true,
-        fields: report.fields
+        //fields: report.fields,
+        fields: headers ? headers : report.fields
       };
-      const csv = json2csv.parse(report.data, options);
-      console.log("writeData csv ", csv);
+      if (report.data) {
+        const csv = json2csv.parse(report.data, options);
+        console.log("writeData csv ", csv);
 
-      // Send CSV to Google Sheet via GAS function
-      if (csv) {
+        // Send CSV to Google Sheet via GAS function
+
         google.script.run.writeCsvData(csv);
       }
     } catch (err) {

@@ -60,7 +60,7 @@ export default Vue.extend({
     }
   },
   mounted() {
-    this.time = this.timespan;
+    this.time = this.timespan || 7200;
   }
 });
 </script>
