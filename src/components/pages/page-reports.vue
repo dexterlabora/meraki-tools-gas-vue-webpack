@@ -1029,6 +1029,85 @@ export default Vue.extend({
           group: "Switch Ports"
         },
         {
+          title: "Organization Switch Ports (streaming)",
+          action: async () => {
+            //let allPorts = [];
+            try {
+              // loop through selected devices
+              //const devices = await this.$merakiSdk.OrganizationsController.getOrganizationDeviceStatuses(this.org.id);
+              for (let n = 0; n < this.nets.length; n++) {
+                const net = this.nets[n];
+                const devices = await this.$merakiSdk.DevicesController.getNetworkDevices(
+                  net.id
+                );
+
+                console.log("Org switch port devices", devices);
+                // filter devices based on model
+                let filteredDevices = [];
+                filteredDevices = devices.filter(d => d.model.includes("MS"));
+                console.log("Org switch port filteredDevices", filteredDevices);
+                if (!filteredDevices) {
+                  continue;
+                }
+                for (let d = 0; d < filteredDevices.length; d++) {
+                  const device = filteredDevices[d];
+                  let ports = await this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
+                    device.serial
+                  );
+                  // add device details to report
+                  ports.map(p => {
+                    p.device = device;
+                    p.device["networkName"] = net.name;
+                    return p;
+                  });
+                  if (!ports) {
+                    continue;
+                  }
+
+                  //allPorts = [...allPorts, ...ports];
+
+                  // define headers, attach on first run only
+                  const headers = [
+                    "number",
+                    "name",
+                    "tags",
+                    "enabled",
+                    "poeEnabled",
+                    "type",
+                    "vlan",
+                    "voiceVlan",
+                    "allowedVlans",
+                    "isolationEnabled",
+                    "rstpEnabled",
+                    "stpGuard",
+                    "accessPolicyNumber",
+                    "linkNegotiation",
+                    "device.lanIp",
+                    "device.serial",
+                    "device.mac",
+                    "device.address",
+                    "device.tags",
+                    "device.name",
+                    "device.model",
+                    "device.networkId"
+                  ];
+                  if (n > 0) {
+                    this.toReport(ports, headers, true);
+                  } else {
+                    this.toReport(ports, headers);
+                  }
+                }
+              }
+
+              //this.toReport(allPorts, headers);
+            } catch (error) {
+              console.log(error);
+            }
+          },
+          formComponents: [],
+          group: "Switch Ports"
+        },
+        {
           title: "Network Switch Settings",
           action: async () =>
             await this.$merakiSdk.SwitchSettingsController.getNetworkSwitchSettings(
