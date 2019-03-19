@@ -1,6 +1,6 @@
 <template id="switch-port-selector">
   <div>
-    <v-select v-bind:items="ports" return-object v-model="port" label="Ports">
+    <v-select v-bind:items="ports" return-object v-model="port" autofocus label="Ports">
       <template
         slot="selection"
         slot-scope="data"

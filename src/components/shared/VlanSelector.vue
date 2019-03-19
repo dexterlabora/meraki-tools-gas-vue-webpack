@@ -1,6 +1,6 @@
 <template id="vlan-selector">
   <div>
-    <v-select v-bind:items="vlans" return-object v-model="vlan" label="VLANs">
+    <v-select v-bind:items="vlans" return-object v-model="vlan" autofocus label="VLANs">
       <template
         slot="selection"
         slot-scope="data"

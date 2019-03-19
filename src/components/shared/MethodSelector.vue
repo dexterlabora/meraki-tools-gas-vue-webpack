@@ -1,6 +1,6 @@
 <template id="method-selector">
   <div>
-    <v-select v-bind:items="methods" v-model="form.method" label="REST Method" clearable></v-select>
+    <v-select v-bind:items="methods" v-model="form.method" autofocus label="REST Method" clearable></v-select>
   </div>
 </template>
 

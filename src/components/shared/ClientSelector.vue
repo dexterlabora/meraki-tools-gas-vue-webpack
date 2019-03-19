@@ -8,6 +8,7 @@
       return-object
       v-model="client"
       label="Client"
+      autofocus
     ></v-select>
   </div>
 </template>
@@ -53,17 +54,23 @@ export default Vue.extend({
           this.devices[d].serial,
           this.timespan
         )
-          .then(res => (this.clients = this.clients.concat(res)))
+          .then(res => {
+            this.clients = this.clients.concat(res);
+          })
           .catch(e => console.log(e));
       }
+
+      const sortedClients = this.clients.sort(function(a, b) {
+        if (a.dhcpHostname < b.dhcpHostname) return -1;
+        if (a.dhcpHostname > b.dhcpHostname) return 1;
+        return 0;
+      });
+      this.$store.commit("setClients", sortedClients);
     }
   },
   watch: {
     client() {
       this.$store.commit("setClient", this.client);
-    },
-    clients() {
-      this.$store.commit("setClients", this.clients);
     },
     devices() {
       this.fetchClients();

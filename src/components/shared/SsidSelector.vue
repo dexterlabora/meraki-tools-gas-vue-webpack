@@ -7,6 +7,7 @@
       return-object
       v-model="ssid"
       label="SSID"
+      autofocus
     ></v-select>
   </div>
 </template>

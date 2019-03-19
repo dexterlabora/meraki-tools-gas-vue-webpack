@@ -9,6 +9,7 @@
       label="Organizations"
       mask
       :disabled="!apiKey"
+      autofocus
     ></v-select>
   </div>
 </template>

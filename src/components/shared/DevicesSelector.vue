@@ -7,6 +7,7 @@
       label="Model"
       class="input-group--focused"
       single-line
+      autofocus
     ></v-select>
     <v-select
       :items="filteredDevices"
@@ -18,6 +19,7 @@
       small-chips
       multiple
       clearable
+      autofocus
     >
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip small v-if="index === 0">

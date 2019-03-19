@@ -7,6 +7,7 @@
       return-object
       v-model="zone"
       label="Zones"
+      autofocus
     ></v-select>
   </div>
 </template>

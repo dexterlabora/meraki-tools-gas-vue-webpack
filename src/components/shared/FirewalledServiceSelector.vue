@@ -1,6 +1,6 @@
 <template id="firewalled-service-selector">
   <div>
-    <v-select v-bind:items="services" v-model="service" label="Firewalled Service"></v-select>
+    <v-select v-bind:items="services" v-model="service" autofocus label="Firewalled Service"></v-select>
   </div>
 </template>
 
