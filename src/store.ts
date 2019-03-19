@@ -28,6 +28,7 @@ export default new Vuex.Store({
     displayJson: false,
     firewalledService: "",
     input: "",
+    method: "",
     net: {},
     nets: [],
     org: {},
@@ -82,6 +83,7 @@ export default new Vuex.Store({
     setInput(state, payload) {
       state.input = payload;
     },
+    setMethod: (state, payload) => (state.method = payload),
     setNets: (state, payload) => (state.nets = payload),
     setOrg(state, payload) {
       state.org = payload;

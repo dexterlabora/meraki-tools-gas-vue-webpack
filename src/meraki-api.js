@@ -167,6 +167,76 @@ export const createNetworkClientProvisionURL = function(parameters = {}) {
                  .join("&") : "");
        };
 
+/**
+* List the API requests made by an organization
+ 
+## SAMPLE REQUEST
+ 
+```
+curl -L -H 'X-Cisco-Meraki-API-Key: <key>' -H 'Content-Type: application/json' -X GET 'https://api.meraki.com/api/v0/organizations/[organizationId]/networks'
+```
+* request: getOrganizationApiRequests
+* url: getOrganizationApiRequestsURL
+* method: getOrganizationApiRequests_TYPE
+* raw_url: getOrganizationApiRequests_RAW_URL
+* @param organizationId - 
+* @param body - 
+*/
+export const getOrganizationApiRequests = function (parameters = {}) {
+    const domain = parameters.$domain ? parameters.$domain : getDomain()
+    const config = parameters.$config
+    let path = '/organizations/{organizationId}/apiRequests'
+    let body
+    let queryParameters = {}
+    let form = {}
+    path = path.replace('{organizationId}', `${parameters['organizationId']}`)
+    if (parameters['organizationId'] === undefined) {
+        return Promise.reject(new Error('Missing required  parameter: organizationId'))
+    }
+    if (parameters['body'] !== undefined) {
+        body = parameters['body']
+    }
+    if (parameters['t0'] !== undefined) {
+        queryParameters['t0'] = parameters['t0']
+    }
+    if (parameters['t1'] !== undefined) {
+        queryParameters['t1'] = parameters['t1']
+    }
+    if (parameters['method'] !== undefined) {
+        queryParameters['method'] = parameters['method']
+    }
+    if (parameters['timespan'] !== undefined) {
+        queryParameters['timespan'] = parameters['timespan']
+    }
+    if (parameters['perPage'] !== undefined) {
+        queryParameters['perPage'] = parameters['perPage']
+    }
+    if (parameters.$queryParameters) {
+        Object.keys(parameters.$queryParameters).forEach(function (parameterName) {
+            queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+        });
+    }
+    return request('get', domain + path, body, queryParameters, form, config)
+}
+export const getOrganizationApiRequests_RAW_URL = function () {
+    return '/organizations/{organizationId}/apiRequests'
+}
+export const getOrganizationApiRequests_TYPE = function () {
+    return 'get'
+}
+export const getOrganizationApiRequestsURL = function (parameters = {}) {
+    let queryParameters = {}
+    const domain = parameters.$domain ? parameters.$domain : getDomain()
+    let path = '/organizations/{organizationId}/apiRequests'
+    path = path.replace('{organizationId}', `${parameters['organizationId']}`)
+    if (parameters.$queryParameters) {
+        Object.keys(parameters.$queryParameters).forEach(function (parameterName) {
+            queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+        })
+    }
+    let keys = Object.keys(queryParameters)
+    return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
+}
 // end custom
 
 

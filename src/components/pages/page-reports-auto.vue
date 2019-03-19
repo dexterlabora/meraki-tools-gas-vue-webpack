@@ -118,6 +118,7 @@ import DeviceSelector from "../shared/DeviceSelector";
 import DevicesSelector from "../shared/DevicesSelector";
 import OrgSelector from "../shared/OrgSelector";
 import NetSelector from "../shared/NetSelector";
+import MethodSelector from "../shared/MethodSelector";
 import SsidSelector from "../shared/SsidSelector";
 import SwitchPortSelector from "../shared/SwitchPortSelector";
 import VlanSelector from "../shared/VlanSelector";
@@ -183,6 +184,9 @@ export default Vue.extend({
     },
     org: function() {
       return this.$store.state.org;
+    },
+    method: function() {
+      return this.$store.state.method;
     },
     net: function() {
       return this.$store.state.net;
@@ -264,6 +268,10 @@ export default Vue.extend({
         service: {
           component: FirewalledServiceSelector,
           paramVal: this.firewalledService
+        },
+        method: {
+          component: MethodSelector,
+          paramVal: this.method
         },
         number: {
           component: SwitchPortSelector, // switches (may need to adjust this)

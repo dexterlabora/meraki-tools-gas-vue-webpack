@@ -1,5 +1,5 @@
 <template id="page-reports">
-  <v-container class="pa-1">
+  <v-container>
     <v-layout fluid>
       <v-flex xs12 md12>
         <v-card>
@@ -21,23 +21,31 @@
               >
                 <v-icon>play_arrow</v-icon>
               </v-btn>
-
+              <div>
+                <v-flex xs12 sm6 md6 pt-2 d-flex>
+                  <v-autocomplete
+                    style="{text-size:5px}"
+                    prepend-inner-icon="search"
+                    v-model="selectedReport"
+                    return-object
+                    :items="reports"
+                    :filter="customFilter"
+                    item-text="title"
+                    label="Search"
+                    outline
+                    dense
+                    @change="onSearch"
+                    hide-selected
+                  ></v-autocomplete>
+                </v-flex>
+              </div>
               <v-flex xs12 sm6 md6>
-                <v-autocomplete
-                  prepend-inner-icon="search"
-                  v-model="selectedReport"
-                  return-object
-                  :items="reports"
-                  :filter="customFilter"
-                  color="white"
-                  item-text="title"
-                  label="Search"
-                  outline
-                  @change="onSearch"
-                ></v-autocomplete>
-              </v-flex>
-              <v-flex xs12 sm6 md6>
-                <v-btn @click="browseByGroup = !browseByGroup">Browse by Group</v-btn>
+                <v-btn
+                  round
+                  small
+                  color="secondary"
+                  @click="browseByGroup = !browseByGroup"
+                >Browse by Group</v-btn>
               </v-flex>
               <div v-if="browseByGroup">
                 <v-flex xs12 sm6 md6 pt-2 d-flex>
@@ -57,6 +65,7 @@
                     return-object
                     label="Reports"
                     outline
+                    search-input
                   ></v-select>
                 </v-flex>
               </div>
@@ -111,9 +120,11 @@ import DevicesSelector from "../shared/DevicesSelector";
 import SsidSelector from "../shared/SsidSelector";
 import TimespanSelector from "../shared/TimespanSelector";
 import ZoneSelector from "../shared/ZoneSelector";
+import MethodSelector from "../shared/MethodSelector";
 import VueJsonPretty from "vue-json-pretty";
 
 import * as reports from "../../meraki-custom-reports.ts";
+import MethodSelectorVue from "../shared/MethodSelector.vue";
 
 export default Vue.extend({
   template: "#page-reports",
@@ -150,6 +161,9 @@ export default Vue.extend({
     },
     org: function() {
       return this.$store.state.org;
+    },
+    method: function() {
+      return this.$store.state.method;
     },
     net: function() {
       return this.$store.state.net;
@@ -189,6 +203,26 @@ export default Vue.extend({
               .then(res => res.data),
           formComponents: [],
           group: "Admins"
+        },
+        // API Usage
+        {
+          title: "API requests made by an organization",
+          action: async () =>
+            await this.$meraki
+              .getOrganizationApiRequests({
+                organizationId: this.org.id,
+                $queryParameters: {
+                  timespan: this.timespan,
+                  perPage: 1000,
+                  method: this.method
+                }
+              })
+              .then(res => res.data),
+          formComponents: [
+            { component: TimespanSelector },
+            { component: MethodSelector }
+          ],
+          group: "API Usage"
         },
         // Alert Settings
         {
@@ -1052,5 +1086,12 @@ export default Vue.extend({
 <style>
 .v-list__tile__content {
   font-size: small;
+}
+.auto-complete {
+  flex: 1 1;
+  margin-top: 0;
+  min-width: 0;
+  pointer-events: none;
+  position: relative;
 }
 </style>
