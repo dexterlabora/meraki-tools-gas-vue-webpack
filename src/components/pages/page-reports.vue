@@ -986,6 +986,11 @@ export default Vue.extend({
                 // add device details to report
                 ports.map(p => {
                   p.device = device;
+                  // remove new line characters in address, as it breaks the csv
+                  p.device.address = p.device.address.replace(
+                    /(\r\n|\n|\r)/gm,
+                    " "
+                  );
                   return p;
                 });
                 if (!ports) {
