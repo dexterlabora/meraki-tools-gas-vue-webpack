@@ -34,6 +34,10 @@ export default new Vuex.Store({
     nets: [],
     org: {},
     orgs: [],
+    snackbar: {
+      msg: "",
+      color: "secondary"
+    },
     ssid: {},
     ssids: [],
     switchPort: {},
@@ -97,6 +101,7 @@ export default new Vuex.Store({
     setSsid(state, payload) {
       state.ssid = payload;
     },
+    setSnackbar: (state, payload) => (state.snackbar = payload),
     setSsids: (state, payload) => (state.ssids = payload),
     setTimespan(state, payload) {
       state.timespan = payload;

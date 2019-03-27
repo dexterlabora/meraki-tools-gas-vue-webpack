@@ -20,6 +20,7 @@
             </v-dialog>
             -->
             <router-view></router-view>
+            <snackbar></snackbar>
           </v-container>
         </v-content>
       </v-app>
@@ -31,13 +32,15 @@
 import NavMenu from "./nav-menu.vue";
 import OrgSelector from "./components/shared/OrgSelector.vue";
 import NetSelector from "./components/shared/NetSelector.vue";
+import Snackbar from "./components/shared/Snackbar.vue";
 
 export default {
   name: "App",
   components: {
     "nav-menu": NavMenu,
     "org-selector": OrgSelector,
-    "net-selector": NetSelector
+    "net-selector": NetSelector,
+    snackbar: Snackbar
   },
   data() {
     return {
@@ -49,9 +52,9 @@ export default {
       return this.$store.state.loading;
     }
   },
-  mounted() {
+  created: function() {
+    // Loader initr
     this.$store.commit("setLoading", false); // clears any loaders at init
-    //this.$router.push("/home");
   }
 };
 </script>

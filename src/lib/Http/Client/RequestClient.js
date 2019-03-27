@@ -62,11 +62,19 @@ const appendFormdata = function appendFormdata(form, data) {
 const convertHttpResponse = function convertHttpResponse(resp) {
   console.log("convertHttpResponse, resp", resp);
   const response = new HttpResponse();
+
+  // ADDED BY CORY -- To fix incorrect organizationId type (should be a string, but being sent as number, which then is parsed incorrectly by JS)
   if (resp) {
-    //response.body = JSONbig.parse(JSON.stringify(resp.body));
-    //response.body = JSONbig.parse(resp.body);
     //response.body = resp.body;
-    response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
+    if (resp.body) {
+      try {
+        response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
+      } catch (error) {
+        console.log("unable to parse body, returning default body");
+        response.body = resp.body;
+      }
+    }
+
     response.headers = resp.headers;
     response.statusCode = resp.statusCode;
   }

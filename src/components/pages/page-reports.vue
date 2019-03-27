@@ -24,7 +24,7 @@
               <div>
                 <v-flex xs12 sm6 md6 pt-2 d-flex>
                   <v-autocomplete
-                    style="{text-size:5px}"
+                    style="{text-size:x-small}"
                     prepend-inner-icon="search"
                     v-model="selectedReport"
                     return-object
@@ -34,9 +34,16 @@
                     label="Search"
                     outline
                     dense
+                    box
                     @change="onSearch"
+                    @keypress="onSearch"
                     hide-selected
-                  ></v-autocomplete>
+                    menu-props="auto, overflowY"
+                  >
+                    <!-- testing 
+                    <template v-slot:selection="data">{{ data.item.title }}</template>
+                    END TESTING-->
+                  </v-autocomplete>
                 </v-flex>
               </div>
               <v-flex xs12 sm6 md6>
@@ -55,6 +62,8 @@
                     item-text="group"
                     label="Group"
                     outline
+                    search-input
+                    menu-props="closeOnClick, closeOnContentClick"
                   ></v-select>
                 </v-flex>
                 <v-flex xs12 sm6 md6 pt-2 d-flex>
@@ -181,6 +190,9 @@ export default Vue.extend({
     },
     devices: function() {
       return this.$store.state.devices;
+    },
+    snackbar: function() {
+      return this.$store.state.snack;
     },
     ssid: function() {
       return this.$store.state.ssid;
@@ -368,9 +380,11 @@ export default Vue.extend({
                   "description",
                   "dhcpHostname",
                   "mac",
+                  "ip",
                   "usageSent",
                   "usageRecv",
                   "switchport",
+                  "deviceName",
                   "deviceSerial",
                   "deviceModel"
                 ];
@@ -724,6 +738,79 @@ export default Vue.extend({
               .then(res => this.toReport(res.data)),
           formComponents: [{ component: TimespanSelector }],
           group: "Networks"
+        },
+        // Open API Spec
+        {
+          title: "Open API Spec Paths",
+          action: async () =>
+            await this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
+              this.org.id
+            )
+              .then(res => {
+                let paths = res["paths"];
+                console.log("organization Open API paths", paths);
+                let report = [];
+                try {
+                  // get paths
+                  Object.keys(paths).forEach(function(path, index) {
+                    console.log("open spec api paths path, index", path, index);
+                    console.log("paths[path]", paths[path]);
+
+                    // get details for each path resource
+                    Object.keys(paths[path]).forEach((p, i) => {
+                      // operationId
+                      let operationId = paths[path][p]["operationId"];
+                      // params
+                      let params = paths[path][p]["parameters"] || [];
+                      // method
+                      let method = Object.keys(paths[path])[0];
+                      // pathParams
+                      let pathParams = [];
+                      let filteredPathParams = params.filter(p =>
+                        p.in.includes("path")
+                      );
+                      filteredPathParams.forEach(p => pathParams.push(p.name));
+                      pathParams = JSON.stringify(pathParams);
+
+                      // queryParams
+                      let queryParams = [];
+                      let filteredQueryParams = params.filter(p =>
+                        p.in.includes("query")
+                      );
+                      filteredQueryParams.forEach(p =>
+                        queryParams.push(p.name)
+                      );
+                      queryParams = JSON.stringify(queryParams);
+
+                      // bodyModel
+
+                      let bodyModel = [];
+                      let filteredBodyModel = params.filter(p =>
+                        p.in.includes("body")
+                      );
+                      filteredBodyModel.forEach(p => bodyModel.push(p.name));
+                      bodyModel = JSON.stringify(bodyModel);
+
+                      report.push({
+                        path,
+                        method,
+                        operationId,
+                        pathParams,
+                        queryParams,
+                        bodyModel
+                      });
+                    });
+                  });
+
+                  console.log("organization Open API report formatted", report);
+                  this.toReport(report);
+                } catch (error) {
+                  console.log("Open Spec API - path error", error);
+                }
+              })
+              .catch(e => this.handleError(e)),
+          formComponents: [],
+          group: "Open API Spec"
         },
         // Organizations
         {
@@ -1336,6 +1423,44 @@ export default Vue.extend({
     }
   },
   methods: {
+    handleError(error) {
+      if (error.errorCode === 400) {
+        console.log("Bad request, often due to missing a required parameter.");
+        this.$store.commit("setSnackbar", {
+          msg: "Bad request, often due to missing a required parameter.",
+          color: "danger"
+        });
+      } else if (error.errorCode === 401) {
+        console.log("No valid API key provided.");
+        this.$store.commit("setSnackbar", {
+          msg: "No valid API key provided.",
+          color: "danger"
+        });
+      } else if (error.errorCode >= 500 && error.errorCode < 600) {
+        console.log("Server error");
+        this.$store.commit("setSnackbar", {
+          msg: "Server error or invalid parameters",
+          color: "danger"
+        });
+      } else if (error.errorCode === 404) {
+        console.log(
+          "The requested resource doesn't exist or you do not have permission"
+        );
+        this.$store.commit("setSnackbar", {
+          msg:
+            "The requested resource doesn't exist or you do not have permission",
+          color: "danger"
+        });
+      } else {
+        console.log("Welp, that's not good: ", error);
+        this.$store.commit("setSnackbar", {
+          msg:
+            "That didn't go well.. Not sure if it was your or me... Did you forget a parameter?",
+          color: "danger"
+        });
+      }
+      return;
+    },
     onSearch(report) {
       console.log("onSearch event", report.group);
       this.selectedGroup = report.group; //{ group: report.group };
@@ -1355,7 +1480,8 @@ export default Vue.extend({
       this.selectedReport
         .action()
         .catch(e => {
-          console.log("onRunReport error ", e);
+          //console.log("onRunReport error ", e);
+          this.handleError(e);
         })
         .finally(() => {
           this.$store.commit("setLoading", false);
@@ -1389,14 +1515,22 @@ export default Vue.extend({
       a.dispatchEvent(e);
     },
     toReport(report, headers, noHeaders) {
+      console.log("reportToSheet report ", report);
       // format all responses into an array
+      /*
       if (!Array.isArray(report)) {
         report = [report];
       }
+      */
       // store data
       //this.reportData = report;
-      this.reportData = [...this.reportData, ...report];
-      console.log("reportToSheet report ", report);
+      if (Array.isArray(report)) {
+        this.reportData = [...this.reportData, ...report];
+      } else {
+        this.reportData = report;
+      }
+
+      console.log("reportToSheet reportData ", this.reportData);
       console.log("reportToSheet report, headers ", headers);
       console.log("reportToSheet report, noHeaders ", noHeaders);
       //this.reportToSheet();

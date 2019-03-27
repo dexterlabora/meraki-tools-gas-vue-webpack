@@ -603,9 +603,9 @@ export default Vue.extend({
       a.dispatchEvent(e);
     },
     reportToSheet() {
-      if (typeof google !== "undefined") {
-        this.$utilities.writeData(this.reportData, google);
-      }
+      //if (typeof google !== "undefined") {
+      this.$utilities.writeData(this.reportData, headers, noHeaders);
+      //}
     }
   }
 });

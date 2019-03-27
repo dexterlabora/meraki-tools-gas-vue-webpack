@@ -54,7 +54,21 @@ function formatReport(json) {
       });
     } else {
       console.log("formatReport json isObject");
-      var flat = flattenObject(json);
+      //var flat = flattenObject(json);
+      var flat = flatten.flatten(obj);
+      data.push(flat);
+
+      // set keys
+      Object.keys(flat).forEach(function(value) {
+        if (fields.indexOf(value) == -1) fields.push(value);
+      });
+    }
+
+    // For Objects
+    if (isObject(json)) {
+      console.log("formatReport json isObject");
+      //var flat = flattenObject(json);
+      var flat = flatten.flatten(json);
       data.push(flat);
 
       // set keys
@@ -66,19 +80,6 @@ function formatReport(json) {
     console.log("formatReport error ", error);
   }
 
-  /*
-  // For Objects
-  if (isObject(json)) {
-    console.log("formatReport json isObject");
-    var flat = flattenObject(json);
-    data.push(flat);
-
-    // set keys
-    Object.keys(flat).forEach(function(value) {
-      if (fields.indexOf(value) == -1) fields.push(value);
-    });
-  }
-*/
   // Send Report
   const report = {
     data,
@@ -122,29 +123,32 @@ export function writeData(json, google) {
  * @param {*} json array of report data
  */
 export function writeData(json, headers, noHeaders) {
-  if (typeof google !== "undefined") {
-    console.log("writeData json", json);
-    try {
-      const report = formatReport(json);
+  //if (typeof google !== "undefined") {
+  console.log("writeData json", json);
+  try {
+    const report = formatReport(json);
 
-      const options = {
-        defaultValue: "undefined",
-        //flatten: true,
-        noHeaders: noHeaders, //headers ? false : true,
-        includeEmptyRows: true,
-        //fields: report.fields,
-        fields: headers ? headers : report.fields
-      };
-      if (report.data) {
-        const csv = json2csv.parse(report.data, options);
-        //console.log("writeData csv ", csv);
+    const options = {
+      defaultValue: "undefined",
+      //flatten: true,
+      eol: "\r\n", // TESTING
+      //unwind: true, // TESTING -- TypeError: unwindPath.split is not a function
+      noHeaders: noHeaders,
+      includeEmptyRows: true,
+      //fields: report.fields,
+      fields: headers ? headers : report.fields
+    };
+    if (report.data) {
+      const csv = json2csv.parse(report.data, options);
+      console.log("writeData csv ", csv);
 
-        // Send CSV to Google Sheet via GAS function
-
+      // Send CSV to Google Sheet via GAS function
+      if (typeof google !== "undefined") {
         google.script.run.writeCsvData(csv);
       }
-    } catch (err) {
-      console.error(err);
     }
+  } catch (err) {
+    console.error(err);
   }
+  //}
 }
