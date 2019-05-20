@@ -664,6 +664,7 @@ export default Vue.extend({
       }
       console.log("onSearch event", report.group);
       this.selectedGroup = report.group; //{ group: report.group };
+      this.selectedReport = report;
       this.showSearchDialog = false;
     },
     customFilter(item, queryText, itemText) {
