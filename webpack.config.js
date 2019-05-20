@@ -2,6 +2,7 @@ const webpack = require("webpack");
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
+require("babel-polyfill");
 
 var path = require("path");
 
@@ -15,18 +16,14 @@ module.exports = {
   context: __dirname,
   entry: {
     "Code.gs": "./src/google-scripts/index.ts",
-    "index.js.html": "./src/main.js"
+    "index.js.html": "./src/main.js",
+    app: ["babel-polyfill", "./src/main.js"]
   },
   output: {
     path: __dirname + "/clasp/dist",
     filename: "[name]",
     libraryTarget: "this",
     publicPath: "/clasp/dist"
-  },
-  devServer: {
-    proxy: {
-      "/api": "http://localhost:8085"
-    }
   },
   module: {
     rules: [
@@ -69,10 +66,7 @@ module.exports = {
       {
         test: /\.js?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: "babel-loader",
-        query: {
-          presets: ["es2015"]
-        }
+        loader: "babel-loader"
       }
     ]
   },

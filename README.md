@@ -1,77 +1,131 @@
 # Meraki Tools for Google Sheets
 
-- Meraki API
-- VueJS w/ Vuetify
-- Webpack & GAS conversion
+## About
+
+Meraki Tools is an application to generate reports and makes adjustments for the Meraki Cloud platform. This version is built to support Google Sheets as a Sidebar Add-on. This allows you to instantly generate reports into a Google Sheet, then take advantage many features of the Sheet such as using the Explore feature to illustrate the Meraki data.
+
+## Key Technologies
+
+- [Meraki Dashboard API](https://meraki.io/api)
+- [VueJS](https://vuejs.org) w/ [Vuetify](https://vuetifyjs.com)
+- Webpack & Google Apps Script (GAS) deploy scripts
 
 ![](screenshots/MerakiToolsScreenshot.png)
 
 ## Features
 
 - Reports
-  - Clients
-  - Devices
-  - Networks
-  - Organizations
-  - ... more
-- Tools
+  - **200+ Meraki Dynamic Reports**
+    - Dynamic form selectors (Orgs, Nets, Devices, Clients, etc.)
+  - Custom Meraki Reports (iterations, enhanced results)
+- Custom Tools
   - Create Client
   - Configure SSIDs
   - Configure VLANs
   - Claim Order
 
-## Installation
+## Installation (Development)
+
+If you would like to enhance this tool, you could clone this project and deploy your own version to a Google Sheet and even publish your own Add-on.
 
 ### Pre-reqs
 
-Installed and can run them from the command line with `yarn`, `webpack`, and `clasp` respectively.
+- [Yarn](https://yarnpkg.com/en/): Node Package Manager..but with some enhancements/
 
-- [Yarn](https://yarnpkg.com/en/)
+  - [install guide](https://yarnpkg.com/en/docs/install#mac-stable)
 
-  [install guide](https://yarnpkg.com/en/docs/install#mac-stable)
-
-- [Webpack](https://www.npmjs.com/package/webpack)
+- [Webpack](https://www.npmjs.com/package/webpack): Packages the web application, does some JS compatability things, and adjusts code to workin with Google.
 
   `yarn add webpack --dev`
 
-- [Clasp]
+- **Clasp**: Utility to push scripts to Google
 
   `npm install @google/clasp -g`
 
 ### Install
 
-1. Clone this repo
-2. Load dependencies with `yarn install`
-3. Make the JS bundles with `yarn build`
-4. Update `clasp/.clasp.json`, setting `"scriptId"` to your project's ID (so if your project's URL was https://script.google.com/d/foo123bar321) then `"scriptId"` should be `"foo123bar321"`)
-5. Build and deploy with `yarn clush`
-6. Serve dev server with `yarn serve`
+```
+git clone <this repo>
+cd <this repo>
+yarn
+```
 
-- An API proxy server is required for local api development.
+### Configure
 
-## To Do
+Update `clasp/.clasp.json`, setting `"scriptId"` to your Google project's ID (so if your project's URL was https://script.google.com/d/foo123bar321) then `"scriptId"` should be `"foo123bar321"`)
 
-- Add local node proxy server.
-- more reports
-- more tools
-- developer guide
+### Local Development
 
-## Built from starter project:
+```
+yarn serve
+```
 
-### gas-ts-vue-webpack
+> A local development proxy server will run on http://localhost:8080
 
-[repo](https://github.com/MattiasMartens/gas-ts-vue-webpack.git)
+This will not only serve a local instance of the application but it will also forward all Meraki API requests where the path begins with `/api` to the local proxy server. These requests will then make be forwarded to `https://api.meraki.com/api/v0`.
 
-Template for a project that combines some of my favourite tools: Google Apps Script, Clasp, TypeScript, Vue, and Webpack.
+### Deploy to Production
 
-- **Google Apps Script** bootstraps a web app with GSuite integration, authentication, and a convenient RPC framework (i.e., `google.script.run.{your-top-level-function-here}`)
-- **Clasp** lets you push your entire locally managed project to Google Apps Script - no more copy and paste! (See <https://codelabs.developers.google.com/codelabs/clasp/#1> for installation instructions.)
+```
+yarn deploy
+```
+
+This will modify the the native Meraki SDK to use a custom Google App Script helper `scripts/api-to-gas.sh` to force the Meraki SDK to use Google as the API request resolver as opposed to contacting Meraki directly from the client side appliction. We do this because of the CORS policy enforced by the Meraki cloud.
+
+# Developer Notes
+
+## Google Apps Script Bootstrap
+
+[gas-ts-vue-webpack](https://github.com/MattiasMartens/gas-ts-vue-webpack.git)
+
+This app was built using an open source repo for bootstraping Google Apps Scripts
+
+- **Google Apps Script** A JS based language for interacting with Google Apps.
+- **Clasp** lets you push your entire locally managed project to Google Apps Script project - no more copy and paste! (See <https://codelabs.developers.google.com/codelabs/clasp/#1> for installation instructions.)
 - **TypeScript** gives compile-time type-checking
 - **Vue** provides a framework for rapid development of an interactive front-end for the app
 - **Webpack** bundles the backend and frontend code into two bundles of ES5 JavaScript
 
-### Webpack note
+## Webpack Notes
 
-The bundled frontend code goes to `clasp/dist/index.js.html` which is then loaded into the HTML template in `clasp/index.html`. Unfortunately, Google Apps Script does not let you serve raw JavaScript code - it must be treated as raw HTML. Accordingly, HTML-semantic characters like `<` and `>` are escaped which naturally breaks the code.
+- The bundled frontend code goes to `clasp/dist/index.js.html` which is then loaded into the HTML template in `clasp/index.html`. Unfortunately, Google Apps Script does not let you serve raw JavaScript code - it must be treated as raw HTML. Accordingly, HTML-semantic characters like `<` and `>` are escaped which naturally breaks the code. The best and only fix I have found is to wrap the generated bundle in a `<script>` tag, turning it into valid HTML that does not need to be escaped. This is accomplished with the Webpack Shell Plugin and `scripts/wrap-in-script.sh`.
 
-The best and only fix I have found is to wrap the generated bundle in a `<script>` tag, turning it into valid HTML that does not need to be escaped. This is accomplished with the Webpack Shell Plugin and `scripts/wrap-in-script.sh`.
+- Babble is used to convert modern JavaScript to a common browser supported version.
+
+## App Structure
+
+If you would like to extend or better understand this project, here are the important files and their purpose. Any files not listed, you should only adjust if you know what you are doing. This application is somewhat complicated because of the necessary mechanics to run as a Google Apps Add-on for Sheets. The core concepts, generally located in the `/src` folder could be run independently or in other environments with a little massaging.
+
+- `/api-to-gas/`: Meraki SDK override to support Google Apps Scripts. Used with `yarn build/deploy`
+- `/clasp/`: template files for Google Apps Script. Used with `yarn build/deploy`
+- `/public/`: static assets for website
+- `/scripts/`: used with `npm run ...` to prepare for build/deploy
+- `/src`: primary VueJS application source files
+
+  - `assets/`: static files, images, etc.
+  - `components/`: main application files "business logic"
+    - `pages/`: VueJS pages
+      - `reports-auto-oas.vue`: Dynamic reports using the OpenAPI spec. **_The most interesting file_**
+      - `reports.vue`: Custom reports using Meraki SDK
+      - `tools`: navigation for tool components to make changes on a Meraki network
+      - `settings`: define the API key & URL and misc. settings.
+    - `shared/`: Common components used by the app including various Meraki `selectors` that many times query the Meraki API to present available options relative to the current form scope.
+    - `app.vue`: primary layout (nav, reports, tools, settings, etc)
+    - `main.js`: start of application, loads dependencies and launches default components
+    - `nav-menu`: top navigation
+    - `router.ts`: routes to key features (home., reports, tools, etc.)
+    - `store.js`: manages state of application (apiKey, apiUrl, org, net, etc.)
+    - `utilities`: misc. utility functions used in the app.
+
+- `/`: misc core files
+  - `package.js`: Application dependencies
+  - `vue.config.js`: Defines the Meraki API proxy address
+  - `webpack.config.js`: Build/Deploy configuration
+
+## Created By:
+
+Cory Guynn - 2019
+
+Github: @dexterlabora
+
+Twitter: @eedionysus

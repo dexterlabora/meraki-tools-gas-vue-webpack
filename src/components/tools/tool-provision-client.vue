@@ -162,10 +162,10 @@ export default Vue.extend({
     },
     onProvisionClient() {
       this.$store.commit("setLoading", true);
-      this.$merakiSdk.ClientsController.createProvisionNetworkClients(
-        this.net.id,
-        this.form
-      )
+      this.$merakiSdk.ClientsController.provisionNetworkClients({
+        networkId: this.net.id,
+        provisionNetworkClients: this.form
+      })
         .then(res => {
           this.provisionedClient = res;
         })

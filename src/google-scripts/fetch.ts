@@ -11,5 +11,12 @@ export function fetch(path, options) {
   options["followRedirects"] = true;
   Logger.log("fetch path: " + path);
   Logger.log("fetch options" + options);
-  return UrlFetchApp.fetch(path, options).getContentText();
+  let res = UrlFetchApp.fetch(path, options);
+  return {
+    body: res.getContentText(),
+    headers: res.getHeaders(),
+    statusCode: res.getResponseCode()
+  };
+  //Logger.log("fetch res" + JSON.stringify(response));
+  //return response;
 }

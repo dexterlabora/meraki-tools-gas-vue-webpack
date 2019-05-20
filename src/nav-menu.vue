@@ -1,27 +1,57 @@
 <template id="nav-menu">
   <v-toolbar dense color="green darken-1" dark>
-    <v-btn icon to="/home">
-      <v-icon>home</v-icon>
-    </v-btn>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/home">
+          <v-icon>home</v-icon>
+        </v-btn>
+      </template>
+      <span>Home</span>
+    </v-tooltip>
+    <!-- Old version
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/reports-old">
+          <v-icon>view_list</v-icon>
+        </v-btn>
+      </template>
+      <span>Meraki Reports</span>
+    </v-tooltip>
+    -->
 
-    <v-btn icon to="/reports">
-      <v-icon>view_list</v-icon>
-    </v-btn>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/reports">
+          <v-icon>view_list</v-icon>
+        </v-btn>
+      </template>
+      <span>Reports dynamically created from the Meraki OpenAPI sepc. Mileage may vary depending on each generated report.</span>
+    </v-tooltip>
 
-    <v-btn icon to="/reports-auto" v-if="beta">
-      <v-icon>stars</v-icon>
-    </v-btn>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/tools">
+          <v-icon>build</v-icon>
+        </v-btn>
+      </template>
+      <span>Tools to update a Meraki Network.</span>
+    </v-tooltip>
+    <!--<v-btn @click="parseSwagger">SwaggerParserTest</v-btn> -->
+    <!--<v-btn @click="onGenerateSwaggerReports">Generate Swagger Reports</v-btn>-->
 
-    <v-btn icon to="/tools">
-      <v-icon>build</v-icon>
-    </v-btn>
     <!--v-btn icon to="/swagger">
       <v-icon>info</v-icon>
     </v-btn-->
     <v-spacer></v-spacer>
-    <v-btn icon to="/settings">
-      <v-icon>lock</v-icon>
-    </v-btn>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/settings">
+          <v-icon>lock</v-icon>
+        </v-btn>
+      </template>
+      <span>API Key and Settings</span>
+    </v-tooltip>
   </v-toolbar>
 </template>
 

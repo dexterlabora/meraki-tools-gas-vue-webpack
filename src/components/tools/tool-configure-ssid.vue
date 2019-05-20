@@ -268,20 +268,24 @@ export default Vue.extend({
         return;
       }
 
-      this.$merakiSdk.SSIDsController.getNetworkSsids(this.net.id).then(res => {
-        console.log("getNetworkSsids res.data", res.data);
-        this.ssids = res;
-        this.ssid = this.ssids[this.ssidNum]; // set selected ssid
-      });
+      this.$merakiSdk.SsidsController.getNetwork_ssids(this.net.id).then(
+        res => {
+          console.log("getNetworkSsids res", res);
+          this.ssids = res;
+          this.ssid = this.ssids[this.ssid.number]; // set selected ssid
+        }
+      );
     },
     updateSsid: function($index) {
       this.$store.commit("setLoading", true);
       console.log("updateSsid form", this.ssidForm);
-      this.$merakiSdk.SSIDsController.updateNetworkSsid(
-        this.net.id,
-        this.ssidForm.number,
-        this.ssidForm
-      )
+      let updateNetworkSsid = new this.$merakiSdk.UpdateNetworkSsidModel();
+
+      this.$merakiSdk.SsidsController.updateNetworkSsid({
+        networkId: this.net.id,
+        number: this.ssidForm.number,
+        updateNetworkSsid: this.ssidForm
+      })
         .then(res => {
           this.ssidUpdated = res;
           this.fetchSsids(); // get clean copy of SSID list and update form

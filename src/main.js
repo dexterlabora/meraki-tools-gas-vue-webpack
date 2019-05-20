@@ -1,34 +1,27 @@
 import Vue from "vue";
-//import "./plugins/vuetify.ts";
 import Router from "./router.ts";
-//import App from "./app.axios.vue";
 import App from "./app.vue";
-import Store from "./store.ts";
-
+import Store from "./store.js";
 import Vuetify from "vuetify";
 Vue.use(Vuetify, {
   iconfont: "md"
 });
+//import * as _ from "lodash";
 
-// old
-import * as meraki from "./meraki-api.js";
-//meraki.setDomain("https://mp.meraki.com/api/v0");
-meraki.setApiKey(
-  Store.state.apiKey || "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
-); // demo API key
-
-import merakiSdk from "./lib";
-
-const configuration = merakiSdk.Configuration;
-
-// For Local Development
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
-if (process.env.VUE_APP_SERVICE == "dev") {
-  Store.commit("setApiUrl", "http://localhost:8085/api");
-  meraki.setService("dev");
+if (process.env.VUE_APP_SERVICE === "dev") {
+  console.log("Running in developmnet mode");
+} else {
+  console.log("Running in production mode");
+  // hide all console.log() outputs. (complies with Google and general security best practices)
+  if (google) {
+    // Log to "USER" Google Apps Logs
+    //console.log = Logger.log; // doesn't work
+  } else {
+    console.log = () => "";
+  }
 }
-
-Vue.prototype.$meraki = meraki;
+import merakiSdk from "meraki";
 Vue.prototype.$merakiSdk = merakiSdk;
 
 import * as utilities from "./utilities.js";
@@ -39,13 +32,8 @@ new Vue({
   store: Store,
   el: "#app",
   created() {
-    // old
-    this.$meraki.setDomain(this.$store.state.apiUrl);
-    this.$meraki.setApiKey(this.$store.state.apiKey);
-
-    // new
-    configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
-    configuration.BASEURI = this.$store.state.apiUrl;
+    merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
+    merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
   },
   render: h => h(App)
 }).$mount("#app");

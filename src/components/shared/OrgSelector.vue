@@ -78,11 +78,12 @@ export default Vue.extend({
     },
     orgs() {
       this.form.org = this.orgs[0] || "";
-      this.$store.commit("setOrgs", this.orgs);
+      //this.$store.commit("setOrgs", this.orgs);
     },
     "form.org"(newVal, oldVal) {
       console.log("setting org, ", this.form.org);
       this.$store.commit("setOrg", this.form.org);
+      this.$emit("onChange", { org: this.form.org });
     }
   }
 });

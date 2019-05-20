@@ -24,6 +24,7 @@
               <i>{{ org.name }}</i>
             </v-card-title>
             <v-card-text p1>
+              <!--
               <v-btn @click="showScanner = !showScanner" v-if="beta">Barcode Scanner</v-btn>
               <quagga-scanner
                 v-if="showScanner"
@@ -31,6 +32,7 @@
                 :readerSize="readerSize"
                 :readerType="'ean_reader'"
               ></quagga-scanner>
+              -->
               <v-flex xs12 md12 pt-4>
                 <v-select
                   v-model="form.type"
@@ -49,7 +51,7 @@
                   single-line
                   v-if="form.type == 'licenseKey'"
                 ></v-select>
-                <v-text-field v-model="form.value" label="Order/Serial/License"></v-text-field>
+                <v-text-field v-model="form.value" :label="_.startCase(form.type)"></v-text-field>
               </v-flex>
             </v-card-text>
           </v-card>
@@ -84,12 +86,12 @@
 
 <script>
 import Vue from "vue";
-import { QuaggaScanner } from "vue-quaggajs";
+//import { QuaggaScanner } from "vue-quaggajs";
 
 export default Vue.extend({
   template: "#tool-claim-order",
   components: {
-    QuaggaScanner
+    //QuaggaScanner
   },
   data() {
     return {
@@ -138,18 +140,16 @@ export default Vue.extend({
     onClaim() {
       this.$store.commit("setLoading", true);
       var body = {};
-      if (this.form.type == "licenseKey") {
+      if (this.form.type === "licenseKey") {
         body["licenseMode"] = this.form.licenseMode;
       }
       body[this.form.type] = this.form.value;
 
-      this.$merakiSdk.OrganizationsController.createClaimOrganization(
-        this.org.id,
-        body
-      )
+      this.$merakiSdk.OrganizationsController.claimOrganization({
+        organizationId: this.org.id,
+        claimOrganization: body
+      })
         .then(res => {
-          // this endpoint does not return any data other than status code 200
-          // so just pull license info entirely
           this.$merakiSdk.OrganizationsController.getOrganizationLicenseState(
             this.org.id
           ).then(res => {

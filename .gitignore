@@ -1,3 +1,9 @@
+archive/
 clasp/dist
 node_modules/
 tmp/
+yarn.lock
+yarn-error.log
+devnotes.md 
+.gitignore
+

@@ -48,9 +48,9 @@ export default Vue.extend({
       if (!this.org.id) {
         return;
       }
-      this.$merakiSdk.NetworksController.getOrganizationNetworks(
-        this.org.id
-      ).then(res => {
+      this.$merakiSdk.NetworksController.getOrganizationNetworks({
+        organizationId: this.org.id
+      }).then(res => {
         // order and save the networks
         this.nets = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
@@ -68,6 +68,7 @@ export default Vue.extend({
     },
     "form.net"() {
       this.$store.commit("setNet", this.form.net); // set state
+      this.$emit("onChange", { net: this.form.net });
     }
   }
 });

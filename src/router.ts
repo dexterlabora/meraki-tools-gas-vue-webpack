@@ -1,14 +1,12 @@
 import Vue from "vue";
 import Router from "vue-router";
-//import Home from "./home.vue";
-import PageHome from "./components/pages/page-home.vue";
-import PageSettings from "./components/pages/page-settings.vue";
-import PageReports from "./components/pages/page-reports.vue";
-import PageReportsAuto from "./components/pages/page-reports-auto.vue";
-import PageTools from "./components/pages/page-tools.vue";
-import PageSwagger from "./components/pages/page-swagger.vue";
+import PageHome from "./components/pages/home.vue";
+import PageSettings from "./components/pages/settings.vue";
+import PageReports from "./components/pages/reports.vue";
+import PageReportsAutoOas from "./components/pages/reports-auto-oas.vue";
+import PageTools from "./components/pages/tools.vue";
+import PageSwagger from "./components/pages/swagger.vue";
 
-// to be removed
 import ToolProvisionClient from "./components/tools/tool-provision-client.vue";
 import ToolClaimOrder from "./components/tools/tool-claim-order.vue";
 import ToolConfigureSsid from "./components/tools/tool-configure-ssid.vue";
@@ -23,8 +21,8 @@ export default new Router({
     { path: "/", component: PageHome },
     { path: "/home", component: PageHome },
     { path: "/settings", component: PageSettings },
-    { path: "/reports", component: PageReports },
-    { path: "/reports-auto", component: PageReportsAuto },
+    { path: "/reports-old", component: PageReports },
+    { path: "/reports", component: PageReportsAutoOas },
     { path: "/tools", component: PageTools },
     { path: "/swagger", component: PageSwagger },
     { path: "/provision-client", component: ToolProvisionClient },

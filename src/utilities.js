@@ -2,6 +2,35 @@ import * as papa from "papaparse";
 import * as flatten from "flat";
 import * as json2csv from "json2csv";
 
+export function saveFile(data, title) {
+  data = data || [];
+  data = JSON.stringify(data);
+  const blob = new Blob([data], { type: "text/plain" });
+  const e = document.createEvent("MouseEvents"),
+    a = document.createElement("a");
+  a.download = `meraki-report ${title}.json`;
+  a.href = window.URL.createObjectURL(blob);
+  a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+  e.initEvent(
+    "click",
+    true,
+    false,
+    window,
+    0,
+    0,
+    0,
+    0,
+    0,
+    false,
+    false,
+    false,
+    false,
+    0,
+    null
+  );
+  a.dispatchEvent(e);
+}
+
 const isArray = function(a) {
   return !!a && a.constructor === Array;
 };
