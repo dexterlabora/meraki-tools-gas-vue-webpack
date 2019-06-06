@@ -5,13 +5,23 @@
       v-model="organizationsSelected"
       label="Organizations"
       item-text="name"
-      :menu-props="{ maxHeight: '400' }"
+      :menu-props="{ maxHeight: '400'}"
       return-object
       small-chips
       multiple
       clearable
       autofocus
     >
+      <template v-slot:prepend-item>
+        <v-list-tile ripple @click="toggle">
+          <v-list-tile-action>
+            <v-icon>done_all</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>Select All</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </template>
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip small v-if="index === 0">
           <span class="small-chips">{{ item.name }}</span>
@@ -51,6 +61,15 @@ export default Vue.extend({
         this.organizations = res;
         this.organizationsSelected = []; // set default
       });
+    },
+    toggle() {
+      this.$nextTick(() => {
+        if (this.organizationsSelected.length === this.organizations.length) {
+          this.organizationsSelected = [];
+        } else {
+          this.organizationsSelected = this.organizations.slice();
+        }
+      });
     }
   },
   watch: {
@@ -66,7 +85,7 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
+<style >
 .small-chips {
   font-size: xx-small;
 }

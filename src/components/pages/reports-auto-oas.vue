@@ -16,6 +16,7 @@
               :items="reports"
               :filter="customFilter"
               @change="onSearch"
+              return-object
               hide-details
               hide-no-data
               hide-selected
@@ -165,14 +166,7 @@
           <v-card>
             <v-card-title>
               <h3>JSON Results</h3>
-              <v-btn
-                absolute
-                right
-                dark
-                color="primary"
-                @click="onSaveFile"
-                v-if="selectedReport.action"
-              >
+              <v-btn absolute right dark color="primary" @click="onSaveFile" v-if="reportData">
                 <v-icon>save_alt</v-icon>
               </v-btn>
             </v-card-title>
@@ -688,6 +682,7 @@ export default Vue.extend({
     parseMerakiSwagger(orgId) {
       if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
         // Public OAS
+        console.log('parseMerakiSwagger - using public openapiSpec');
         return axios
           .get(this.apiUrl + "/openapiSpec")
           .then(res => {
@@ -696,6 +691,7 @@ export default Vue.extend({
           .catch(e => console.log("axios openapiSpec get error ", e));
       } else {
         // Org specific OAS
+        console.log('parseMerakiSwagger - using org specific openapiSpec');
         return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
           orgId
         )
@@ -1159,7 +1155,7 @@ export default Vue.extend({
       };
     },
     onSaveFile() {
-      this.$utilities.saveFile(this.reportData, this.selectedReport.title);
+      this.$utilities.saveFile(this.reportData, this.selectedReport.shortTitle);
     },
     handleError(error, errorTitle) {
       this.$store.commit("setLoading", false);
@@ -1209,6 +1205,7 @@ export default Vue.extend({
   text-size: smaller;
 }
 
+/*
 .input-group--select__autocomplete {
   background-color: rgb(219, 118, 63);
   height: 0px !important;
@@ -1218,6 +1215,12 @@ export default Vue.extend({
   height: 30px !important;
   background-color: rgb(219, 118, 63);
 }
+
+.v-list__tile__action {
+  align-items: center;  
+  min-width: 28px !important;
+}
+*/
 /*
 .selectDropDown {
   background-color: rgb(219, 118, 63);

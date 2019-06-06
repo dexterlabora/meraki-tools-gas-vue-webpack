@@ -1,6 +1,13 @@
 <template id="vlan-selector">
   <div>
-    <v-select v-bind:items="vlans" return-object v-model="form.vlan" autofocus label="VLANs" @change="onChange">
+    <v-select
+      v-bind:items="vlans"
+      return-object
+      v-model="form.vlan"
+      autofocus
+      label="VLANs"
+      @change="onChange"
+    >
       <template
         slot="selection"
         slot-scope="data"
@@ -51,12 +58,11 @@ export default Vue.extend({
         .then(res => (this.vlans = res))
         .catch(e => console.log(e));
     },
-    onChange(){
+    onChange() {
       this.$emit("onChange", { vlan: this.form.vlan });
     }
   },
   watch: {
-    
     vlans() {
       //this.$store.commit("setVlans", this.vlans);
     },

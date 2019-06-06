@@ -3,10 +3,10 @@ import Router from "./router.ts";
 import App from "./app.vue";
 import Store from "./store.js";
 import Vuetify from "vuetify";
+import "vuetify/dist/vuetify.min.css";
 Vue.use(Vuetify, {
   iconfont: "md"
 });
-//import * as _ from "lodash";
 
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
 if (process.env.VUE_APP_SERVICE === "dev") {

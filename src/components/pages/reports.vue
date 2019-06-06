@@ -77,9 +77,11 @@
                     label="Reports"
                     outline
                     search-input
-                  ><template v-slot:selection="{ item, index }">
-        <span class="font-weight-light">{{ item }}</span>
-      </template></v-select>
+                  >
+                    <template v-slot:selection="{ item, index }">
+                      <span class="font-weight-light">{{ item }}</span>
+                    </template>
+                  </v-select>
                 </v-flex>
               </div>
 

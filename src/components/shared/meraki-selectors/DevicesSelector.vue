@@ -21,6 +21,17 @@
       clearable
       autofocus
     >
+      <template v-slot:prepend-item>
+        <v-list-tile ripple @click="toggle">
+          <v-list-tile-action>
+            <v-icon>done_all</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>Select All</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider class="mt-2"></v-divider>
+      </template>
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip small v-if="index === 0">
           <span class="small-chips">{{ item.name }}</span>
@@ -73,6 +84,15 @@ export default Vue.extend({
           this.devicesSelected = []; //this.filteredDevices; // set default ssid
         }
       );
+    },
+    toggle() {
+      this.$nextTick(() => {
+        if (this.devicesSelected.length === this.filteredDevices.length) {
+          this.devicesSelected = [];
+        } else {
+          this.devicesSelected = this.filteredDevices.slice();
+        }
+      });
     }
   },
   watch: {
@@ -92,8 +112,15 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
+<style>
 .small-chips {
   font-size: xx-small;
+}
+
+.v-list__tile__action,
+.v-list__tile__avatar {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 32px !important;
 }
 </style>
