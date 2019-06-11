@@ -64,6 +64,7 @@
                     item-text="group"
                     label="Group"
                     outline
+                    @change="onSelectedGroup"
                   ></v-select>
                 </v-flex>
                 <v-flex xs12 sm6 md6 pt-2 d-flex v-if="selectedReport.title">
@@ -240,12 +241,6 @@ export default Vue.extend({
       this.selectedReport = this.reports.find(
         r => r.title == this.selectedReport.title
       );
-    },
-    selectedGroup() {
-      if (!this.groupReports) {
-        return;
-      }
-      this.selectedReport = this.groupReports[0]; // set default report
     },
     selectedReport() {
       this.formData = {}; // reset form data
@@ -661,6 +656,12 @@ export default Vue.extend({
       this.selectedReport = report;
       this.showSearchDialog = false;
     },
+    onSelectedGroup() {
+      if (!this.groupReports) {
+        return;
+      }
+      this.selectedReport = this.groupReports[0]; // set default report
+    },
     customFilter(item, queryText, itemText) {
       const textOne = item.title.toLowerCase();
       const textTwo = item.group.toLowerCase();
@@ -682,7 +683,7 @@ export default Vue.extend({
     parseMerakiSwagger(orgId) {
       if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
         // Public OAS
-        console.log('parseMerakiSwagger - using public openapiSpec');
+        console.log("parseMerakiSwagger - using public openapiSpec");
         return axios
           .get(this.apiUrl + "/openapiSpec")
           .then(res => {
@@ -691,7 +692,7 @@ export default Vue.extend({
           .catch(e => console.log("axios openapiSpec get error ", e));
       } else {
         // Org specific OAS
-        console.log('parseMerakiSwagger - using org specific openapiSpec');
+        console.log("parseMerakiSwagger - using org specific openapiSpec");
         return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
           orgId
         )

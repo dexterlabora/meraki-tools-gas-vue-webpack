@@ -47,6 +47,9 @@ export default Vue.extend({
   },
   methods: {
     fetchBleClients() {
+      if (!this.net) {
+        return;
+      }
       this.bleClients = [];
       this.$merakiSdk.BluetoothClientsController.getNetworkBluetoothClients({
         networkId: this.net.id,

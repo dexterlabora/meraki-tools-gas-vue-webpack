@@ -46,6 +46,9 @@ export default Vue.extend({
   },
   methods: {
     async fetchClients() {
+      if (!this.net) {
+        return;
+      }
       this.clients = [];
 
       const api = await this.$merakiSdk.ClientsController.getNetworkClients({

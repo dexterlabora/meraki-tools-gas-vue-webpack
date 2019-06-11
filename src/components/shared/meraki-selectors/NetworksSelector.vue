@@ -66,6 +66,9 @@ export default Vue.extend({
   },
   methods: {
     fetchNetworks() {
+      if (!this.org) {
+        return;
+      }
       this.devices = [];
       this.$merakiSdk.NetworksController.getOrganizationNetworks({
         organizationId: this.org.id

@@ -35,6 +35,9 @@ export default Vue.extend({
   },
   methods: {
     fetchZones() {
+      if (!this.device) {
+        return;
+      }
       if (!this.device.model.includes("MV")) {
         this.zone = "";
         return;

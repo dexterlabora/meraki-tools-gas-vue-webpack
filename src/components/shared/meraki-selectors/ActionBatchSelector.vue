@@ -34,7 +34,9 @@ export default Vue.extend({
   methods: {
     async fetchActionBatches() {
       this.actionBatches = [];
-
+      if (!this.org) {
+        return;
+      }
       const api = await this.$merakiSdk.ActionBatchesController.getOrganizationActionBatches(
         {
           organizationId: this.org.id

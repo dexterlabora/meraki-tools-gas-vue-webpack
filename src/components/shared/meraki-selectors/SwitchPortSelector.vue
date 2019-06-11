@@ -71,7 +71,7 @@ export default Vue.extend({
       if (!this.device) {
         return;
       }
-      if (!this.device.serial) {
+      if (!this.device) {
         return;
       }
       if (!this.device.model.includes("MS")) {

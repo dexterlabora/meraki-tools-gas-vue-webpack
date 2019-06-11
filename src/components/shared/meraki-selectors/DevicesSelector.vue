@@ -77,6 +77,9 @@ export default Vue.extend({
   },
   methods: {
     fetchDevices() {
+      if (!this.net) {
+        return;
+      }
       this.devices = [];
       this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
         res => {
