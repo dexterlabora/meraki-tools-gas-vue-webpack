@@ -4,6 +4,10 @@
 
 Meraki Tools is an application to generate reports and makes adjustments for the Meraki Cloud platform. This version is built to support Google Sheets as a Sidebar Add-on. This allows you to instantly generate reports into a Google Sheet, then take advantage many features of the Sheet such as using the Explore feature to illustrate the Meraki data.
 
+Google Add-on Marketplace Link
+
+http://cs.co/meraki_tools
+
 ## Key Technologies
 
 - [Meraki Dashboard API](https://meraki.io/api)
