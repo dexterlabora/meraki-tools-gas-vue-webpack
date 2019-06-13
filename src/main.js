@@ -18,7 +18,7 @@ if (process.env.VUE_APP_SERVICE === "dev") {
     // Log to "USER" Google Apps Logs
     //console.log = Logger.log; // doesn't work
   } else {
-    console.log = () => "";
+    console.log = () => "google service not available";
   }
 }
 import merakiSdk from "meraki";

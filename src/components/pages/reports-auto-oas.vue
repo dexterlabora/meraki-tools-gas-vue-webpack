@@ -158,6 +158,8 @@
                   :key="report.title"
                 ></component>
               </v-flex>
+
+              <v-progress-linear v-if="looperProgress > 0" v-model="looperProgress"></v-progress-linear>
             </v-card-text>
             <v-card-actions></v-card-actions>
           </v-card>
@@ -210,6 +212,48 @@ import ZoneSelector from "../shared/meraki-selectors/ZoneSelector";
 import InputSelector from "../shared/meraki-selectors/InputSelector";
 import FirewalledServiceSelector from "../shared/meraki-selectors/FirewalledServiceSelector.vue";
 import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue";
+
+var rateLimit = require("function-rate-limit");
+
+/*
+const Queue = require("smart-request-balancer");
+const queue = new Queue({
+  rules: {
+    // Describing rules by name
+    common: {
+      rate: 3, // Allow to send 5 messages
+      limit: 1 // per 1 second
+    }
+  },
+  retryTime: 300 // Default retry time. Can be configured in retry fn
+});
+*/
+
+/*
+function limiter(fn, wait) {
+  let isCalled = false,
+    calls = [];
+
+  let caller = function() {
+    if (calls.length && !isCalled) {
+      isCalled = true;
+      calls.shift().call();
+      setTimeout(function() {
+        isCalled = false;
+        caller();
+      }, wait);
+    }
+  };
+
+  return function() {
+    calls.push(fn.bind(this, ...arguments));
+    // let args = Array.prototype.slice.call(arguments);
+    // calls.push(fn.bind.apply(fn, [this].concat(args)));
+
+    caller();
+  };
+}
+*/
 
 export default Vue.extend({
   template: "#page-reports-auto",
@@ -288,6 +332,7 @@ export default Vue.extend({
   data() {
     return {
       showSearchDialog: false,
+      looperProgress: 0,
       browseByGroup: false,
       selectedGroup: "",
       selectedReport: {
@@ -971,7 +1016,7 @@ export default Vue.extend({
           })
           .withFailureHandler(error => {
             console.log("GAS via OAS error: ", error);
-            return this.handleError(error, "onRunReport");
+            return this.handleError(error, "onRunReport", action);
           })
           .fetch(url, options);
       } else {
@@ -988,12 +1033,12 @@ export default Vue.extend({
           .then(res => this.handleResponse(res.data, count, extraData))
           //.then(res => res.data)
           .catch(e => {
-            this.handleError(e);
+            this.handleError(e, "onRunReport", action);
           });
       }
     },
 
-    async onRunReport() {
+    onRunReport() {
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
       setTimeout(() => this.$store.commit("setLoading", false), 1000);
@@ -1003,6 +1048,15 @@ export default Vue.extend({
       // Check if looper actions exist
 
       // Loops through each action in series, and adjusts the headers
+      this.looperProgress = 0;
+      var throttledAction = rateLimit(1, 1000, (action, i, extraData) => {
+        console.log("running rate limited action: ", i, action);
+        this.runAction(action, i, extraData);
+        this.looperProgress = ((i + 1) / this.report.actions.length) * 100;
+        if (this.looperProgress >= 100) {
+          this.looperProgress = 0;
+        }
+      });
       for (let [i, action] of this.report.actions.entries()) {
         let extraData = {};
 
@@ -1019,7 +1073,9 @@ export default Vue.extend({
 
         extraData["reportAction"] = action; // Create option to toggle this
 
-        const results = await this.runAction(action, i, extraData);
+        console.log("queueing rate limited action: ", action);
+
+        throttledAction(action, i, extraData);
       }
     },
     // Used for dynamic report response -- logic not used for report templates
@@ -1127,12 +1183,14 @@ export default Vue.extend({
 
       // send to report
       this.$store.commit("setLoading", false);
+      const totalActions = this.report.actions.length;
       if (count > 0) {
         this.toReport(adjustedReport, "", true);
       } else {
+        //this.looperProgress = 100
         this.toReport(adjustedReport);
       }
-      //return adjustedReport;
+      return adjustedReport;
     },
     toReport(report, headers, noHeaders) {
       // format all responses into an array
@@ -1158,7 +1216,8 @@ export default Vue.extend({
     onSaveFile() {
       this.$utilities.saveFile(this.reportData, this.selectedReport.shortTitle);
     },
-    handleError(error, errorTitle) {
+    handleError(error, errorTitle, action) {
+      console.log("handleError error: ", error);
       this.$store.commit("setLoading", false);
       console.log(errorTitle);
       if (error.errorCode === 400) {
@@ -1191,8 +1250,7 @@ export default Vue.extend({
       } else {
         console.log("Welp, that's not good: ", error);
         this.$store.commit("setSnackbar", {
-          msg:
-            "That didn't go well.. Not sure if it was your or me... Did you forget a parameter?",
+          msg: action + " -- " + error,
           color: "danger"
         });
       }

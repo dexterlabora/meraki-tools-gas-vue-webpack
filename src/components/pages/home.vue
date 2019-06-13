@@ -58,6 +58,12 @@
                 target="_blank"
               >Meraki Node SDK</a>.
             </p>
+            <p>
+              <a
+                href="https://github.com/dexterlabora/meraki-tools-gas-vue-webpack"
+                target="_blank"
+              >Project Source Code</a>
+            </p>
           </v-card-text>
         </v-card>
       </v-flex>
