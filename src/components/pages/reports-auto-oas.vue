@@ -42,6 +42,7 @@
           </v-card-title>
           <v-card-text>
             <div>
+              <!--
               <v-btn
                 fab
                 fixed
@@ -55,6 +56,34 @@
               >
                 <v-icon>play_arrow</v-icon>
               </v-btn>
+              -->
+
+              <v-speed-dial
+                fab
+                fixed
+                bottom
+                center
+                color="primary"
+                open-on-hover
+                :loading="loading"
+              >
+                <template v-slot:activator>
+                  <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
+                    <v-icon>play_arrow</v-icon>
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                </template>
+
+                <!-- Beta 
+                <v-btn round color="gray" @click="onRunReport('newRows')">
+                  <b>insert rows</b>
+                </v-btn>
+                <v-btn round color="gray" @click="onRunReport('overwrite')">
+                  <b>overwrite rows</b>
+                </v-btn>
+              <v-btn round color="gray" @click="onRunReport('newSheet')">new sheet</v-btn>
+                -->
+              </v-speed-dial>
 
               <div>
                 <v-flex xs12 sm6 md6 pt-2 d-flex>
@@ -169,7 +198,7 @@
           <v-card>
             <v-card-title>
               <h3>JSON Results</h3>
-              <v-btn absolute right dark color="primary" @click="onSaveFile" v-if="reportData">
+              <v-btn absolute right small round color="gray" @click="onSaveFile" v-if="reportData">
                 <v-icon>save_alt</v-icon>
               </v-btn>
             </v-card-title>
@@ -183,6 +212,7 @@
     </v-layout>
   </v-container>
 </template>
+
 
 <script>
 import Vue from "vue";
@@ -988,7 +1018,7 @@ export default Vue.extend({
         return path;
       }
     },
-    runAction(action, count, extraData) {
+    runAction(action, count, extraData, location) {
       //**
       // Run Report based on environment
       //**
@@ -1001,7 +1031,7 @@ export default Vue.extend({
           contentType: "application/json",
           followRedirects: true
         };
-        google.script.run
+        return google.script.run
           .withSuccessHandler(res => {
             let data;
             console.log("runAction gasRequest .fetch res: ", res);
@@ -1012,7 +1042,7 @@ export default Vue.extend({
               console.log("unable to parse body, returning default body");
               data = res.body;
             }
-            return this.handleResponse(data, count, extraData);
+            return this.handleResponse(data, count, extraData, location);
           })
           .withFailureHandler(error => {
             console.log("GAS via OAS error: ", error);
@@ -1029,16 +1059,20 @@ export default Vue.extend({
             "X-Cisco-Meraki-API-Key": this.apiKey
           }
         };
-        axios(options)
-          .then(res => this.handleResponse(res.data, count, extraData))
-          //.then(res => res.data)
-          .catch(e => {
-            this.handleError(e, "onRunReport", action);
-          });
+        return (
+          axios(options)
+            .then(res =>
+              this.handleResponse(res.data, count, extraData, location)
+            )
+            //.then(res => res.data)
+            .catch(e => {
+              this.handleError(e, "onRunReport", action);
+            })
+        );
       }
     },
 
-    onRunReport() {
+    async onRunReport(location) {
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
       setTimeout(() => this.$store.commit("setLoading", false), 1000);
@@ -1049,14 +1083,15 @@ export default Vue.extend({
 
       // Loops through each action in series, and adjusts the headers
       this.looperProgress = 0;
-      var throttledAction = rateLimit(1, 1000, (action, i, extraData) => {
+      var throttledAction = await rateLimit(1, 1000, (action, i, extraData) => {
         console.log("running rate limited action: ", i, action);
-        this.runAction(action, i, extraData);
         this.looperProgress = ((i + 1) / this.report.actions.length) * 100;
         if (this.looperProgress >= 100) {
           this.looperProgress = 0;
         }
+        return this.runAction(action, i, extraData, location);
       });
+
       for (let [i, action] of this.report.actions.entries()) {
         let extraData = {};
 
@@ -1075,7 +1110,31 @@ export default Vue.extend({
 
         console.log("queueing rate limited action: ", action);
 
-        throttledAction(action, i, extraData);
+        const actionResults = await throttledAction(
+          action,
+          i,
+          extraData,
+          location
+        );
+        console.log("actionResults ", actionResults);
+
+        /*
+        // send to report
+        this.$store.commit("setLoading", false);
+        const totalActions = this.report.actions.length;
+        if (i > 0) {
+          this.toReport(
+            actionResults,
+            this.report.title,
+            {
+              noHeaders: true
+            },
+            location
+          );
+        } else {
+          this.toReport(actionResults, this.report.title, {}, location);
+        }
+        */
       }
     },
     // Used for dynamic report response -- logic not used for report templates
@@ -1141,16 +1200,7 @@ export default Vue.extend({
     isIterable(array) {
       return Array.isArray(array) || array.length;
     },
-    /*
-    isIterable(obj) {
-      // checks for null and undefined
-      if (obj == null) {
-        return false;
-      }
-      return typeof obj[Symbol.iterator] === "function";
-    },
-    */
-    handleResponse(res, count, extraData) {
+    handleResponse(res, count, extraData, location) {
       if (!res) {
         console.log("handleResponse No Response");
         return;
@@ -1160,24 +1210,13 @@ export default Vue.extend({
       let adjustedReport = this.adjustMerakiReport(this.report.path, res);
 
       // attach extra data to report
-
       if (extraData) {
         if (Array.isArray(adjustedReport)) {
           adjustedReport = adjustedReport.map(
             i => (i = { ...i, ...extraData })
-            /*
-              (i[this.report.looperParam.iterate] = this.report.paramVals[
-                this.report.looperParam.iterate
-              ])
-              */
           );
         } else {
           adjustedReport = { ...adjustedReport, ...extraData };
-          /*
-          adjustedReport[this.report.looperParam.iterate] = this.report.paramVals[
-            this.report.looperParam.iterate
-          ];
-          */
         }
       }
 
@@ -1185,22 +1224,35 @@ export default Vue.extend({
       this.$store.commit("setLoading", false);
       const totalActions = this.report.actions.length;
       if (count > 0) {
-        this.toReport(adjustedReport, "", true);
+        this.toReport(
+          adjustedReport,
+          this.report.title,
+          {
+            header: true
+          },
+          location
+        );
       } else {
-        //this.looperProgress = 100
-        this.toReport(adjustedReport);
+        this.toReport(
+          adjustedReport,
+          this.report.title,
+          { header: true },
+          location
+        );
       }
+
       return adjustedReport;
     },
-    toReport(report, headers, noHeaders) {
+    toReport(report, title, options = {}, location) {
       // format all responses into an array
       if (!Array.isArray(report)) {
         report = [report];
       }
       // store report data
-
       this.reportData = [...this.reportData, ...report] || [];
-      this.$utilities.writeData(this.reportData, headers, noHeaders);
+
+      // print data to sheet
+      this.$utilities.writeData(this.reportData, title, options, location);
     },
     onClearReport() {
       this.selectedReport = {

@@ -150,7 +150,56 @@ export function writeData(json, google) {
 /**
  * Writes report data to the Google Sheet
  * @param {*} json array of report data
+ * @param {} options 
+ * options = {
+      defaultValue: "undefined",
+      //flatten: true,
+      eol: "\r\n", // TESTING
+      noHeaders: noHeaders,
+      includeEmptyRows: true,
+      fields: headers ? headers : report.fields
+    };
  */
+export function writeData(json, title, options = {}, location) {
+  //if (typeof google !== "undefined") {
+  console.log("writeData options, json", options, json);
+  try {
+    const report = formatReport(json);
+
+    const defaultOptions = {
+      defaultValue: "undefined",
+      //flatten: true,
+      eol: "\r\n", // TESTING
+      //unwind: true,
+      header: true,
+      includeEmptyRows: true,
+      fields: options.headers ? options.headers : report.fields
+    };
+    options = { ...defaultOptions, ...options };
+    console.log("writeData final options ", options);
+    if (report.data) {
+      let csv = json2csv.parse(report.data, options);
+      csv = title + "\n" + csv;
+      /*
+      // Add title if headers are required
+      if (options.header) {
+        csv = title + "\n" + csv;
+      }
+      console.log("writeData csv ", csv);
+      */
+
+      // Send CSV to Google Sheet via GAS function
+      if (typeof google !== "undefined") {
+        google.script.run.writeCsvData(csv, location);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  //}
+}
+
+/*
 export function writeData(json, headers, noHeaders) {
   //if (typeof google !== "undefined") {
   console.log("writeData json", json);
@@ -181,3 +230,4 @@ export function writeData(json, headers, noHeaders) {
   }
   //}
 }
+*/

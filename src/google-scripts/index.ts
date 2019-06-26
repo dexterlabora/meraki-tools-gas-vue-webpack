@@ -5,7 +5,7 @@ import { writeCsvData } from "./writeCsvData";
 import { loadMenu } from "./menu";
 
 function onOpen() {
-  //loadSidebar();
+  //loadSidebar(); //permissions issue
   loadMenu();
 }
 

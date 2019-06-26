@@ -1,5 +1,4 @@
 archive/
-clasp/dist
 node_modules/
 tmp/
 yarn.lock
