@@ -111,7 +111,7 @@ function writeCsvData() {
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 829);
+/******/ 	return __webpack_require__(__webpack_require__.s = 825);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -143,7 +143,7 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 793:
+/***/ 789:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -159,7 +159,7 @@ function loadMenu() {
 
 /***/ }),
 
-/***/ 825:
+/***/ 821:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -177,7 +177,7 @@ function doGet(e) {
 
 /***/ }),
 
-/***/ 826:
+/***/ 822:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -208,7 +208,7 @@ function fetch(path, options) {
 
 /***/ }),
 
-/***/ 827:
+/***/ 823:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -226,7 +226,7 @@ function loadSidebar() {
 
 /***/ }),
 
-/***/ 828:
+/***/ 824:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -235,18 +235,21 @@ function loadSidebar() {
 var sheet = function () {
     return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 };
-function writeCsvData(csvContent, location) {
+function writeCsvData(csvContent, title, location) {
     if (!csvContent) {
+        Logger.log("writeCsvData no csvContent");
         return;
     }
+    Logger.log("csvContent", csvContent.toString());
     try {
         var csvData = [""];
         // fix the bug on Utilities.parseCsv() google script function which does not allow newlines in csv strings @simonjamain
         csvContent = csvContent.replace(/(["'])(?:(?=(\\?))\2[\s\S])*?\1/g, function (e) {
             return e.replace(/\r?\n|\r/g, " ");
         });
+        csvContent = title + "\n" + csvContent;
         csvData = Utilities.parseCsv(csvContent);
-        Logger.log("csvData.toString() ", csvData.toString());
+        Logger.log("parsed csvData.toString() ", csvData.toString());
         switch (location) {
             case "overwrite":
                 toActiveCellOverwrite(csvData);
@@ -331,16 +334,16 @@ function getDateTimeString() {
 
 /***/ }),
 
-/***/ 829:
+/***/ 825:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(825);
-/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(826);
-/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(827);
-/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(828);
-/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(793);
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(821);
+/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(822);
+/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(823);
+/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(824);
+/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(789);
 
 
 

@@ -3,10 +3,12 @@ var sheet = function() {
   return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 };
 
-export function writeCsvData(csvContent, location: string) {
+export function writeCsvData(csvContent,title, location: string) {
   if (!csvContent) {
+    Logger.log("writeCsvData no csvContent");
     return;
   }
+  Logger.log("csvContent", csvContent.toString());
 
   try {
     let csvData: any[] = [""];
@@ -17,9 +19,12 @@ export function writeCsvData(csvContent, location: string) {
         return e.replace(/\r?\n|\r/g, " ");
       }
     );
+    csvContent = title + "\n" + csvContent;
+    
     csvData = Utilities.parseCsv(csvContent);
+    
 
-    Logger.log("csvData.toString() ", csvData.toString());
+    Logger.log("parsed csvData.toString() ", csvData.toString());
 
     switch (location) {
       case "overwrite":

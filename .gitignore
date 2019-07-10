@@ -3,6 +3,6 @@ node_modules/
 tmp/
 yarn.lock
 yarn-error.log
-devnotes.md 
+.devnotes.md 
 .gitignore
 
