@@ -243,7 +243,10 @@ import InputSelector from "../shared/meraki-selectors/InputSelector";
 import FirewalledServiceSelector from "../shared/meraki-selectors/FirewalledServiceSelector.vue";
 import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue";
 
+import * as reportHelpers from "../../report-helpers";
+
 var rateLimit = require("function-rate-limit");
+
 
 /*
 const Queue = require("smart-request-balancer");
@@ -814,8 +817,11 @@ export default Vue.extend({
         this.swaggerReports.push(report);
       });
     },
-    getIterableParam(pathParams) {
-      // pathParams = ['networkId', 'serial']
+    /**
+     * @param pathParams
+     * pathParams = ['networkId', 'serial']
+     */
+    getIterableParam(pathParams) { 
 
       // Specific param to iterate
       if (pathParams.includes("serial")) {
@@ -844,12 +850,6 @@ export default Vue.extend({
       }
       if (
         pathParams.includes("networkId")
-        /*
-         && 
-        !pathParams.includes("serial") &&
-        !pathParams.include("bluetoothClientId") &&
-        !pathParams.include("actionBatchId") // Maybe better logic here
-        */
       ) {
         return {
           name: "networkIds",
@@ -1037,12 +1037,11 @@ export default Vue.extend({
             console.log("runAction gasRequest .fetch res: ", res);
             try {
               data = JSON.parse(res.body);
-              //
             } catch (error) {
               console.log("unable to parse body, returning default body");
               data = res.body;
             }
-            return this.handleResponse(data, count, extraData, location);
+            return this.handleResponse(data, extraData, location);
           })
           .withFailureHandler(error => {
             console.log("GAS via OAS error: ", error);
@@ -1062,9 +1061,8 @@ export default Vue.extend({
         return (
           axios(options)
             .then(res =>
-              this.handleResponse(res.data, count, extraData, location)
+              this.handleResponse(res.data, extraData, location)
             )
-            //.then(res => res.data)
             .catch(e => {
               this.handleError(e, "onRunReport", action);
             })
@@ -1081,9 +1079,9 @@ export default Vue.extend({
 
       // Check if looper actions exist
 
-      // Loops through each action in series, and adjusts the headers
+      // Throttle the API calls to avoid rate limit (5 calls/s)
       this.looperProgress = 0;
-      var throttledAction = await rateLimit(1, 1000, (action, i, extraData) => {
+      var throttledAction = rateLimit(1, 1000, (action, i, extraData) => {
         console.log("running rate limited action: ", i, action);
         this.looperProgress = ((i + 1) / this.report.actions.length) * 100;
         if (this.looperProgress >= 100) {
@@ -1092,6 +1090,7 @@ export default Vue.extend({
         return this.runAction(action, i, extraData, location);
       });
 
+      // Loops through each action in series, and adjusts the headers
       for (let [i, action] of this.report.actions.entries()) {
         let extraData = {};
 
@@ -1110,97 +1109,27 @@ export default Vue.extend({
 
         console.log("queueing rate limited action: ", action);
 
-        const actionResults = await throttledAction(
+        throttledAction(
           action,
           i,
           extraData,
           location
         );
-        console.log("actionResults ", actionResults);
-
-        /*
-        // send to report
-        this.$store.commit("setLoading", false);
-        const totalActions = this.report.actions.length;
-        if (i > 0) {
-          this.toReport(
-            actionResults,
-            this.report.title,
-            {
-              noHeaders: true
-            },
-            location
-          );
-        } else {
-          this.toReport(actionResults, this.report.title, {}, location);
-        }
-        */
+        
       }
     },
-    // Used for dynamic report response -- logic not used for report templates
-    parseSwaggerPaths(swagger) {
-      let paths = swagger["paths"];
-      //console.log("organization Open API paths", paths);
-      let report = [];
-      try {
-        // get paths
-        Object.keys(paths).forEach(function(path, index) {
-          // get details for each path resource
-          Object.keys(paths[path]).forEach((p, i) => {
-            let summary = paths[path][p]["summary"];
-            let description = paths[path][p]["description"];
-            let operationId = paths[path][p]["operationId"];
-            let params = paths[path][p]["parameters"] || [];
-            let method = Object.keys(paths[path])[i];
-
-            // pathParams
-            let pathParams = [];
-            let filteredPathParams = params.filter(p => p.in.includes("path"));
-            filteredPathParams.forEach(p => pathParams.push(p.name));
-            pathParams = JSON.stringify(pathParams);
-
-            // queryParams
-            let queryParams = [];
-            let filteredQueryParams = params.filter(p =>
-              p.in.includes("query")
-            );
-            filteredQueryParams.forEach(p => queryParams.push(p.name));
-            queryParams = JSON.stringify(queryParams);
-
-            // bodyModel
-            let bodyModel = [];
-            let filteredBodyModel = params.filter(p => p.in.includes("body"));
-            filteredBodyModel.forEach(p => bodyModel.push(p.name));
-            bodyModel = JSON.stringify(bodyModel);
-
-            // create report
-            report.push({
-              summary,
-              path,
-              method,
-              operationId,
-              pathParams,
-              queryParams,
-              bodyModel
-              //description //this data has chararcter conflicts with the sheet
-            });
-          });
-        });
-        return report;
-      } catch (error) {
-        this.handleError(error, "parseSwaggerPaths");
-      }
-    },
+    
     adjustMerakiReport(path, res) {
       if (path.includes("/openapiSpec")) {
-        return this.parseSwaggerPaths(res);
+        //return this.parseSwaggerPaths(res);
+        return reportHelpers.parseSwaggerPaths(res);
       }
       return res;
     },
     isIterable(array) {
       return Array.isArray(array) || array.length;
     },
-    handleResponse(res, count, extraData, location) {
+    handleResponse(res, extraData, location) {
       if (!res) {
         console.log("handleResponse No Response");
         return;
@@ -1223,32 +1152,20 @@ export default Vue.extend({
       // send to report
       this.$store.commit("setLoading", false);
       const totalActions = this.report.actions.length;
-      if (count > 0) {
-        this.toReport(
+     
+      return this.toReport(
           adjustedReport,
           this.report.title,
-          {
-            header: true
-          },
+          {},
           location
         );
-      } else {
-        this.toReport(
-          adjustedReport,
-          this.report.title,
-          { header: true },
-          location
-        );
-      }
-
-      return adjustedReport;
     },
     toReport(report, title, options = {}, location) {
       // format all responses into an array
       if (!Array.isArray(report)) {
         report = [report];
       }
-      // store report data
+      // store report data for this run (cleared on next onRunReport())
       this.reportData = [...this.reportData, ...report] || [];
 
       // print data to sheet
@@ -1316,58 +1233,5 @@ export default Vue.extend({
   text-size: smaller;
 }
 
-/*
-.input-group--select__autocomplete {
-  background-color: rgb(219, 118, 63);
-  height: 0px !important;
-}
 
-.input-group--select.input-group--focused .input-group--select__autocomplete {
-  height: 30px !important;
-  background-color: rgb(219, 118, 63);
-}
-
-.v-list__tile__action {
-  align-items: center;  
-  min-width: 28px !important;
-}
-*/
-/*
-.selectDropDown {
-  background-color: rgb(219, 118, 63);
-  border: solid 1px #e6e6ea;
-  font-size: 14px;
-}
-.selected {
-  background-color: rgb(164, 243, 127);
-  font-size: 14px;
-}
-
-.v-text-field--box .v-input__slot,
-.v-text-field--outline .v-input__slot {
-  min-height: auto !important;
-  display: flex !important;
-  align-items: center !important;
-  background-color: rgb(164, 187, 37);
-}
-.v-select .selections {
-  background-color: rgb(40, 37, 187);
-}
-*/
-/*
-$input-height: 40px;
-*/
-/*
-.v-select.v-text-field {
-  background-color: aqua;
-
-  height: auto !important;
-  max-height: 40px !important;
-}
-
-.v-text-field .v-input__control .v-input__slot{
-  background-color: rgb(99, 213, 71);
-  min-height: 30px !important;
-}
-*/
 </style>

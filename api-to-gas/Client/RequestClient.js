@@ -12,7 +12,7 @@ const HttpResponse = require("../Response/HttpResponse");
 const APIHelper = require("../../APIHelper");
 
 // CUSTOM Meraki Big ID numbers
-const JSONbig = require("json-bigint")({ storeAsString: true });
+//const JSONbig = require("json-bigint")({ storeAsString: true });
 
 // CUSTOM GOOGLE APPS REQUEST HANDLER - BY CORY
 var request;
@@ -62,6 +62,18 @@ const appendFormdata = function appendFormdata(form, data) {
 };
 
 const convertHttpResponse = function convertHttpResponse(resp) {
+  const response = new HttpResponse();
+  if (resp) {
+    response.body = resp.body;
+    response.headers = resp.headers;
+    response.statusCode = resp.statusCode;
+  }
+
+  return response;
+};
+
+/* no longer needed
+const convertHttpResponse = function convertHttpResponse(resp) {
   console.log("convertHttpResponse, resp", resp);
   const response = new HttpResponse();
 
@@ -70,7 +82,8 @@ const convertHttpResponse = function convertHttpResponse(resp) {
     //response.body = resp.body;
     if (resp.body) {
       try {
-        response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
+        //response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
+        response.body = JSON.stringify(resp.body);
       } catch (error) {
         console.log("unable to parse body, returning default body");
         response.body = resp.body;
@@ -83,6 +96,7 @@ const convertHttpResponse = function convertHttpResponse(resp) {
   console.log("convertHttpResponse, response (after JSONBig)", response);
   return response;
 };
+*/
 
 //
 
@@ -95,32 +109,36 @@ const convertHttpResponse = function convertHttpResponse(resp) {
  * @returns {void}                Does not return anything
  */
 const executeRequest = function executeRequest(req, callback) {
-  console.log("sdk executeRequest req", req);
+  //console.log("sdk executeRequest req", req);
   // convert abstracted request to request's http request
   const convertedRequest = convertHttpRequest(req);
   const context = new HttpContext();
   context.request = req;
-  console.log("sdk executeRequest context", context);
+  //console.log("sdk executeRequest context", context);
   // make a temp callback
   const internalCallback = function cb(error, res) {
-    console.log("sdk executeRequest internalCallback error, res", error, res);
+    //console.log("sdk executeRequest internalCallback error, res", error, res);
     const response = convertHttpResponse(res);
     context.response = res;
+    /*
     console.log(
       "sdk executeRequest internalCallback error,response,context",
       error,
       res,
       context
     );
+    */
     callback(error, response, context);
   };
 
   // make the request
+  /*
   console.log(
     "sdk executeRequest request(convertedRequest, internalCallback",
     convertedRequest,
     internalCallback
   );
+  */
   const rq = request(convertedRequest, internalCallback);
   // add formdata directly.
   if (req.formData) {

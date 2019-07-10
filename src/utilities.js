@@ -1,4 +1,3 @@
-import * as papa from "papaparse";
 import * as flatten from "flat";
 import * as json2csv from "json2csv";
 
@@ -118,35 +117,6 @@ function formatReport(json) {
   return report;
 }
 
-/* papa Working.. mostly, having issue with BigNumber
-export function writeData(json, google) {
-  console.log("writeData json", json);
-  try {
-    const report = formatReport(json);
-    const config = {
-      quotes: false, //or array of booleans
-      quoteChar: '"',
-      escapeChar: '"',
-      delimiter: ",",
-      header: true,
-      newline: "\r\n",
-      skipEmptyLines: false, //or 'greedy',
-      columns: report.fields //or array of strings
-    };
-
-    const csv = papa.unparse(report.data, config);
-    console.log("writeData csv ", csv);
-
-    // Send CSV to Google Sheet via GAS function
-    if (google) {
-      google.script.run.writeCsvData(csv);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
-*/
-
 /**
  * Writes report data to the Google Sheet
  * @param {*} json array of report data
@@ -179,18 +149,11 @@ export function writeData(json, title, options = {}, location) {
     console.log("writeData final options ", options);
     if (report.data) {
       let csv = json2csv.parse(report.data, options);
-      csv = title + "\n" + csv;
-      /*
-      // Add title if headers are required
-      if (options.header) {
-        csv = title + "\n" + csv;
-      }
-      console.log("writeData csv ", csv);
-      */
+      //csv = title + "\n" + csv;
 
       // Send CSV to Google Sheet via GAS function
       if (typeof google !== "undefined") {
-        google.script.run.writeCsvData(csv, location);
+        google.script.run.writeCsvData(csv,title,location);
       }
     }
   } catch (err) {
@@ -199,35 +162,4 @@ export function writeData(json, title, options = {}, location) {
   //}
 }
 
-/*
-export function writeData(json, headers, noHeaders) {
-  //if (typeof google !== "undefined") {
-  console.log("writeData json", json);
-  try {
-    const report = formatReport(json);
 
-    const options = {
-      defaultValue: "undefined",
-      //flatten: true,
-      eol: "\r\n", // TESTING
-      //unwind: true, // TESTING -- TypeError: unwindPath.split is not a function
-      noHeaders: noHeaders,
-      includeEmptyRows: true,
-      //fields: report.fields,
-      fields: headers ? headers : report.fields
-    };
-    if (report.data) {
-      const csv = json2csv.parse(report.data, options);
-      console.log("writeData csv ", csv);
-
-      // Send CSV to Google Sheet via GAS function
-      if (typeof google !== "undefined") {
-        google.script.run.writeCsvData(csv);
-      }
-    }
-  } catch (err) {
-    console.error(err);
-  }
-  //}
-}
-*/
