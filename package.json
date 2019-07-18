@@ -29,7 +29,7 @@
     "json-2-csv": "^3.4.1",
     "json-bigint": "^0.3.0",
     "json2csv": "^4.3.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "meraki": "1.1.0",
     "npm": "^6.5.0",
     "papaparse": "^4.6.3",
