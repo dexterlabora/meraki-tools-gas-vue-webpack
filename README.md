@@ -34,17 +34,20 @@ If you would like to enhance this tool, you could clone this project and deploy 
 
 ### Pre-reqs
 
-- [Yarn](https://yarnpkg.com/en/): Node Package Manager..but with some enhancements/
+- [Yarn](https://yarnpkg.com/en/): Node Package Manager..but with some enhancements
 
-  - [install guide](https://yarnpkg.com/en/docs/install#mac-stable)
+  - [install guide](https://yarnpkg.com/en/docs/install)
 
-- [Webpack](https://www.npmjs.com/package/webpack): Packages the web application, does some JS compatability things, and adjusts code to workin with Google.
-
-  `yarn add webpack --dev`
 
 - **Clasp**: Utility to push scripts to Google
 
   `npm install @google/clasp -g`
+
+- Once `clasp` is installed, you will need to login to Google from the command line. It will prompt you to complete the login via a web page. 
+  
+```
+clasp login
+```
 
 ### Install
 
@@ -56,7 +59,11 @@ yarn
 
 ### Configure
 
-Update `clasp/.clasp.json`, setting `"scriptId"` to your Google project's ID (so if your project's URL was https://script.google.com/d/foo123bar321) then `"scriptId"` should be `"foo123bar321"`)
+First, create a blank [Google Sheet](https://sheets.new), then go to **Tools** --> **Script editor**.
+Save the default script with a name. Then, obtain the `scriptId` by going to **File** --> **Project settings**
+
+Update `clasp/.clasp.json`, setting `scriptId` to your Google project's ID 
+
 
 ### Local Development
 
