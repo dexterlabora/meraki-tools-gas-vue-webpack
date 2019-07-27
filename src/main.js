@@ -3,7 +3,7 @@ import Router from "./router.ts";
 import App from "./app.vue";
 import Store from "./store.js";
 import Vuetify from "vuetify";
-import "vuetify/dist/vuetify.min.css";
+//import "vuetify/dist/vuetify.min.css"; // importing via app.vue, html import; because GAS does not allow CSS files :(
 Vue.use(Vuetify, {
   iconfont: "md"
 });

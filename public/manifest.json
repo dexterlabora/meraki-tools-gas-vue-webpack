@@ -1,6 +1,6 @@
 {
-  "name": "vue-swagger-app",
-  "short_name": "vue-swagger-app",
+  "name": "Meraki Tools Google Sheets Add-on",
+  "short_name": "meraki-tools-gsheets-addon",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",

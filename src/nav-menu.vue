@@ -1,5 +1,5 @@
 <template id="nav-menu">
-  <v-toolbar dense color="green darken-1" dark>
+  <v-toolbar dense color="green darken-1" >
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn icon v-on="on" to="/home">

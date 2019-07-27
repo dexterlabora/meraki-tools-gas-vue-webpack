@@ -1,6 +1,6 @@
 <template id="org-refresh-button">
   <div>
-    <v-btn round color="blue" @click="fetchOrgs">Refresh Org List</v-btn>
+    <v-btn rounded color="blue" @click="fetchOrgs">Refresh Org List</v-btn>
   </div>
 </template>
 

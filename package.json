@@ -4,7 +4,7 @@
   "description": "Google Apps Script With Typescript, Vue, and Webpack",
   "author": "Cory Guynn",
   "scripts": {
-    "serve": "VUE_APP_SERVICE=dev vue-cli-service serve",
+    "serve": "./scripts/api-to-gas.sh && VUE_APP_SERVICE=dev vue-cli-service serve",
     "build": "VUE_APP_SERVICE=gas webpack --config webpack.config.js && ./scripts/api-to-gas.sh",
     "deploy": "VUE_APP_SERVICE=gas webpack --config webpack.config.js && ./scripts/api-to-gas.sh && ./scripts/clush.sh",
     "clush": "./scripts/clush.sh"
@@ -42,7 +42,7 @@
     "vue-material": "^1.0.0-beta-10.2",
     "vue-quaggajs": "^1.0.6",
     "vue-router": "^3.0.2",
-    "vuetify": "^1.5.14",
+    "vuetify": "1",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4",
     "webpack-shell-plugin": "^0.5.0"
@@ -70,8 +70,10 @@
     "cors": "^2.8.5",
     "css-loader": "^2.1.1",
     "date-fns": "^1.29.0",
+    "deepmerge": "^4.0.0",
     "express": "^4.16.3",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "fibers": "^4.0.1",
     "global-request-logger": "^0.1.1",
     "intellisense": "^0.0.1",
     "json-loader": "^0.5.7",
@@ -81,6 +83,7 @@
     "morgan": "^1.9.1",
     "node-sass": "^4.11.0",
     "request": "^2.88.0",
+    "sass": "^1.22.7",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "stylus": "^0.54.5",

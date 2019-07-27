@@ -71,11 +71,26 @@ Update `clasp/.clasp.json`, setting `scriptId` to your Google project's ID
 yarn serve
 ```
 
-> A local development proxy server will run on http://localhost:8080
+> A local development proxy server will run on http://localhost:8080, be sure to update your API Base URL in the running application with your local URL.
 
 This will not only serve a local instance of the application but it will also forward all Meraki API requests where the path begins with `/api` to the local proxy server. These requests will then make be forwarded to `https://api.meraki.com/api/v0`.
 
 ### Deploy to Production
+First ensure that you have the [Google clasp](https://developers.google.com/apps-script/guides/clasp) tool installed.
+```
+npm install @google/clasp -g
+```
+
+Then, login to your Google account from the command line within your project.
+```
+clasp login
+```
+- Create a new [Google Sheet](https://sheets.new)
+- Create a Script for the sheet (Tools --> Script editor)
+- Save blank the sheet & script file.
+- Note the Project ID in File --> Project properties --> Script ID
+
+Update the `./clasp.json` file with the your Script ID
 
 ```
 yarn deploy

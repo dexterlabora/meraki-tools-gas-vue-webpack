@@ -4,12 +4,8 @@
       <v-flex xs12 md12>
         <v-card pb-4>
           <v-card-title>
-            <h3>Meraki Reports</h3>
-
-            <!--
-              v-model="selectedReport"
-              @click:clear="onClearReport"
-            -->
+            Meraki Reports
+            <v-spacer></v-spacer>
 
             <v-autocomplete
               class="mt-2"
@@ -85,8 +81,8 @@
                 -->
               </v-speed-dial>
 
-              <div>
-                <v-flex xs12 sm6 md6 pt-2 d-flex>
+              <div class="pt-4">
+                <v-flex xs12 sm6 d-flex>
                   <v-select
                     v-model="selectedGroup"
                     :items="groups"
@@ -197,8 +193,16 @@
         <v-flex xs12 sm12 md12 pt-2>
           <v-card>
             <v-card-title>
-              <h3>JSON Results</h3>
-              <v-btn absolute right small round color="gray" @click="onSaveFile" v-if="reportData">
+              JSON Results
+              <v-btn
+                absolute
+                right
+                small
+                rounded
+                color="gray"
+                @click="onSaveFile"
+                v-if="reportData"
+              >
                 <v-icon>save_alt</v-icon>
               </v-btn>
             </v-card-title>
@@ -246,7 +250,6 @@ import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue"
 import * as reportHelpers from "../../report-helpers";
 
 var rateLimit = require("function-rate-limit");
-
 
 /*
 const Queue = require("smart-request-balancer");
@@ -821,8 +824,7 @@ export default Vue.extend({
      * @param pathParams
      * pathParams = ['networkId', 'serial']
      */
-    getIterableParam(pathParams) { 
-
+    getIterableParam(pathParams) {
       // Specific param to iterate
       if (pathParams.includes("serial")) {
         // special because serial also requires networkId typically
@@ -848,9 +850,7 @@ export default Vue.extend({
           iterate: "organizationId"
         };
       }
-      if (
-        pathParams.includes("networkId")
-      ) {
+      if (pathParams.includes("networkId")) {
         return {
           name: "networkIds",
           description: "list of network IDs",
@@ -1058,15 +1058,11 @@ export default Vue.extend({
             "X-Cisco-Meraki-API-Key": this.apiKey
           }
         };
-        return (
-          axios(options)
-            .then(res =>
-              this.handleResponse(res.data, extraData, location)
-            )
-            .catch(e => {
-              this.handleError(e, "onRunReport", action);
-            })
-        );
+        return axios(options)
+          .then(res => this.handleResponse(res.data, extraData, location))
+          .catch(e => {
+            this.handleError(e, "onRunReport", action);
+          });
       }
     },
 
@@ -1109,16 +1105,10 @@ export default Vue.extend({
 
         console.log("queueing rate limited action: ", action);
 
-        throttledAction(
-          action,
-          i,
-          extraData,
-          location
-        );
-        
+        throttledAction(action, i, extraData, location);
       }
     },
-    
+
     adjustMerakiReport(path, res) {
       if (path.includes("/openapiSpec")) {
         //return this.parseSwaggerPaths(res);
@@ -1152,13 +1142,8 @@ export default Vue.extend({
       // send to report
       this.$store.commit("setLoading", false);
       const totalActions = this.report.actions.length;
-     
-      return this.toReport(
-          adjustedReport,
-          this.report.title,
-          {},
-          location
-        );
+
+      return this.toReport(adjustedReport, this.report.title, {}, location);
     },
     toReport(report, title, options = {}, location) {
       // format all responses into an array
@@ -1228,10 +1213,11 @@ export default Vue.extend({
   }
 });
 </script>
-<style scoped>
+<style >
 .v-autocomplete {
   text-size: smaller;
 }
-
-
+.v-text-field .v-label {
+  top: 0px !important;
+}
 </style>

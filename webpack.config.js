@@ -31,10 +31,10 @@ module.exports = {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         loader: ["url-loader?limit=100000", "file-loader"]
       },
-      {
-        test: /\.styl$/,
-        loader: ["style-loader", "css-loader", "stylus-loader"]
-      },
+      // {
+      //   test: /\.styl$/,
+      //   loader: ["style-loader", "css-loader", "stylus-loader"]
+      // },
       //{ test: /\.json$/, loader: "json-loader" },
       {
         test: /\.vue$/,
@@ -56,14 +56,14 @@ module.exports = {
         }
       },
 
-      {
-        test: /\.scss$/,
-        use: ["vue-style-loader", "css-loader", "sass-loader"]
-      },
-      {
-        test: /\.styl$/,
-        loader: ["style-loader", "css-loader", "stylus-loader"]
-      },
+      // {
+      //   test: /\.scss$/,
+      //   use: ["vue-style-loader", "css-loader", "sass-loader"]
+      // },
+      // {
+      //   test: /\.styl$/,
+      //   loader: ["style-loader", "css-loader", "stylus-loader"]
+      // },
       {
         test: /\.css$/,
         use: ["css-loader"]

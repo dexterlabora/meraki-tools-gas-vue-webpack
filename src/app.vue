@@ -1,23 +1,21 @@
 <template>
   <div>
-    <!--link rel="stylesheet" href="/public/fonts/materialIcons.css" /-->
     <link
-      rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
-    >
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
     <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css"
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
-    >
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
-    <!-- Vuetify is not being directly imported via require, and using stylus -->
-    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@1.x/dist/vuetify.min.css" rel="stylesheet" />
     <div id="app">
       <v-app>
         <v-content class="font-weight-light">
           <v-container class="pa-1">
-            <nav-menu></nav-menu>
+            <nav-menu class="mb-4"></nav-menu>
+            <v-spacer></v-spacer>
             <org-selector></org-selector>
             <net-selector></net-selector>
             <router-view></router-view>
@@ -55,5 +53,8 @@ export default {
   display: flex;
   justify-content: flex-start;
   min-width: 32px !important;
+}
+.v-btn {
+  background-color: rgba(0, 0, 0, 0) !important;
 }
 </style>
