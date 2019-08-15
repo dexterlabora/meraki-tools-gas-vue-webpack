@@ -158,9 +158,7 @@
 
         <v-flex xs12 sm12 md12 pt-2 v-if="report.looperParam">
           <v-card>
-            <v-card-title>
-              <h3>Looper</h3>
-            </v-card-title>
+            <v-card-title>Looper</v-card-title>
 
             <v-card-text p1>
               <p>
