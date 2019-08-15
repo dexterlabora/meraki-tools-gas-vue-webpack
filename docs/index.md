@@ -11,6 +11,10 @@ Meraki Tools is an application to generate reports and makes adjustments for the
 
 ![](MerakiTools_EventLog_Screenshot.png)
 
+
+### See it in action
+![](MerakiTools_Looper.gif)
+
 ## Key Technologies
 
 [Meraki Dashboard API](https://meraki.io/api)
