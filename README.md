@@ -6,7 +6,7 @@ Meraki Tools is an application to generate reports and makes adjustments for the
 
 Google Add-on Marketplace Link
 
-http://cs.co/meraki_tools
+[Get Add-on](https://cs.co/meraki_tools)
 
 ## Key Technologies
 
