@@ -11,18 +11,20 @@
       multiple
       clearable
       autofocus
+      class="small"
     >
       <template v-slot:prepend-item>
-        <v-list-tile ripple @click="toggle">
-          <v-list-tile-action>
+        <v-list-item ripple @click="toggle">
+          <v-list-item-action>
             <v-icon>done_all</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Select All</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Select All</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-divider class="mt-2"></v-divider>
       </template>
+
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip small v-if="index === 0">
           <span class="small-chips">{{ item.name }}</span>

@@ -1,6 +1,18 @@
 <template>
   <div>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
     <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <!-- <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet" />-->
+
+    <!-- <link
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
       rel="stylesheet"
     />
@@ -9,7 +21,7 @@
       href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css"
       rel="stylesheet"
     />
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@1.x/dist/vuetify.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2/dist/vuetify.min.css" rel="stylesheet" />-->
     <div id="app">
       <v-app>
         <v-content class="font-weight-light">
@@ -32,7 +44,7 @@ import NavMenu from "./nav-menu.vue";
 import OrgSelector from "./components/shared/OrgSelector.vue";
 import NetSelector from "./components/shared/NetSelector.vue";
 import Snackbar from "./components/shared/Snackbar.vue";
-import "vuetify/dist/vuetify.min.css";
+//import "vuetify/dist/vuetify.min.css";
 
 export default {
   name: "App",

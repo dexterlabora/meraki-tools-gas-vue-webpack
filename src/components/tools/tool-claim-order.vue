@@ -6,14 +6,14 @@
         fixed
         bottom
         center
-        dark
         color="primary"
+        open-on-hover
         @click="onWriteSheet"
         v-if="orderClaimed.status"
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn :loading="loading" fab fixed bottom right dark color="orange" @click="onClaim()">
+      <v-btn :loading="loading" fab fixed bottom right color="blue darken-2" @click="onClaim()">
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
@@ -51,7 +51,7 @@
                   single-line
                   v-if="form.type == 'licenseKey'"
                 ></v-select>
-                <v-text-field v-model="form.value" :label="_.startCase(form.type)"></v-text-field>
+                <!-- <v-text-field v-model="form.value" :label="_.startCase(form.type)"></v-text-field> -->
               </v-flex>
             </v-card-text>
           </v-card>
@@ -125,9 +125,6 @@ export default Vue.extend({
     },
     loading: function() {
       return this.$store.state.loading;
-    },
-    beta: function() {
-      return this.$store.state.beta;
     }
   },
   methods: {

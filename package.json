@@ -10,7 +10,7 @@
     "clush": "./scripts/clush.sh"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.3",
+    "@babel/polyfill": "^7.4.4",
     "@babel/runtime": "^7.4.3",
     "@fortawesome/fontawesome-svg-core": "^1.2.12",
     "@fortawesome/free-solid-svg-icons": "^5.6.3",
@@ -42,7 +42,7 @@
     "vue-material": "^1.0.0-beta-10.2",
     "vue-quaggajs": "^1.0.6",
     "vue-router": "^3.0.2",
-    "vuetify": "1",
+    "vuetify": "2.0.5",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4",
     "webpack-shell-plugin": "^0.5.0"
@@ -91,7 +91,7 @@
     "ts-loader": "^6.0.1",
     "typescript": "^3.0.3",
     "uuid": "^3.3.2",
-    "vue-cli-plugin-vuetify": "^0.5.0",
+    "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.5.17",
     "vuetify-loader": "^1.0.5",

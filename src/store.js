@@ -44,7 +44,7 @@ export default new Vuex.Store({
     ssids: [],
     switchPort: {},
     switchPorts: [],
-    timespan: "7200",
+    timespan: 0,
     t0: 0,
     t1: 0,
     vlan: {},

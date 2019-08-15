@@ -13,7 +13,7 @@
       >
         <v-icon>view_list</v-icon>
       </v-btn>
-      <v-btn :loading="loading" fab fixed bottom right dark color="orange" @click="updateSsid()">
+      <v-btn :loading="loading" fab fixed bottom right color="blue darken-2" @click="updateSsid()">
         <v-icon dark>check</v-icon>
       </v-btn>
       <v-flex xs12 sm12>
