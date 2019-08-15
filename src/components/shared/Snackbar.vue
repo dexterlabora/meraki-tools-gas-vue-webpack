@@ -2,7 +2,7 @@
   <div>
     <v-snackbar v-model="show" bottom multi-line :timeout="3000">
       {{ message }}
-      <v-btn color="pink" flat @click.native="show = false">Close</v-btn>
+      <v-btn color="pink" @click.native="show = false">Close</v-btn>
     </v-snackbar>
   </div>
 </template>

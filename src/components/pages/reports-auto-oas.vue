@@ -4,12 +4,8 @@
       <v-flex xs12 md12>
         <v-card pb-4>
           <v-card-title>
-            <h3>Meraki Reports</h3>
-
-            <!--
-              v-model="selectedReport"
-              @click:clear="onClearReport"
-            -->
+            Meraki Reports
+            <v-spacer></v-spacer>
 
             <v-autocomplete
               class="mt-2"
@@ -17,26 +13,28 @@
               :filter="customFilter"
               @change="onSearch"
               return-object
-              hide-details
               hide-no-data
               hide-selected
               clearable
               item-text="name"
               item-value="symbol"
-              label="Search reports.."
+              filled
               solo
+              rounded
             >
-              <template v-slot:no-data>
-                <v-list-tile>
-                  <v-list-tile-title>Search Reports</v-list-tile-title>
-                </v-list-tile>
+              <template v-slot:label>
+                <p>
+                  <i>Search reports ...</i>
+                </p>
               </template>
-              <template v-slot:selection="{ item, selected }" class="selected">{{item.shortTitle}}</template>
+              <template v-slot:selection="{ item, selected }" class="selected">
+                <label class="caption">{{item.shortTitle}}</label>
+              </template>
               <template v-slot:item="{ item }">
-                <v-list-tile-content>
-                  <v-list-tile-title v-text="item.shortTitle"></v-list-tile-title>
-                  <v-list-tile-sub-title v-text="item.summary"></v-list-tile-sub-title>
-                </v-list-tile-content>
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.shortTitle" class="caption"></v-list-item-title>
+                  <v-list-item-subtitle v-text="item.summary" class="body-2"></v-list-item-subtitle>
+                </v-list-item-content>
               </template>
             </v-autocomplete>
           </v-card-title>
@@ -70,7 +68,6 @@
                 <template v-slot:activator>
                   <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
                     <v-icon>play_arrow</v-icon>
-                    <v-icon>close</v-icon>
                   </v-btn>
                 </template>
 
@@ -85,8 +82,8 @@
                 -->
               </v-speed-dial>
 
-              <div>
-                <v-flex xs12 sm6 md6 pt-2 d-flex>
+              <div class="pt-4">
+                <v-flex xs12 sm6 d-flex>
                   <v-select
                     v-model="selectedGroup"
                     :items="groups"
@@ -197,8 +194,16 @@
         <v-flex xs12 sm12 md12 pt-2>
           <v-card>
             <v-card-title>
-              <h3>JSON Results</h3>
-              <v-btn absolute right small round color="gray" @click="onSaveFile" v-if="reportData">
+              JSON Results
+              <v-btn
+                absolute
+                right
+                small
+                rounded
+                color="gray"
+                @click="onSaveFile"
+                v-if="reportData"
+              >
                 <v-icon>save_alt</v-icon>
               </v-btn>
             </v-card-title>
@@ -227,12 +232,14 @@ import ActionBatchSelector from "../shared/meraki-selectors/ActionBatchSelector"
 import ClientSelector from "../shared/meraki-selectors/ClientSelector";
 import DeviceSelector from "../shared/meraki-selectors/DeviceSelector";
 import DevicesSelector from "../shared/meraki-selectors/DevicesSelector";
+import EventTypeSelector from "../shared/meraki-selectors/EventTypeSelector";
 import OrgSelector from "../shared/OrgSelector";
 import OrganizationsSelector from "../shared/meraki-selectors/OrganizationsSelector";
 import NetSelector from "../shared/NetSelector";
 import NetworksSelector from "../shared/meraki-selectors/NetworksSelector";
 import MethodSelector from "../shared/meraki-selectors/MethodSelector";
 import ModelSelector from "../shared/meraki-selectors/ModelSelector";
+import ProductTypeSelector from "../shared/meraki-selectors/ProductTypeSelector";
 import SsidSelector from "../shared/meraki-selectors/SsidSelector";
 import SwitchPortSelector from "../shared/meraki-selectors/SwitchPortSelector";
 import VlanSelector from "../shared/meraki-selectors/VlanSelector";
@@ -246,7 +253,6 @@ import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue"
 import * as reportHelpers from "../../report-helpers";
 
 var rateLimit = require("function-rate-limit");
-
 
 /*
 const Queue = require("smart-request-balancer");
@@ -292,19 +298,21 @@ export default Vue.extend({
   template: "#page-reports-auto",
   components: {
     ActionBatchSelector,
-    InputSelector,
     ClientSelector,
     DeviceSelector,
     DevicesSelector,
-    SsidSelector,
-    SwitchPortSelector,
-    VlanSelector,
-    TimespanSelector,
+    EventTypeSelector,
+    InputSelector,
+    NetSelector,
     MethodSelector,
     ModelSelector,
-    VueJsonPretty,
     OrgSelector,
-    NetSelector
+    ProductTypeSelector,
+    SsidSelector,
+    SwitchPortSelector,
+    TimespanSelector,
+    VlanSelector,
+    VueJsonPretty
   },
   mounted() {
     this.initReports();
@@ -551,8 +559,13 @@ export default Vue.extend({
         }
       });
     },
+    timespanSelectorAttributes() {
+      if (this.selectedReport["path"].includes("uplinksLossAndLatency")) {
+        return { min: 120, max: 300 };
+      }
+    },
     deviceSelectorAttributes() {
-      if (this.selectedReport["path"].includes("cameras")) {
+      if (this.selectedReport["path"].includes("camera")) {
         return { model: "MV" };
       }
       if (this.selectedReport["path"].includes("switch")) {
@@ -579,44 +592,6 @@ export default Vue.extend({
     paramComponentMap() {
       // Use only adjusted param names here
       return {
-        networkId: {
-          //component: // Using global state
-          paramVal: this.net ? this.net.id : undefined
-        },
-        networkIds: {
-          component: NetworksSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["networks"]
-            ? this.formData["networks"].map(n => n.id)
-            : undefined
-        },
-        bluetoothClientId: {
-          component: BleClientSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["bluetoothClient"]
-            ? this.formData["bluetoothClient"]["id"]
-            : undefined
-        },
-        includeConnectivityHistory: {
-          component: ToggleSelector,
-          attributes: {
-            label: "Include Connectivity History",
-            param: "includeConnectivityHistory"
-          },
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["includeConnectivityHistory"]
-        },
-        organizationId: {
-          //component: // using global state
-          paramVal: this.org ? this.org.id : undefined
-        },
-        organizationIds: {
-          component: OrganizationsSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["organizations"]
-            ? this.formData["organizations"].map(o => o.id)
-            : undefined
-        },
         actionBatchId: {
           component: ActionBatchSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
@@ -624,29 +599,11 @@ export default Vue.extend({
             ? this.formData["actionBatch"]["id"]
             : undefined
         },
-        service: {
-          component: FirewalledServiceSelector,
+        bluetoothClientId: {
+          component: BleClientSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["firewalledService"]
-        },
-        method: {
-          component: MethodSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["method"]
-        },
-        idOrMacOrIp: {
-          component: ClientSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["client"]
-            ? this.formData["client"]["id"]
-            : undefined
-        },
-        // TODO: use adjusted param
-        mac: {
-          component: ClientSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["client"]
-            ? this.formData["client"]["mac"]
+          paramVal: this.formData["bluetoothClient"]
+            ? this.formData["bluetoothClient"]["id"]
             : undefined
         },
         clientId: {
@@ -663,6 +620,107 @@ export default Vue.extend({
             ? this.formData["client"]["mac"]
             : undefined
         },
+        connectivityHistoryTimespan: {
+          component: TimespanSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["timespan"]
+        },
+        excludedEventTypes: {
+          component: EventTypeSelector,
+          attributes: {
+            label: "exclude event types",
+            param: "excludeEventTypes",
+            description: this.filteredPaths
+              .filter(p => p.operationId === "getNetworkEvents")[0]
+              .parameters.filter(
+                param => param.name === "excludedEventTypes"
+              )[0].description
+          },
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["excludedEventTypes"]
+        },
+
+        includeConnectivityHistory: {
+          component: ToggleSelector,
+          attributes: {
+            label: "include connectivity history",
+            param: "includeConnectivityHistory"
+          },
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["includeConnectivityHistory"]
+        },
+        includedEventTypes: {
+          component: EventTypeSelector,
+          attributes: {
+            label: "include event types",
+            param: "includedEventTypes",
+            description: this.filteredPaths
+              .filter(p => p.operationId === "getNetworkEvents")[0]
+              .parameters.filter(
+                param => param.name === "includedEventTypes"
+              )[0].description
+          },
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["includedEventTypes"]
+        },
+        idOrMacOrIp: {
+          component: ClientSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["client"]
+            ? this.formData["client"]["id"]
+            : undefined
+        },
+        // TODO: use adjusted param
+        mac: {
+          component: ClientSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["client"]
+            ? this.formData["client"]["mac"]
+            : undefined
+        },
+        method: {
+          component: MethodSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["method"]
+        },
+        networkId: {
+          //component: // Using global state
+          paramVal: this.net ? this.net.id : undefined
+        },
+        networkIds: {
+          component: NetworksSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["networks"]
+            ? this.formData["networks"].map(n => n.id)
+            : undefined
+        },
+        organizationId: {
+          //component: // using global state
+          paramVal: this.org ? this.org.id : undefined
+        },
+        organizationIds: {
+          component: OrganizationsSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["organizations"]
+            ? this.formData["organizations"].map(o => o.id)
+            : undefined
+        },
+        productType: {
+          component: ProductTypeSelector,
+          attributes: {
+            productType: this.net.productTypes
+              ? this.net.productTypes[0]
+              : undefined
+          }, // use first product in list
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["productType"]
+        },
+        service: {
+          component: FirewalledServiceSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["firewalledService"]
+        },
+
         serial: {
           component: DeviceSelector,
           attributes: this.deviceSelectorAttributes, //{ model: "MV" } WORKS,
@@ -695,10 +753,12 @@ export default Vue.extend({
             : undefined
         },
         timespan: {
+          attributes: this.timespanSelectorAttributes,
           component: TimespanSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["timespan"]
         },
+
         vlanId: {
           component: VlanSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
@@ -706,13 +766,10 @@ export default Vue.extend({
             ? this.formData["vlan"]["id"]
             : undefined
         },
-        connectivityHistoryTimespan: {
-          component: TimespanSelector,
-          knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["timespan"]
-        },
+
         zoneId: {
           component: ZoneSelector,
+          attributes: { device: this.formData["device"] },
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["zone"]
             ? this.formData["zone"]["id"]
@@ -821,8 +878,7 @@ export default Vue.extend({
      * @param pathParams
      * pathParams = ['networkId', 'serial']
      */
-    getIterableParam(pathParams) { 
-
+    getIterableParam(pathParams) {
       // Specific param to iterate
       if (pathParams.includes("serial")) {
         // special because serial also requires networkId typically
@@ -848,9 +904,7 @@ export default Vue.extend({
           iterate: "organizationId"
         };
       }
-      if (
-        pathParams.includes("networkId")
-      ) {
+      if (pathParams.includes("networkId")) {
         return {
           name: "networkIds",
           description: "list of network IDs",
@@ -961,7 +1015,7 @@ export default Vue.extend({
           selectors.push({
             component: InputSelector,
             attributes: {
-              label: p.name,
+              label: lodash.startCase(p.name).toLowerCase(),
               description: p.description
             },
             knownEvents: { onChange: "handleSelectorEvent" }
@@ -1058,22 +1112,18 @@ export default Vue.extend({
             "X-Cisco-Meraki-API-Key": this.apiKey
           }
         };
-        return (
-          axios(options)
-            .then(res =>
-              this.handleResponse(res.data, extraData, location)
-            )
-            .catch(e => {
-              this.handleError(e, "onRunReport", action);
-            })
-        );
+        return axios(options)
+          .then(res => this.handleResponse(res.data, extraData, location))
+          .catch(e => {
+            this.handleError(e, "onRunReport", action);
+          });
       }
     },
 
     async onRunReport(location) {
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
-      setTimeout(() => this.$store.commit("setLoading", false), 1000);
+      setTimeout(() => this.$store.commit("setLoading", false), 10000);
 
       this.reportData = []; // Clear Current Report
 
@@ -1093,14 +1143,15 @@ export default Vue.extend({
       // Loops through each action in series, and adjusts the headers
       for (let [i, action] of this.report.actions.entries()) {
         let extraData = {};
-
-        if (Object.keys(this.report.looperParamVals).length > 0) {
-          if (this.report.looperParamVals[this.report.looperParam.name]) {
-            const currentVal = this.report.looperParamVals[
-              this.report.looperParam.name
-            ][i]; // assuming only one looper param
-            if (currentVal) {
-              extraData[this.report.looperParam.iterate] = currentVal;
+        if (this.report.looperParamVals) {
+          if (Object.keys(this.report.looperParamVals).length > 0) {
+            if (this.report.looperParamVals[this.report.looperParam.name]) {
+              const currentVal = this.report.looperParamVals[
+                this.report.looperParam.name
+              ][i]; // assuming only one looper param
+              if (currentVal) {
+                extraData[this.report.looperParam.iterate] = currentVal;
+              }
             }
           }
         }
@@ -1109,16 +1160,10 @@ export default Vue.extend({
 
         console.log("queueing rate limited action: ", action);
 
-        throttledAction(
-          action,
-          i,
-          extraData,
-          location
-        );
-        
+        throttledAction(action, i, extraData, location);
       }
     },
-    
+
     adjustMerakiReport(path, res) {
       if (path.includes("/openapiSpec")) {
         //return this.parseSwaggerPaths(res);
@@ -1150,15 +1195,10 @@ export default Vue.extend({
       }
 
       // send to report
-      this.$store.commit("setLoading", false);
+
       const totalActions = this.report.actions.length;
-     
-      return this.toReport(
-          adjustedReport,
-          this.report.title,
-          {},
-          location
-        );
+
+      return this.toReport(adjustedReport, this.report.title, {}, location);
     },
     toReport(report, title, options = {}, location) {
       // format all responses into an array
@@ -1170,6 +1210,7 @@ export default Vue.extend({
 
       // print data to sheet
       this.$utilities.writeData(this.reportData, title, options, location);
+      this.$store.commit("setLoading", false);
     },
     onClearReport() {
       this.selectedReport = {
@@ -1217,9 +1258,9 @@ export default Vue.extend({
           color: "danger"
         });
       } else {
-        console.log("Welp, that's not good: ", error);
+        console.log("Welp, that's not good: ", action);
         this.$store.commit("setSnackbar", {
-          msg: action + " -- " + error,
+          msg: error.Error ? error.Error : error,
           color: "danger"
         });
       }
@@ -1228,10 +1269,14 @@ export default Vue.extend({
   }
 });
 </script>
-<style scoped>
+<style >
 .v-autocomplete {
   text-size: smaller;
 }
-
-
+.v-text-field .v-label {
+  top: 0px !important;
+}
+.select__selections {
+  padding-top: 2px !important;
+}
 </style>

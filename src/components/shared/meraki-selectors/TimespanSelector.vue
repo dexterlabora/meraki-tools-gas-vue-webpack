@@ -1,10 +1,10 @@
 <template id="timespan-selector">
   <div>
     <v-select
-      v-bind:items="times"
+      v-bind:items="filteredTimes"
       item-text="name"
       item-value="time"
-      v-model="time"
+      v-model="form.time"
       label="Timespan"
       autofocus
     ></v-select>
@@ -15,25 +15,45 @@
 import Vue from "vue";
 export default Vue.extend({
   template: "#device-selector",
-  props: ["label", "description"],
+  props: ["label", "description", "min", "max"],
   computed: {
-    timespan: function() {
-      return this.$store.state.timespan;
-    },
-    t0: function() {
+    t0() {
       let time = this.t1 - this.timespan;
       return time;
     },
-    t1: function() {
+    t1() {
       let date = new Date();
       let time = date.getTime();
       return time;
+    },
+    filteredTimes() {
+      if (this.min != undefined && this.max != undefined) {
+        return this.times.filter(t => t.time >= this.min && t.time <= this.max);
+      }
+      if (this.min != undefined) {
+        return this.times.filter(t => t.time >= this.min);
+      }
+      if (this.max != undefined) {
+        return this.times.filter(t => t.time <= this.max);
+      }
+      return this.times;
     }
   },
   data() {
     return {
-      time: "",
+      form: {
+        time: ""
+      },
+      timespan: 0,
       times: [
+        {
+          name: "2 minutes",
+          time: 120
+        },
+        {
+          name: "5 minutes",
+          time: 300
+        },
         {
           name: "2 hours",
           time: 7200
@@ -63,7 +83,7 @@ export default Vue.extend({
     }
   },
   mounted() {
-    this.time = this.timespan || 7200;
+    this.time = this.timespan;
   }
 });
 </script>

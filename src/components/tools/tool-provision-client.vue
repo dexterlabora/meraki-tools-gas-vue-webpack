@@ -19,8 +19,7 @@
         fixed
         bottom
         right
-        dark
-        color="orange"
+        color="blue darken-2"
         @click="onProvisionClient()"
       >
         <v-icon dark>check</v-icon>

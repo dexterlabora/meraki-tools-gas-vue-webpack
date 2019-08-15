@@ -15,13 +15,11 @@
 <script>
 import Vue from "vue";
 export default Vue.extend({
+  props: ["device"],
   template: "#zone-selector",
   computed: {
     net: function() {
       return this.$store.state.net;
-    },
-    device: function() {
-      return this.$store.state.device;
     }
   },
   created: function() {
@@ -42,13 +40,10 @@ export default Vue.extend({
         this.zone = "";
         return;
       }
-      this.$merakiSdk.AnalyticsController.getDeviceCameraAnalyticsZones({
-        serial: this.device.serial,
-        $queryParameters: {
-          timespan: this.timespan
-        }
-      }).then(res => {
-        this.zones = res.data;
+      this.$merakiSdk.MVSenseController.getDeviceCameraAnalyticsZones(
+        this.device.serial
+      ).then(res => {
+        this.zones = res;
         this.zone = this.zones[0]; // set default ssid
       });
     }

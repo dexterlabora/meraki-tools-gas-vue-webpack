@@ -27,10 +27,10 @@ export default Vue.extend({
     },
     net: function() {
       return this.$store.state.net;
-    },
-    timespan: function() {
-      return this.$store.state.timespan;
     }
+    // timespan: function() {
+    //   return this.$store.state.timespan;
+    // }
   },
   created: function() {
     this.fetchClients();
@@ -41,7 +41,8 @@ export default Vue.extend({
       clients: [],
       form: {
         client: {}
-      }
+      },
+      timespan: 7200
     };
   },
   methods: {

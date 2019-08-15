@@ -2,11 +2,13 @@ import Vue from "vue";
 import Router from "./router.ts";
 import App from "./app.vue";
 import Store from "./store.js";
-import Vuetify from "vuetify";
-import "vuetify/dist/vuetify.min.css";
-Vue.use(Vuetify, {
-  iconfont: "md"
-});
+import vuetify from "./plugins/vuetify";
+import "@babel/polyfill";
+//import Vuetify from "vuetify";
+//import "vuetify/dist/vuetify.min.css"; // importing via app.vue, html import; because GAS does not allow CSS files :(
+// Vue.use(Vuetify, {
+//   iconfont: "md"
+// });
 
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
 if (process.env.VUE_APP_SERVICE === "dev") {
@@ -25,15 +27,19 @@ import merakiSdk from "meraki";
 Vue.prototype.$merakiSdk = merakiSdk;
 
 import * as utilities from "./utilities.js";
+
 Vue.prototype.$utilities = utilities;
 
 new Vue({
   router: Router,
   store: Store,
   el: "#app",
+
   created() {
     merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
     merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
   },
+
+  vuetify,
   render: h => h(App)
 }).$mount("#app");
