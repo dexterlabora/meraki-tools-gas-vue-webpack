@@ -252,46 +252,6 @@ import * as reportHelpers from "../../report-helpers";
 
 var rateLimit = require("function-rate-limit");
 
-/*
-const Queue = require("smart-request-balancer");
-const queue = new Queue({
-  rules: {
-    // Describing rules by name
-    common: {
-      rate: 3, // Allow to send 5 messages
-      limit: 1 // per 1 second
-    }
-  },
-  retryTime: 300 // Default retry time. Can be configured in retry fn
-});
-*/
-
-/*
-function limiter(fn, wait) {
-  let isCalled = false,
-    calls = [];
-
-  let caller = function() {
-    if (calls.length && !isCalled) {
-      isCalled = true;
-      calls.shift().call();
-      setTimeout(function() {
-        isCalled = false;
-        caller();
-      }, wait);
-    }
-  };
-
-  return function() {
-    calls.push(fn.bind(this, ...arguments));
-    // let args = Array.prototype.slice.call(arguments);
-    // calls.push(fn.bind.apply(fn, [this].concat(args)));
-
-    caller();
-  };
-}
-*/
-
 export default Vue.extend({
   template: "#page-reports-auto",
   components: {
@@ -532,6 +492,7 @@ export default Vue.extend({
       return report;
     },
     reports: function() {
+      // skip reports if no network selected
       return this.swaggerReports;
     },
     // Group Selectors
@@ -706,8 +667,10 @@ export default Vue.extend({
         productType: {
           component: ProductTypeSelector,
           attributes: {
-            productType: this.net.productTypes
-              ? this.net.productTypes[0]
+            productType: this.net
+              ? this.net.productTypes
+                ? this.net.productTypes[0]
+                : undefined
               : undefined
           }, // use first product in list
           knownEvents: { onChange: "handleSelectorEvent" },
@@ -1117,8 +1080,38 @@ export default Vue.extend({
           });
       }
     },
+    hasNull(target) {
+      for (var member in target) {
+        if (target[member] == null) return true;
+      }
+      return false;
+    },
+    whichIsNull(target) {
+      for (var member in target) {
+        if (target[member] == null) return member;
+      }
+      return false;
+    },
 
     async onRunReport(location) {
+      // check if any required path params are missing
+      // if (this.hasNull(this.report.paramVals)) {
+      //   this.$store.commit("setSnackbar", {
+      //     msg: "Missing required parameters",
+      //     color: "danger"
+      //   });
+      //   return;
+      // }
+
+      const whichIsNull = this.whichIsNull(this.report.paramVals);
+      if (whichIsNull) {
+        this.$store.commit("setSnackbar", {
+          msg: "Missing required parameters: " + whichIsNull,
+          color: "danger"
+        });
+        return;
+      }
+
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
       setTimeout(() => this.$store.commit("setLoading", false), 10000);
