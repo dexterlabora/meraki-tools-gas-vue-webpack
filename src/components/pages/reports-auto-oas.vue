@@ -495,6 +495,15 @@ export default Vue.extend({
       // skip reports if no network selected
       return this.swaggerReports;
     },
+    requiredParams() {
+      if (!this.report) {
+        return;
+      }
+      if (!this.report.parameters) {
+        return;
+      }
+      return this.report.parameters.filter(p => p.required);
+    },
     // Group Selectors
     groups: function() {
       let groups = this.reports.filter(r => r.group);
@@ -1095,22 +1104,31 @@ export default Vue.extend({
 
     async onRunReport(location) {
       // check if any required path params are missing
-      // if (this.hasNull(this.report.paramVals)) {
-      //   this.$store.commit("setSnackbar", {
-      //     msg: "Missing required parameters",
-      //     color: "danger"
-      //   });
-      //   return;
-      // }
 
-      const whichIsNull = this.whichIsNull(this.report.paramVals);
-      if (whichIsNull) {
+      let missingParams = [];
+      this.requiredParams.forEach(p => {
+        if (!this.report.paramVals[p.name]) {
+          missingParams.push(p.name);
+        }
+      });
+
+      if (missingParams.length > 0) {
         this.$store.commit("setSnackbar", {
-          msg: "Missing required parameters: " + whichIsNull,
+          msg: "Missing required parameters: " + JSON.stringify(missingParams),
           color: "danger"
         });
         return;
       }
+      // console.log("pVals ", pVals);
+      // const whichIsNull = this.whichIsNull(pVals);
+      // if (whichIsNull) {
+      //   this.$store.commit("setSnackbar", {
+      //     msg: "Missing required parameters: " + whichIsNull,
+      //     color: "danger"
+      //   });
+      //   return;
+
+      //
 
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
