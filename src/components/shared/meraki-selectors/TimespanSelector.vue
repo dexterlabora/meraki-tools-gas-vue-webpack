@@ -75,11 +75,11 @@ export default Vue.extend({
   },
   methods: {},
   watch: {
-    time() {
+    "form.time": function() {
       //this.$store.commit("setTimespan", this.time);
       //this.$store.commit("setT0", this.t0);
       //this.$store.commit("setT1", this.t1);
-      this.$emit("onChange", { timespan: this.time });
+      this.$emit("onChange", { timespan: this.form.time });
     }
   },
   mounted() {

@@ -1,5 +1,5 @@
 <template id="nav-menu">
-  <v-toolbar dense color="green darken-1" >
+  <v-toolbar dense color="green darken-1">
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn icon v-on="on" to="/home">
@@ -25,7 +25,7 @@
           <v-icon>view_list</v-icon>
         </v-btn>
       </template>
-      <span>Reports dynamically created from the Meraki OpenAPI sepc. Mileage may vary depending on each generated report.</span>
+      <span>Reports dynamically created from the Meraki API.</span>
     </v-tooltip>
 
     <v-tooltip bottom>
@@ -35,6 +35,15 @@
         </v-btn>
       </template>
       <span>Tools to update a Meraki Network.</span>
+    </v-tooltip>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/json-to-sheet">
+          <v-icon>code</v-icon>
+        </v-btn>
+      </template>
+      <span>Print JSON data to Sheet.</span>
     </v-tooltip>
     <!--<v-btn @click="parseSwagger">SwaggerParserTest</v-btn> -->
     <!--<v-btn @click="onGenerateSwaggerReports">Generate Swagger Reports</v-btn>-->

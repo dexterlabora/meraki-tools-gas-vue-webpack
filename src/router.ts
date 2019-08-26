@@ -5,6 +5,7 @@ import PageSettings from "./components/pages/settings.vue";
 import PageReports from "./components/pages/reports.vue";
 import PageReportsAutoOas from "./components/pages/reports-auto-oas.vue";
 import PageTools from "./components/pages/tools.vue";
+import JsonToSheet from "./components/pages/json-to-sheet.vue";
 import PageSwagger from "./components/pages/swagger.vue";
 
 import ToolProvisionClient from "./components/tools/tool-provision-client.vue";
@@ -28,6 +29,7 @@ export default new Router({
     { path: "/provision-client", component: ToolProvisionClient },
     { path: "/claim-order", component: ToolClaimOrder },
     { path: "/configure-ssid", component: ToolConfigureSsid },
-    { path: "/configure-vlan", component: ToolConfigureVlan }
+    { path: "/configure-vlan", component: ToolConfigureVlan },
+    { path: "/json-to-sheet", component: JsonToSheet }
   ]
 });

@@ -10,7 +10,7 @@
             <v-autocomplete
               class="mt-2"
               :items="reports"
-              :filter="customFilter"
+              :filter="searchFilter"
               @change="onSearch"
               return-object
               hide-no-data
@@ -222,7 +222,6 @@ import Vue from "vue";
 import axios from "axios";
 import getFunctionArguments from "get-function-arguments";
 import lodash from "lodash";
-import SwaggerParser from "swagger-parser";
 import VueJsonPretty from "vue-json-pretty";
 
 // Dynamic Components
@@ -249,6 +248,7 @@ import FirewalledServiceSelector from "../shared/meraki-selectors/FirewalledServ
 import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue";
 
 import * as reportHelpers from "../../report-helpers";
+import * as oasReporter from "../../oas-reporter";
 
 var rateLimit = require("function-rate-limit");
 
@@ -397,8 +397,12 @@ export default Vue.extend({
         });
 
         // Extract Params into unique objects
-        report.pathParams = this.getSwaggerPathParams(report.adjustedParams);
-        report.queryParams = this.getSwaggerQueryParams(report.adjustedParams);
+        report.pathParams = oasReporter.getSwaggerPathParams(
+          report.adjustedParams
+        );
+        report.queryParams = oasReporter.getSwaggerQueryParams(
+          report.adjustedParams
+        );
 
         // Required Selectors
         report.requiredSelectors = this.getSelectors(
@@ -454,13 +458,14 @@ export default Vue.extend({
 
       // Set Actions - TEST
 
-      let newPath = this.getPathWithValues(report.path, report.paramVals);
-      let newQueryString = this.getPathQueryWithValues(
+      let newPath = oasReporter.getPathWithValues(
+        report.path,
+        report.paramVals
+      );
+      let newQueryString = oasReporter.getPathQueryWithValues(
         report.queryParams,
         report.paramVals
       );
-      //console.log("newPath", newPath);
-      //console.log("newQueryString", newQueryString);
       report.actions[0] = newPath + newQueryString;
 
       // Create Action for each looper param
@@ -477,8 +482,8 @@ export default Vue.extend({
             let paramVals = report.paramVals;
             paramVals[report.looperParam.iterate] = looperVal;
 
-            let newPath = this.getPathWithValues(report.path, paramVals);
-            let newQueryString = this.getPathQueryWithValues(
+            let newPath = oasReporter.getPathWithValues(report.path, paramVals);
+            let newQueryString = oasReporter.getPathQueryWithValues(
               report.queryParams,
               paramVals
             );
@@ -598,11 +603,11 @@ export default Vue.extend({
           attributes: {
             label: "exclude event types",
             param: "excludeEventTypes",
-            description: this.filteredPaths
-              .filter(p => p.operationId === "getNetworkEvents")[0]
-              .parameters.filter(
-                param => param.name === "excludedEventTypes"
-              )[0].description
+            description: oasReporter.getParamDescription(
+              this.parsedSwagger,
+              "getNetworkEvents",
+              "excludedEventTypes"
+            )
           },
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["excludedEventTypes"]
@@ -622,11 +627,11 @@ export default Vue.extend({
           attributes: {
             label: "include event types",
             param: "includedEventTypes",
-            description: this.filteredPaths
-              .filter(p => p.operationId === "getNetworkEvents")[0]
-              .parameters.filter(
-                param => param.name === "includedEventTypes"
-              )[0].description
+            description: oasReporter.getParamDescription(
+              this.parsedSwagger,
+              "getNetworkEvents",
+              "includedEventTypes"
+            )
           },
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["includedEventTypes"]
@@ -767,7 +772,7 @@ export default Vue.extend({
       }
       this.selectedReport = this.groupReports[0]; // set default report
     },
-    customFilter(item, queryText, itemText) {
+    searchFilter(item, queryText, itemText) {
       const textOne = item.title.toLowerCase();
       const textTwo = item.group.toLowerCase();
       const searchText = queryText.toLowerCase();
@@ -776,13 +781,14 @@ export default Vue.extend({
         textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1
       );
     },
+
     // *****
     // SWAGGER Reports
     // *****
     initReports() {
       this.parseMerakiSwagger(this.org.id).then(parsed => {
         this.parsedSwagger = parsed;
-        this.generateSwaggerReports(parsed);
+        this.swaggerReports = oasReporter.generateReportTemplates(parsed);
       });
     },
     parseMerakiSwagger(orgId) {
@@ -803,47 +809,17 @@ export default Vue.extend({
         )
           .then(res => {
             // Parsing Swagger Spec
-            return SwaggerParser.parse(res)
+            return oasReporter.swaggerParser
+              .parse(res)
               .then(r => {
                 return r;
               })
-              .catch(e => console.log("SwaggerParser error ", e));
+              .catch(e => console.log("oasReporter.swaggerParser error ", e));
           })
           .catch(e => this.handleError(e));
       }
     },
-    generateSwaggerReports(parsedSwagger) {
-      if (!parsedSwagger) {
-        return;
-      }
-      this.swaggerReports = [];
-      this.filteredPaths = [];
 
-      // Extract API paths
-      let paths = Object.keys(parsedSwagger.paths);
-      paths.forEach(path => {
-        // Only use GET methods
-        if (parsedSwagger.paths[path]["get"]) {
-          this.filteredPaths.push({
-            ...parsedSwagger.paths[path]["get"],
-            ...{ path: path }
-          });
-        }
-      });
-
-      // Define swagger report template
-      this.filteredPaths.forEach(path => {
-        let report = {};
-        report.title = path.summary;
-        report.path = path.path;
-        report.shortTitle = _.startCase(path.operationId.replace("get", ""));
-        report.operationId = path.operationId;
-        report.description = path.description;
-        report.group = path.tags[0];
-        report.parameters = path.parameters;
-        this.swaggerReports.push(report);
-      });
-    },
     /**
      * @param pathParams
      * pathParams = ['networkId', 'serial']
@@ -932,41 +908,7 @@ export default Vue.extend({
       }
       return param;
     },
-    getPathWithValues(path, values) {
-      console.log("getPathWithValues path, values", path, values);
-      if (!values) {
-        return path;
-      }
-      let newPath = path.replace(/\{\w+\}/gi, n => {
-        let param = n.replace(/[{}]/g, "");
-        let newValues = values[this.adjustMerakiParam(path, param)];
-        console.log("getPathWithValues values", newValues);
-        return newValues;
-      });
-      return newPath;
-    },
-    getPathQueryWithValues(queryParams, paramVals) {
-      // Append Query with Values
-      let query = "";
-      if (!queryParams || !paramVals) {
-        return query;
-      }
-      if (queryParams.length > 0) {
-        queryParams.forEach((qp, i) => {
-          if (!paramVals[qp.name]) {
-            return;
-          }
-          if (i > 0 && query !== "") {
-            query = query + "&" + qp.name + "=" + paramVals[qp.name];
-          } else {
-            query = "?" + qp.name + "=" + paramVals[qp.name];
-          }
-        });
-        return query;
-      } else {
-        return query;
-      }
-    },
+
     getSelectors(paramObjects) {
       if (!paramObjects) {
         return;
@@ -1014,19 +956,6 @@ export default Vue.extend({
         }
       });
       return paramVals;
-    },
-
-    getSwaggerPathParams(params) {
-      if (!params || params === undefined) {
-        return;
-      }
-      return params.filter(p => p.in === "path");
-    },
-    getSwaggerQueryParams(params) {
-      if (!params || params === undefined) {
-        return;
-      }
-      return params.filter(p => p.in === "query");
     },
     generateReportAction(path, pathParams) {
       if (!pathParams) {
@@ -1089,46 +1018,39 @@ export default Vue.extend({
           });
       }
     },
-    hasNull(target) {
-      for (var member in target) {
-        if (target[member] == null) return true;
-      }
-      return false;
-    },
-    whichIsNull(target) {
-      for (var member in target) {
-        if (target[member] == null) return member;
-      }
-      return false;
-    },
+    // hasNull(target) {
+    //   for (var member in target) {
+    //     if (target[member] == null) return true;
+    //   }
+    //   return false;
+    // },
+    // whichIsNull(target) {
+    //   for (var member in target) {
+    //     if (target[member] == null) return member;
+    //   }
+    //   return false;
+    // },
 
     async onRunReport(location) {
       // check if any required path params are missing
 
-      let missingParams = [];
-      this.requiredParams.forEach(p => {
-        if (!this.report.paramVals[p.name]) {
-          missingParams.push(p.name);
-        }
-      });
-
-      if (missingParams.length > 0) {
-        this.$store.commit("setSnackbar", {
-          msg: "Missing required parameters: " + JSON.stringify(missingParams),
-          color: "danger"
+      if (this.requiredParams) {
+        let missingParams = [];
+        this.requiredParams.forEach(p => {
+          if (!this.report.paramVals[p.name]) {
+            missingParams.push(p.name);
+          }
         });
-        return;
-      }
-      // console.log("pVals ", pVals);
-      // const whichIsNull = this.whichIsNull(pVals);
-      // if (whichIsNull) {
-      //   this.$store.commit("setSnackbar", {
-      //     msg: "Missing required parameters: " + whichIsNull,
-      //     color: "danger"
-      //   });
-      //   return;
 
-      //
+        if (missingParams.length) {
+          this.$store.commit("setSnackbar", {
+            msg:
+              "Missing required parameters: " + JSON.stringify(missingParams),
+            color: "danger"
+          });
+          return;
+        }
+      }
 
       this.$store.commit("setLoading", true);
       // auto cancel loader (to avoid hangining)
@@ -1172,7 +1094,7 @@ export default Vue.extend({
         throttledAction(action, i, extraData, location);
       }
     },
-
+    // Custom report handlers (to override default key/value info for report)
     adjustMerakiReport(path, res) {
       if (path.includes("/openapiSpec")) {
         //return this.parseSwaggerPaths(res);
@@ -1205,7 +1127,7 @@ export default Vue.extend({
 
       // send to report
 
-      const totalActions = this.report.actions.length;
+      //const totalActions = this.report.actions.length;
 
       return this.toReport(adjustedReport, this.report.title, {}, location);
     },

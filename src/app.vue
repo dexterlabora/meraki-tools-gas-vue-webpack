@@ -27,9 +27,11 @@
         <v-content class="font-weight-light">
           <v-container class="pa-1">
             <nav-menu class="mb-4"></nav-menu>
+
             <v-spacer></v-spacer>
             <org-selector></org-selector>
             <net-selector></net-selector>
+
             <router-view></router-view>
             <snackbar></snackbar>
           </v-container>
