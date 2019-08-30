@@ -41,13 +41,6 @@ The following is the system requirement that must be met before using the add-on
 - Meraki Dashboard account with API key. [Getting Started](https://developer.cisco.com/meraki/meraki-platform/)
 
 
-## Privacy Policy
-The add-on is subject to the standard Google Privacy Policy. As with all cloud services, don't store data on Google servers that you don't want Google, Inc. to have access to. No information is stored outside of the running instance of the application within the active Google Sheet.
-
-
-## Terms of Service
-The add-on is free for public use with no guarantees or official support. The project is open source utlizing the Apache license. 
-
 ## Installation
 To install the Meraki Tools add-on, follow these steps:
 
@@ -68,6 +61,9 @@ After installing, a tooltip will appear pointing at the Add-ons menu. Select "La
 This add-on is an open source project. You can submit issues [here](https://github.com/dexterlabora/meraki-tools-gas-vue-webpack/issues) or submit pull requests with any proposed enhancements. 
 
 
+## [Privacy Policy](privacy-terms.md)
+
+## [License](LICENSE)
 
 ## Created By:
 
