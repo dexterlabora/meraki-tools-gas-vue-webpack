@@ -37,6 +37,15 @@
           </v-card-title>
           <v-card-text>
             <p>
+              <a href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack">Website</a>
+            </p>
+
+            <p>
+              <a
+                href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack/privacy-terms.html"
+              >Privacy Policy</a>
+            </p>
+            <p>
               This tool was created to demonstrate the power of the
               <a
                 href="https://meraki.io/api"
