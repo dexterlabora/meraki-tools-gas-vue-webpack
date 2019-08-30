@@ -45,6 +45,14 @@
       </template>
       <span>Print JSON data to Sheet.</span>
     </v-tooltip>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" to="/swagger">
+          <v-icon>all_inclusive</v-icon>
+        </v-btn>
+      </template>
+      <span>OpenAPI Explorer</span>
+    </v-tooltip>
     <!--<v-btn @click="parseSwagger">SwaggerParserTest</v-btn> -->
     <!--<v-btn @click="onGenerateSwaggerReports">Generate Swagger Reports</v-btn>-->
 

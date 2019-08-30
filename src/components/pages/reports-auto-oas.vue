@@ -220,6 +220,7 @@
 <script>
 import Vue from "vue";
 import axios from "axios";
+import * as rh from "../../request-handler";
 import getFunctionArguments from "get-function-arguments";
 import lodash from "lodash";
 import VueJsonPretty from "vue-json-pretty";
@@ -972,51 +973,59 @@ export default Vue.extend({
       }
     },
     runAction(action, count, extraData, location) {
+      console.log("runAction action", action);
+      const options = {
+        method: "get",
+        url: action,
+        headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
+        contentType: "application/json"
+      };
+      rh.request(options).then(res => this.handleResponse(res));
       //**
       // Run Report based on environment
       //**
       // Google Apps Script
-      if (process.env.VUE_APP_SERVICE === "gas") {
-        const url = `${this.apiUrl}/${action}`;
-        const options = {
-          method: "get",
-          headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
-          contentType: "application/json",
-          followRedirects: true
-        };
-        return google.script.run
-          .withSuccessHandler(res => {
-            let data;
-            console.log("runAction gasRequest .fetch res: ", res);
-            try {
-              data = JSON.parse(res.body);
-            } catch (error) {
-              console.log("unable to parse body, returning default body");
-              data = res.body;
-            }
-            return this.handleResponse(data, extraData, location);
-          })
-          .withFailureHandler(error => {
-            console.log("GAS via OAS error: ", error);
-            return this.handleError(error, "onRunReport", action);
-          })
-          .fetch(url, options);
-      } else {
-        // AXIOS
-        const options = {
-          method: "get",
-          baseURL: this.apiUrl,
-          url: action,
-          headers: {
-            "X-Cisco-Meraki-API-Key": this.apiKey
-          }
-        };
-        return axios(options)
-          .then(res => this.handleResponse(res.data, extraData, location))
-          .catch(e => {
-            this.handleError(e, "onRunReport", action);
-          });
-      }
+      // if (process.env.VUE_APP_SERVICE === "gas") {
+      //   const url = `${this.apiUrl}/${action}`;
+      //   const options = {
+      //     method: "get",
+      //     headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
+      //     contentType: "application/json",
+      //     followRedirects: true
+      //   };
+      //   return google.script.run
+      //     .withSuccessHandler(res => {
+      //       let data;
+      //       console.log("runAction gasRequest .fetch res: ", res);
+      //       try {
+      //         data = JSON.parse(res.body);
+      //       } catch (error) {
+      //         console.log("unable to parse body, returning default body");
+      //         data = res.body;
+      //       }
+      //       return this.handleResponse(data, extraData, location);
+      //     })
+      //     .withFailureHandler(error => {
+      //       console.log("GAS via OAS error: ", error);
+      //       return this.handleError(error, "onRunReport", action);
+      //     })
+      //     .fetch(url, options);
+      // } else {
+      //   // AXIOS
+      //   const options = {
+      //     method: "get",
+      //     baseURL: this.apiUrl,
+      //     url: action,
+      //     headers: {
+      //       "X-Cisco-Meraki-API-Key": this.apiKey
+      //     }
+      //   };
+      //   return axios(options)
+      //     .then(res => this.handleResponse(res.data, extraData, location))
+      //     .catch(e => {
+      //       this.handleError(e, "onRunReport", action);
+      //     });
+      // }
     },
     // hasNull(target) {
     //   for (var member in target) {
@@ -1156,47 +1165,47 @@ export default Vue.extend({
     },
     onSaveFile() {
       this.$utilities.saveFile(this.reportData, this.selectedReport.shortTitle);
-    },
-    handleError(error, errorTitle, action) {
-      console.log("handleError error: ", error);
-      this.$store.commit("setLoading", false);
-      console.log(errorTitle);
-      if (error.errorCode === 400) {
-        console.log("Bad request, often due to missing a required parameter.");
-        this.$store.commit("setSnackbar", {
-          msg: "Bad request, often due to missing a required parameter.",
-          color: "danger"
-        });
-      } else if (error.errorCode === 401) {
-        console.log("No valid API key provided.");
-        this.$store.commit("setSnackbar", {
-          msg: "No valid API key provided.",
-          color: "danger"
-        });
-      } else if (error.errorCode >= 500 && error.errorCode < 600) {
-        console.log("Server error");
-        this.$store.commit("setSnackbar", {
-          msg: "Server error or invalid parameters",
-          color: "danger"
-        });
-      } else if (error.errorCode === 404) {
-        console.log(
-          "The requested resource doesn't exist or you do not have permission"
-        );
-        this.$store.commit("setSnackbar", {
-          msg:
-            "The requested resource doesn't exist or you do not have permission",
-          color: "danger"
-        });
-      } else {
-        console.log("Welp, that's not good: ", action);
-        this.$store.commit("setSnackbar", {
-          msg: error.Error ? error.Error : error,
-          color: "danger"
-        });
-      }
-      return;
     }
+    // handleError(error, errorTitle, action) {
+    //   console.log("handleError error: ", error);
+    //   this.$store.commit("setLoading", false);
+    //   console.log(errorTitle);
+    //   if (error.errorCode === 400) {
+    //     console.log("Bad request, often due to missing a required parameter.");
+    //     this.$store.commit("setSnackbar", {
+    //       msg: "Bad request, often due to missing a required parameter.",
+    //       color: "danger"
+    //     });
+    //   } else if (error.errorCode === 401) {
+    //     console.log("No valid API key provided.");
+    //     this.$store.commit("setSnackbar", {
+    //       msg: "No valid API key provided.",
+    //       color: "danger"
+    //     });
+    //   } else if (error.errorCode >= 500 && error.errorCode < 600) {
+    //     console.log("Server error");
+    //     this.$store.commit("setSnackbar", {
+    //       msg: "Server error or invalid parameters",
+    //       color: "danger"
+    //     });
+    //   } else if (error.errorCode === 404) {
+    //     console.log(
+    //       "The requested resource doesn't exist or you do not have permission"
+    //     );
+    //     this.$store.commit("setSnackbar", {
+    //       msg:
+    //         "The requested resource doesn't exist or you do not have permission",
+    //       color: "danger"
+    //     });
+    //   } else {
+    //     console.log("Welp, that's not good: ", action);
+    //     this.$store.commit("setSnackbar", {
+    //       msg: error.Error ? error.Error : error,
+    //       color: "danger"
+    //     });
+    //   }
+    //   return;
+    // }
   }
 });
 </script>

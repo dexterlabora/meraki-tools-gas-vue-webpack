@@ -3,6 +3,76 @@ import SwaggerParser from "swagger-parser";
 
 export const swaggerParser = SwaggerParser;
 
+export function generateSwaggerPathsVue(parsedSwagger, inputValuesMap) {
+  if (!parsedSwagger) {
+    return;
+  }
+
+  let paths = parsedSwagger.paths;
+  let finalView = {
+    host: `https://${parsedSwagger.host}${parsedSwagger.basePath}`,
+    //host: "http://localhost:8080/api",
+
+    title: parsedSwagger.info.title,
+    version: parsedSwagger.info.version,
+    //description: parsedSwagger.info.description,
+    opened: true,
+    request: []
+  };
+
+  let pathKeys = Object.keys(paths);
+  if (!pathKeys.length) {
+    return;
+  }
+  pathKeys.forEach(path => {
+    let requests = [];
+    let methods = Object.keys(parsedSwagger.paths[path]);
+
+    methods.forEach(m => {
+      let request = {};
+      request.tags = parsedSwagger.paths[path][m].tags;
+      request.method = m;
+      request.description = parsedSwagger.paths[path][m].description;
+      request.url = path;
+      //request.headers = headers;
+
+      //Get the query & body params
+      request.params = [];
+      if (parsedSwagger.paths[path][m].parameters) {
+        const qParams = parsedSwagger.paths[path][m].parameters.filter(
+          p => p.in === "query" || p.in == "body"
+        );
+        request.params = [
+          ...request.params,
+          ...qParams.map(p => {
+            p.key = p.name;
+            p.source = p.in;
+            return p;
+          })
+        ];
+      }
+
+      //request.body = "item.body";
+
+      // request.params = [];
+      // if (request.url.includes("{organizationId}")) {
+      //   request.params.push({
+      //     key: "organizationId",
+      //     description: 123,
+      //     value: 666,
+      //     inputValue: 999,
+      //     source: "path"
+      //   });
+      // }
+
+      requests.push(request);
+    });
+    finalView.request = [...finalView.request, ...requests];
+  });
+
+  return finalView;
+}
+
 export function generateReportTemplates(parsedSwagger) {
   if (!parsedSwagger) {
     return;
