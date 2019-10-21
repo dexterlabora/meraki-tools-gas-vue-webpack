@@ -25,7 +25,7 @@ export default Vue.extend({
   },
   watch: {
     snackbar: function() {
-      console.log("Snackbar.vue watch msg", this.snackbar.msg);
+      //console.log("Snackbar.vue watch msg", this.snackbar.msg);
       const msg = this.snackbar.msg;
       if (msg !== "") {
         this.show = true;
