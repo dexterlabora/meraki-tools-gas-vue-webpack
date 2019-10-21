@@ -4,23 +4,15 @@
       <div class="tab-header">
         <h1>Parameters</h1>
       </div>
-      <!-- <div class="try-out" v-if="!execute">
-        <button class="btn" @click="execute = true">Try it out</button>
-      </div>
-      <div class="try-out" v-if="execute">
-        <button class="btn cancel" @click="execute = false">Cancel</button>
-      </div>-->
     </div>
     <div class="table-container">
       <table>
         <tr v-for="(item, index) in dataParameters" :key="index">
-          <!-- <td class="vtop"> -->
           <v-layout column>
             <v-flex class="sm6 md6">
               <div class="parameter-name">
                 <span>
                   <div v-if="item.description">
-                    <!-- {{item.description}} -->
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
                         <v-icon color="grey lighten-1" v-on="on">info</v-icon>
@@ -67,21 +59,9 @@
                   >
                     <span>{{param.key}}</span>
                     <v-input :placeholder="getPlaceholder(param)" v-model="param.value"></v-input>
-                    <!-- <input
-                    type="text"
-                    :placeholder="getPlaceholder(param)"
-                    v-model="param.value"
-                    
-                    />-->
                   </div>
                 </div>
 
-                <!-- <input
-                v-else
-                type="text"
-                :placeholder="getPlaceholder(item)"
-                v-model="item.inputValue"
-                />-->
                 <v-text-field
                   v-else
                   outlined
@@ -145,12 +125,12 @@
 </template>
 
 <script>
-import axios from "axios";
+//import axios from "axios";
 import VueJsonPretty from "vue-json-pretty";
 import * as rh from "../../../../request-handler";
 
 export default {
-  props: ["params", "method"],
+  props: ["params", "method", "description"],
   data() {
     return {
       isLoading: false,
@@ -177,6 +157,9 @@ export default {
     },
     apiKey: function() {
       return this.$store.state.apiKey;
+    },
+    apiUrl: function() {
+      return this.$store.state.apiUrl;
     },
     org: function() {
       return this.$store.state.org;
@@ -207,38 +190,26 @@ export default {
   },
   methods: {
     onWriteSheet: function() {
-      this.$utilities.writeData(this.lastResponseData);
+      if (!Array.isArray(this.lastResponseData)) {
+        let arrayData = [];
+        arrayData.push(this.lastResponseData);
+        this.$utilities.writeData(arrayData);
+      } else {
+        this.$utilities.writeData(this.lastResponseData, this.description);
+      }
     },
     initEnvParams() {
-      console.log("updating dataParameters");
+      //console.log("updating dataParameters");
       this.dataParameters = this.dataParameters.map(dp => {
         dp.inputValue = this.getValue(dp);
-        //if (dp.inputValue) {
         return dp;
-        //}
       });
     },
     async runApi() {
-      // const call = axios.create();
-
-      //   var self = this;
-      //   call.interceptors.response.use(
-      //     response => {
-      //       return response;
-      //     },
-      //     function(error) {
-      //       // Do something with response error
-      //       if (error.response.status === 401) {
-      //       }
-
-      //       return Promise.reject(error.response);
-      //     }
-      //   );
-
-      //const url = [this.$parent.spec.host, this.getUrl()].join("");
       const url = this.getUrl();
 
-      const config = {
+      let config = {
+        baseUrl: this.apiUrl,
         url,
         method: this.$parent.method,
         headers: this.getHeaders(),
@@ -246,15 +217,26 @@ export default {
         data: this.getData()
       };
 
-      // Cory edits
-      //config.headers["X-Cisco-Meraki-API-Key"] = this.apiKey;
-      // ***********
+      // Append query params
+      let paramNames = Object.keys(config.params);
+      let count = 0;
+      paramNames.forEach((pn, i) => {
+        if (config.params[pn]) {
+          if (count > 0) {
+            config.url += `&`;
+          } else {
+            config.url += "?";
+          }
+          config.url += `${pn}=${config.params[pn]}`;
+          count++;
+        }
+      });
+
+      //console.log("config.url", config.url);
 
       try {
-        //let response = await call.request(config);
-        //this.success(response.data);
         this.isLoading = true;
-        console.log("params-table rh config ", config);
+        //console.log("params-table rh config ", config);
         rh.request(config)
           .then(res => this.success(res))
           .catch(e => this.error(e))
@@ -262,6 +244,7 @@ export default {
       } catch (e) {
         this.isLoading = false;
         this.error(e.message);
+        //console.log("error: ", e);
       }
     },
     success(data) {
@@ -279,9 +262,9 @@ export default {
         return it.source.includes("body");
       })[0];
 
-      if (!body) return {};
+      if (!body) return undefined;
       try {
-        return JSON.parse(body.dataValue) || {};
+        return JSON.parse(body.dataValue) || undefined;
       } catch (e) {
         return e;
       }
@@ -300,8 +283,8 @@ export default {
       return params;
     },
     getUrl() {
-      let url = this.$parent.url;
-
+      let url = this.$parent.url.replace(/^\/+/, "");
+      //console.log("getUrl url", url);
       this.dataParameters
         .filter(it => {
           return it.source.includes("path");
@@ -312,7 +295,7 @@ export default {
             it.inputValue || ""
           );
         });
-
+      //console.log("getUrl url after", url);
       return url;
     },
     getHeaders() {
@@ -351,21 +334,15 @@ export default {
       } catch (e) {}
     },
     getPlaceholder(item) {
-      //let arr = [item.key, item.description];
-
-      //return arr.join(" - ");
-      //console.log("getPlacholder item", item);
       let example = "";
       if (!item.schema) {
         return;
       }
       try {
         example = JSON.stringify(item.schema.example, null, 2);
-        //example = item.schema.example;
       } catch (e) {
         console.log("getPlaceholder parse error", e);
       }
-      //console.log("example", example);
       return example;
     },
     async copyToClipboard(event) {

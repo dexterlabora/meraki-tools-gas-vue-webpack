@@ -43,8 +43,8 @@
 
 <script>
 import NavMenu from "./nav-menu.vue";
-import OrgSelector from "./components/shared/OrgSelector.vue";
-import NetSelector from "./components/shared/NetSelector.vue";
+import OrgSelector from "./components/shared/meraki-state-selectors/OrgSelector.vue";
+import NetSelector from "./components/shared/meraki-state-selectors/NetSelector.vue";
 import Snackbar from "./components/shared/Snackbar.vue";
 //import "vuetify/dist/vuetify.min.css";
 

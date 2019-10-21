@@ -13,7 +13,7 @@
         </v-flex>
       </v-layout>
     </div>
-    <params-table :params="sourceList" :method="method" v-show="open" />
+    <params-table :params="sourceList" :method="method" v-show="open" :description="description" />
   </div>
 </template>
 

@@ -36,7 +36,7 @@ export default Vue.extend({
     onToggle() {
       let toggleEvent = {};
       toggleEvent[this.param] = this.form.toggle;
-      console.log("toggleEvent[param] ", toggleEvent[this.param]);
+      //console.log("toggleEvent[param] ", toggleEvent[this.param]);
       this.$emit("onChange", toggleEvent);
     }
   }

@@ -51,7 +51,7 @@
                   single-line
                   v-if="form.type == 'licenseKey'"
                 ></v-select>
-                <!-- <v-text-field v-model="form.value" :label="_.startCase(form.type)"></v-text-field> -->
+                <v-text-field v-model="form.value"></v-text-field>
               </v-flex>
             </v-card-text>
           </v-card>
@@ -79,7 +79,7 @@
 
     <v-snackbar v-model="snackbar" bottom multi-line :timeout="3000">
       {{ snackbarText }}
-      <v-btn color="pink" flat @click="snackbar = false">Close</v-btn>
+      <v-btn color="pink" @click="snackbar = false">Close</v-btn>
     </v-snackbar>
   </v-container>
 </template>
@@ -129,10 +129,10 @@ export default Vue.extend({
   },
   methods: {
     onScanner: function(res) {
-      console.log("scanner res", res);
+      //console.log("scanner res", res);
     },
     onWriteSheet: function() {
-      this.$utilities.writeData(this.orderClaimed);
+      this.$utilities.writeData(this.orderClaimed, "Order Claimed");
     },
     onClaim() {
       this.$store.commit("setLoading", true);

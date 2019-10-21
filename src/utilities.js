@@ -69,7 +69,7 @@ function formatReport(json) {
   //if (isArray(json)) {
   try {
     if (Array.isArray(json)) {
-      console.log("formatReport json isArray");
+      //console.log("formatReport json isArray");
       json.forEach(function(obj) {
         //var flat = flattenObject(obj);
         var flat = flatten.flatten(obj);
@@ -81,7 +81,7 @@ function formatReport(json) {
         });
       });
     } else {
-      console.log("formatReport json isObject");
+      //console.log("formatReport json isObject");
       //var flat = flattenObject(json);
       var flat = flatten.flatten(obj);
       data.push(flat);
@@ -94,7 +94,7 @@ function formatReport(json) {
 
     // For Objects
     if (isObject(json)) {
-      console.log("formatReport json isObject");
+      //console.log("formatReport json isObject");
       //var flat = flattenObject(json);
       var flat = flatten.flatten(json);
       data.push(flat);
@@ -113,7 +113,7 @@ function formatReport(json) {
     data,
     fields
   };
-  console.log("formatReport report", report);
+  //console.log("formatReport report", report);
   return report;
 }
 
@@ -132,9 +132,17 @@ function formatReport(json) {
  */
 export function writeData(json, title, options = {}, location) {
   //if (typeof google !== "undefined") {
-  console.log("writeData options, json", options, json);
+  //console.log("writeData options, json", options, json);
+  let jsonArray = [];
+  if (!Array.isArray(json)) {
+    // wrap in array to print to sheet
+    jsonArray[0] = json;
+  } else {
+    jsonArray = json;
+  }
+
   try {
-    const report = formatReport(json);
+    const report = formatReport(jsonArray);
 
     const defaultOptions = {
       defaultValue: "undefined",
@@ -146,14 +154,14 @@ export function writeData(json, title, options = {}, location) {
       fields: options.headers ? options.headers : report.fields
     };
     options = { ...defaultOptions, ...options };
-    console.log("writeData final options ", options);
+    //console.log("writeData final options ", options);
     if (report.data) {
       let csv = json2csv.parse(report.data, options);
       //csv = title + "\n" + csv;
 
       // Send CSV to Google Sheet via GAS function
       if (typeof google !== "undefined") {
-        google.script.run.writeCsvData(csv,title,location);
+        google.script.run.writeCsvData(csv, title, location);
       }
     }
   } catch (err) {
@@ -161,5 +169,3 @@ export function writeData(json, title, options = {}, location) {
   }
   //}
 }
-
-

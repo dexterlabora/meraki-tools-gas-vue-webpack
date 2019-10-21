@@ -1,7 +1,7 @@
 // CUSTOM REQUEST HANDLER FOR GOOGLE APPS - BY CORY
 
 const gasRequest = function gasRequest(req, callback) {
-  //console.log("gasRequest  options", req);
+  // console.log("gasRequest  options", req);
   let params = {
     payload: req.body,
     method: req.method,

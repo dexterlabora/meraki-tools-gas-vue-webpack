@@ -16,8 +16,8 @@ Vue.use(Vuex);
 // *****
 export default new Vuex.Store({
   state: {
-    apiKey: "093b24e85df15a3e66f1fc359f4c48493eaa1b73", // Meraki Sandbox
-    apiUrl: "https://api.meraki.com/api/v0", //"https://localhost:8080",
+    apiKey: "", // Meraki Sandbox
+    apiUrl: "", //"https://localhost:8080",
     actionBatch: {},
     actionBatches: [],
     beta: false,
@@ -125,9 +125,10 @@ export default new Vuex.Store({
     setLoading: (state, payload) => (state.loading = payload)
   },
   plugins: [
-    createPersistedState({
-      getState: key => Cookies.getJSON(key),
-      setState: (key, state) => Cookies.set(key, state, { expires: 3 })
-    })
+    createPersistedState({ storage: window.sessionStorage })
+    // createPersistedState({
+    //   getState: key => Cookies.getJSON(key),
+    //   setState: (key, state) => Cookies.set(key, state, { expires: 3 })
+    // })
   ]
 });

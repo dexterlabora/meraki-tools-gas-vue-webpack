@@ -111,12 +111,12 @@ function writeCsvData() {
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1024);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1017);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 1016:
+/***/ 1009:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -132,7 +132,7 @@ function loadMenu() {
 
 /***/ }),
 
-/***/ 1020:
+/***/ 1013:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -150,7 +150,7 @@ function doGet(e) {
 
 /***/ }),
 
-/***/ 1021:
+/***/ 1014:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -165,23 +165,26 @@ export function urlFetchApp(path, options) {
 }
 */
 function fetch(path, options) {
-    options["followRedirects"] = true;
-    Logger.log("fetch path: " + path);
-    Logger.log("fetch options" + options);
-    var res = UrlFetchApp.fetch(path, options);
-    return {
-        body: res.getContentText(),
-        headers: res.getHeaders(),
-        statusCode: res.getResponseCode()
-    };
-    //Logger.log("fetch res" + JSON.stringify(response));
-    //return response;
+    options["muteHttpExceptions"] = true; // passes error on to client for processing / display
+    try {
+        var res = UrlFetchApp.fetch(path, options);
+        var responseCode = res.getResponseCode();
+        var responseBody = res.getContentText();
+        return {
+            body: responseBody,
+            headers: res.getHeaders(),
+            statusCode: responseCode
+        };
+    }
+    catch (e) {
+        return e;
+    }
 }
 
 
 /***/ }),
 
-/***/ 1022:
+/***/ 1015:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -199,7 +202,7 @@ function loadSidebar() {
 
 /***/ }),
 
-/***/ 1023:
+/***/ 1016:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -307,16 +310,16 @@ function getDateTimeString() {
 
 /***/ }),
 
-/***/ 1024:
+/***/ 1017:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1020);
-/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1021);
-/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1022);
-/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(1023);
-/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(1016);
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1013);
+/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1014);
+/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1015);
+/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(1016);
+/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(1009);
 
 
 

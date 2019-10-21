@@ -54,7 +54,6 @@ export default Vue.extend({
         name: ""
       };
       this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
-        console.log("getOrganizations res", res);
         // order and save orgs
         this.orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
@@ -66,11 +65,9 @@ export default Vue.extend({
   },
   watch: {
     apiKey(newVal, oldVal) {
-      console.log("apiKey updated, fetching orgs");
       this.fetchOrgs();
     },
     apiUrl(newVal, oldVal) {
-      console.log("apiUrl updated, fetching orgs");
       this.fetchOrgs();
     },
     org() {
@@ -78,10 +75,10 @@ export default Vue.extend({
     },
     orgs() {
       this.form.org = this.orgs[0] || "";
-      //this.$store.commit("setOrgs", this.orgs);
+      this.$store.commit("setOrgs", this.orgs);
     },
     "form.org"(newVal, oldVal) {
-      console.log("setting org, ", this.form.org);
+      // console.log("setting org, ", this.form.org);
       this.$store.commit("setOrg", this.form.org);
       this.$emit("onChange", { org: this.form.org });
     }

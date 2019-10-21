@@ -29,8 +29,8 @@ import ToolProvisionClient from "../tools/tool-provision-client.vue";
 import ToolClaimOrder from "../tools/tool-claim-order.vue";
 import ToolConfigureSsid from "../tools/tool-configure-ssid.vue";
 import ToolConfigureVlan from "../tools/tool-configure-vlan.vue";
-import OrgSelector from "../shared/OrgSelector.vue";
-import NetSelector from "../shared/NetSelector.vue";
+import OrgSelector from "../shared/meraki-state-selectors/OrgSelector.vue";
+import NetSelector from "../shared/meraki-state-selectors/NetSelector.vue";
 
 import Vue from "vue";
 export default Vue.extend({

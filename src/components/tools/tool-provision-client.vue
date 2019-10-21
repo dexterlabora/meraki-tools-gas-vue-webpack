@@ -140,9 +140,9 @@ export default Vue.extend({
   },
   methods: {
     onWriteSheet: function() {
-      console.log(this.provisionedClient);
+      //console.log(this.provisionedClient);
       if (typeof google !== "undefined") {
-        this.$utilities.writeData(this.provisionedClient, google);
+        this.$utilities.writeData(this.provisionedClient, "Client Provisioned");
       }
     },
     fetchPolicies: function() {

@@ -28,7 +28,7 @@
 import request from "./request.vue";
 
 export default {
-  props: ["spec"],
+  props: ["spec", "baseUrl"],
   data() {
     return {
       specInfo: this.spec,

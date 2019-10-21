@@ -8,15 +8,19 @@ export function urlFetchApp(path, options) {
 }
 */
 export function fetch(path, options) {
-  options["followRedirects"] = true;
-  Logger.log("fetch path: " + path);
-  Logger.log("fetch options" + options);
-  let res = UrlFetchApp.fetch(path, options);
-  return {
-    body: res.getContentText(),
-    headers: res.getHeaders(),
-    statusCode: res.getResponseCode()
-  };
-  //Logger.log("fetch res" + JSON.stringify(response));
-  //return response;
+  options["muteHttpExceptions"] = true; // passes error on to client for processing / display
+
+  try {
+    let res = UrlFetchApp.fetch(path, options);
+    let responseCode = res.getResponseCode();
+    let responseBody = res.getContentText();
+
+    return {
+      body: responseBody,
+      headers: res.getHeaders(),
+      statusCode: responseCode
+    };
+  } catch (e) {
+    return e;
+  }
 }

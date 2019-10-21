@@ -28,8 +28,8 @@
 
 <script>
 import Vue from "vue";
-import ApiKeyInput from "../shared/ApiKeyInput";
-import ApiUrlInput from "../shared/ApiUrlInput";
+import ApiKeyInput from "../shared/meraki-state-selectors/ApiKeyInput";
+import ApiUrlInput from "../shared/meraki-state-selectors/ApiUrlInput";
 import OrgRefreshButton from "../shared/OrgRefreshButton";
 export default Vue.extend({
   template: "#page-settings",
@@ -82,7 +82,7 @@ export default Vue.extend({
     fetchOrgs: function() {
       let orgs = [];
       this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
-        console.log("getOrganizations res", res);
+        //console.log("getOrganizations res", res);
         // order and save orgs
         orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;

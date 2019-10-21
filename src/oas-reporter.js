@@ -3,14 +3,22 @@ import SwaggerParser from "swagger-parser";
 
 export const swaggerParser = SwaggerParser;
 
-export function generateSwaggerPathsVue(parsedSwagger, inputValuesMap) {
+export function generateSwaggerPathsVue(
+  parsedSwagger,
+  options,
+  inputValuesMap
+) {
   if (!parsedSwagger) {
     return;
   }
 
+  var host = options.baseUrl
+    ? options.baseUrl
+    : `https://${parsedSwagger.host}${parsedSwagger.basePath}`;
+
   let paths = parsedSwagger.paths;
   let finalView = {
-    host: `https://${parsedSwagger.host}${parsedSwagger.basePath}`,
+    host,
     //host: "http://localhost:8080/api",
 
     title: parsedSwagger.info.title,
@@ -81,6 +89,9 @@ export function generateReportTemplates(parsedSwagger) {
   let filteredPaths = [];
 
   // Extract API paths
+  if (!parsedSwagger.paths) {
+    return;
+  }
   let paths = Object.keys(parsedSwagger.paths);
   paths.forEach(path => {
     // Only use GET methods
@@ -121,7 +132,13 @@ export function getPathQueryWithValues(queryParams, paramVals) {
         return;
       }
       if (i > 0 && query !== "") {
-        query = query + "&" + qp.name + "=" + paramVals[qp.name];
+        if (qp.type === "array") {
+          paramVals[qp.name].forEach(qpa => {
+            query = query + "&" + qp.name + "[]=" + qpa;
+          });
+        } else {
+          query = query + "&" + qp.name + "=" + paramVals[qp.name];
+        }
       } else {
         query = "?" + qp.name + "=" + paramVals[qp.name];
       }

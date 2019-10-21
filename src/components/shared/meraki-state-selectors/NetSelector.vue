@@ -23,8 +23,8 @@ export default Vue.extend({
           id: "",
           name: ""
         }
-      },
-      nets: []
+      }
+      //nets: []
     };
   },
   computed: {
@@ -33,14 +33,24 @@ export default Vue.extend({
     },
     org: function() {
       return this.$store.state.org;
+    },
+    nets: function() {
+      return this.$store.state.nets;
+    },
+    net: function() {
+      return this.$store.state.net;
     }
   },
   created() {
-    this.fetchNets();
+    if (!this.net.id || !this.nets.length > 0) {
+      this.fetchNets();
+    } else {
+      this.form.net = this.net;
+    }
   },
   methods: {
     fetchNets: function() {
-      this.nets = [];
+      let nets = [];
       this.form.net = {
         id: "",
         name: ""
@@ -52,13 +62,13 @@ export default Vue.extend({
         organizationId: this.org.id
       }).then(res => {
         // order and save the networks
-        this.nets = res.sort(function(a, b) {
+        nets = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
           return 0;
         });
-        this.form.net = this.nets[0]; // set default
-        this.$store.commit("setNets", this.nets); // set state
+        this.form.net = nets[0]; // set default
+        this.$store.commit("setNets", nets); // set state
       });
     }
   },

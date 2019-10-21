@@ -261,7 +261,7 @@ export default Vue.extend({
   },
   methods: {
     onWriteSheet: function() {
-      this.$utilities.writeData(this.ssidUpdated, google);
+      this.$utilities.writeData(this.ssidUpdated, "SSID Updated");
     },
     fetchSsids: function() {
       if (!this.net.id) {
@@ -270,7 +270,7 @@ export default Vue.extend({
 
       this.$merakiSdk.SsidsController.getNetwork_ssids(this.net.id).then(
         res => {
-          console.log("getNetworkSsids res", res);
+          //console.log("getNetworkSsids res", res);
           this.ssids = res;
           this.ssid = this.ssids[this.ssid.number]; // set selected ssid
         }
@@ -278,7 +278,7 @@ export default Vue.extend({
     },
     updateSsid: function($index) {
       this.$store.commit("setLoading", true);
-      console.log("updateSsid form", this.ssidForm);
+      //console.log("updateSsid form", this.ssidForm);
       let updateNetworkSsid = new this.$merakiSdk.UpdateNetworkSsidModel();
 
       this.$merakiSdk.SsidsController.updateNetworkSsid({
@@ -289,7 +289,7 @@ export default Vue.extend({
         .then(res => {
           this.ssidUpdated = res;
           this.fetchSsids(); // get clean copy of SSID list and update form
-          console.log("SSID updated!", res);
+          //console.log("SSID updated!", res);
         })
         .catch(err => {
           console.log("SSID update Error: ", err);

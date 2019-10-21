@@ -3,7 +3,7 @@
     <v-layout column>
       <v-flex xs12 md12>
         <v-card>
-          <v-card-title>Meraki Open API Explorer</v-card-title>
+          <v-card-title>Meraki API</v-card-title>
           <v-card-text p1>
             <!-- <v-swagger :spec="openapiSpec" /-->
             <!-- <v-swagger :spec="organizations"></v-swagger> -->
@@ -19,7 +19,7 @@
               ></v-select>
             </v-flex>
             <!-- <component :is="swaggerView" v-bind="{spec:filteredGroup}" :key="filteredGroup.request"></component> -->
-            <v-swagger :spec="filteredGroup" :key="filteredGroup.key" />
+            <v-swagger :spec="filteredGroup" :key="filteredGroup.key" :baseUrl="apiUrl" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -56,6 +56,9 @@ export default Vue.extend({
   computed: {
     apiKey() {
       return this.$store.state.apiKey;
+    },
+    apiUrl() {
+      return this.$store.state.apiUrl;
     }
     // Group Selectors
     // groups() {
@@ -167,7 +170,9 @@ export default Vue.extend({
         //this.groups.push("All"); // add a catch-all group // this is TOO slow to load.
         this.groups = [...this.groups, ...parsed.tags.map(t => t.name)];
 
-        this.allPaths = oasReporter.generateSwaggerPathsVue(parsed);
+        this.allPaths = oasReporter.generateSwaggerPathsVue(parsed, {
+          baseUrl: this.apiUrl
+        });
       });
     },
     onSelectedGroup() {
@@ -179,7 +184,7 @@ export default Vue.extend({
     parseMerakiSwagger(orgId) {
       if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
         // Public OAS
-        console.log("parseMerakiSwagger - using public openapiSpec");
+        // console.log("parseMerakiSwagger - using public openapiSpec");
         return axios
           .get(this.apiUrl + "/openapiSpec")
           .then(res => {
@@ -188,7 +193,7 @@ export default Vue.extend({
           .catch(e => console.log("axios openapiSpec get error ", e));
       } else {
         // Org specific OAS
-        console.log("parseMerakiSwagger - using org specific openapiSpec");
+        // console.log("parseMerakiSwagger - using org specific openapiSpec");
         return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
           orgId
         )

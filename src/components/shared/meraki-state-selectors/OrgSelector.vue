@@ -25,8 +25,8 @@ export default Vue.extend({
           id: "",
           name: ""
         }
-      },
-      orgs: []
+      }
+      //orgs: []
     };
   },
   computed: {
@@ -38,39 +38,47 @@ export default Vue.extend({
     },
     org: function() {
       return this.$store.state.org;
+    },
+    orgs: function() {
+      return this.$store.state.orgs;
     }
   },
   created() {
-    this.fetchOrgs();
+    if (!this.org.id || !this.orgs.length > 0) {
+      this.fetchOrgs();
+    } else {
+      this.form.org = this.org;
+    }
   },
   methods: {
     fetchOrgs: function() {
       if (!this.apiKey) {
         return;
       }
-      this.orgs = [];
+      let orgs = [];
       this.form.org = {
         id: "",
         name: ""
       };
       this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
-        console.log("getOrganizations res", res);
+        //console.log("getOrganizations res", res);
         // order and save orgs
-        this.orgs = res.sort(function(a, b) {
+        orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
           return 0;
         });
+        this.$store.commit("setOrgs", orgs);
       });
     }
   },
   watch: {
     apiKey(newVal, oldVal) {
-      console.log("apiKey updated, fetching orgs");
+      //console.log("apiKey updated, fetching orgs");
       this.fetchOrgs();
     },
     apiUrl(newVal, oldVal) {
-      console.log("apiUrl updated, fetching orgs");
+      //console.log("apiUrl updated, fetching orgs");
       this.fetchOrgs();
     },
     org() {
@@ -78,10 +86,10 @@ export default Vue.extend({
     },
     orgs() {
       this.form.org = this.orgs[0] || "";
-      this.$store.commit("setOrgs", this.orgs);
+      //this.$store.commit("setOrgs", this.orgs);
     },
     "form.org"(newVal, oldVal) {
-      console.log("setting org, ", this.form.org);
+      //console.log("setting org, ", this.form.org);
       this.$store.commit("setOrg", this.form.org);
     }
   }

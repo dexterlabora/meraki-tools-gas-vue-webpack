@@ -61,3 +61,7 @@ export function parseSwaggerPaths(swagger) {
     throw (error, "parseSwaggerPaths");
   }
 }
+
+export function parseNetworkEvents(events) {
+  return events.events;
+}

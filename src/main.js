@@ -4,24 +4,22 @@ import App from "./app.vue";
 import Store from "./store.js";
 import vuetify from "./plugins/vuetify";
 import "@babel/polyfill";
-//import Vuetify from "vuetify";
-//import "vuetify/dist/vuetify.min.css"; // importing via app.vue, html import; because GAS does not allow CSS files :(
-// Vue.use(Vuetify, {
-//   iconfont: "md"
-// });
 
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
 if (process.env.VUE_APP_SERVICE === "dev") {
   console.log("Running in developmnet mode");
 } else {
   console.log("Running in production mode");
-  // hide all console.log() outputs. (complies with Google and general security best practices)
+
   if (google) {
     // Log to "USER" Google Apps Logs
     //console.log = Logger.log; // doesn't work
   } else {
     console.log = () => "google service not available";
   }
+  // console.log = function(e) {
+  //   return e;
+  // }; // ********   DISABLES console.log
 }
 import merakiSdk from "meraki";
 Vue.prototype.$merakiSdk = merakiSdk;
@@ -36,6 +34,22 @@ new Vue({
   el: "#app",
 
   created() {
+    if (!this.$store.state.apiKey) {
+      // set sandbox key if not defined
+      this.$store.commit(
+        "setApiKey",
+        "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
+      );
+    }
+    //https://api-mp.meraki.com/api/v0
+    if (!this.$store.state.apiUrl) {
+      // set sandbox key if not defined
+      if (process.env.VUE_APP_SERVICE === "dev") {
+        this.$store.commit("setApiUrl", "http://localhost:8080/api");
+      } else {
+        this.$store.commit("setApiUrl", "https://api-mp.meraki.com/api/v0");
+      }
+    }
     merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
     merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
   },

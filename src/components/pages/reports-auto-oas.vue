@@ -91,23 +91,26 @@
                     label="Group"
                     outline
                     @change="onSelectedGroup"
+                    dense
                   ></v-select>
                 </v-flex>
+
                 <v-flex xs12 sm6 md6 pt-2 d-flex v-if="selectedReport.title">
                   <v-select
                     v-model="selectedReport"
                     :items="groupReports"
-                    item-text="title"
+                    item-text="shortTitle"
                     return-object
                     label="Reports"
                     outline
+                    dense
                   >
-                    <template slot="item" slot-scope="data">{{ data.item.shortTitle}}</template>
+                    <!-- <template slot="item" slot-scope="data">{{ data.item.shortTitle}}</template>
                     <template
                       slot="selection"
                       slot-scope="data"
                       class="selected"
-                    >{{ data.item.title}}</template>
+                    >{{ data.item.title}}</template>-->
                   </v-select>
                 </v-flex>
               </div>
@@ -231,9 +234,9 @@ import ClientSelector from "../shared/meraki-selectors/ClientSelector";
 import DeviceSelector from "../shared/meraki-selectors/DeviceSelector";
 import DevicesSelector from "../shared/meraki-selectors/DevicesSelector";
 import EventTypeSelector from "../shared/meraki-selectors/EventTypeSelector";
-import OrgSelector from "../shared/OrgSelector";
+import OrgSelector from "../shared/meraki-state-selectors/OrgSelector";
 import OrganizationsSelector from "../shared/meraki-selectors/OrganizationsSelector";
-import NetSelector from "../shared/NetSelector";
+import NetSelector from "../shared/meraki-state-selectors/NetSelector";
 import NetworksSelector from "../shared/meraki-selectors/NetworksSelector";
 import MethodSelector from "../shared/meraki-selectors/MethodSelector";
 import ModelSelector from "../shared/meraki-selectors/ModelSelector";
@@ -252,6 +255,9 @@ import * as reportHelpers from "../../report-helpers";
 import * as oasReporter from "../../oas-reporter";
 
 var rateLimit = require("function-rate-limit");
+
+// disable // console.log for production
+//// console.log = function() {};
 
 export default Vue.extend({
   template: "#page-reports-auto",
@@ -297,10 +303,6 @@ export default Vue.extend({
       }
 
       this.$nextTick(() => {
-        console.log(
-          "showSearchDialog this.$refs.search.$el",
-          this.$refs.search.$el
-        );
         this.$refs.search.$el.querySelector("input").focus();
       });
     }
@@ -449,7 +451,7 @@ export default Vue.extend({
 
       report.actions = [];
       if (!report.adjustedParams) {
-        console.log("no params for report.path", report.path);
+        // console.log("no params for report.path", report.path);
         report.actions[0] = report.path;
         return report;
       }
@@ -472,7 +474,7 @@ export default Vue.extend({
       // Create Action for each looper param
       if (report.looperParam) {
         let looperVals = report.looperParamVals[report.looperParam.name];
-        console.log("no looperParmVals found");
+        // console.log("no looperParmVals found");
         if (!looperVals) {
           return report;
         }
@@ -602,8 +604,9 @@ export default Vue.extend({
         excludedEventTypes: {
           component: EventTypeSelector,
           attributes: {
-            label: "exclude event types",
-            param: "excludeEventTypes",
+            networkId: this.net.id,
+            label: "excludedEventTypes",
+            param: "excludedEventTypes",
             description: oasReporter.getParamDescription(
               this.parsedSwagger,
               "getNetworkEvents",
@@ -617,7 +620,7 @@ export default Vue.extend({
         includeConnectivityHistory: {
           component: ToggleSelector,
           attributes: {
-            label: "include connectivity history",
+            label: "includeConnectivityHistory",
             param: "includeConnectivityHistory"
           },
           knownEvents: { onChange: "handleSelectorEvent" },
@@ -626,7 +629,8 @@ export default Vue.extend({
         includedEventTypes: {
           component: EventTypeSelector,
           attributes: {
-            label: "include event types",
+            networkId: this.net.id,
+            label: "includedEventTypes",
             param: "includedEventTypes",
             description: oasReporter.getParamDescription(
               this.parsedSwagger,
@@ -762,7 +766,7 @@ export default Vue.extend({
       if (!report) {
         return;
       }
-      console.log("onSearch event", report.group);
+      // console.log("onSearch event", report.group);
       this.selectedGroup = report.group; //{ group: report.group };
       this.selectedReport = report;
       this.showSearchDialog = false;
@@ -795,7 +799,7 @@ export default Vue.extend({
     parseMerakiSwagger(orgId) {
       if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
         // Public OAS
-        console.log("parseMerakiSwagger - using public openapiSpec");
+        // console.log("parseMerakiSwagger - using public openapiSpec");
         return axios
           .get(this.apiUrl + "/openapiSpec")
           .then(res => {
@@ -804,7 +808,7 @@ export default Vue.extend({
           .catch(e => console.log("axios openapiSpec get error ", e));
       } else {
         // Org specific OAS
-        console.log("parseMerakiSwagger - using org specific openapiSpec");
+        // console.log("parseMerakiSwagger - using org specific openapiSpec");
         return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
           orgId
         )
@@ -924,11 +928,12 @@ export default Vue.extend({
           selectors.push(this.paramComponentMap[p.name]);
         } else {
           // Assign a dynamic Input Selector for unkown parameters
-          console.log("getSelectors no component found for param p", p);
+          // console.log("getSelectors no component found for param p", p);
           selectors.push({
             component: InputSelector,
             attributes: {
-              label: lodash.startCase(p.name).toLowerCase(),
+              //label: lodash.startCase(p.name).toLowerCase(),
+              label: p.name,
               description: p.description
             },
             knownEvents: { onChange: "handleSelectorEvent" }
@@ -973,72 +978,16 @@ export default Vue.extend({
       }
     },
     runAction(action, count, extraData, location) {
-      console.log("runAction action", action);
+      // console.log("runAction action", action);
       const options = {
         method: "get",
+        baseUrl: this.apiUrl,
         url: action,
         headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
         contentType: "application/json"
       };
       rh.request(options).then(res => this.handleResponse(res));
-      //**
-      // Run Report based on environment
-      //**
-      // Google Apps Script
-      // if (process.env.VUE_APP_SERVICE === "gas") {
-      //   const url = `${this.apiUrl}/${action}`;
-      //   const options = {
-      //     method: "get",
-      //     headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
-      //     contentType: "application/json",
-      //     followRedirects: true
-      //   };
-      //   return google.script.run
-      //     .withSuccessHandler(res => {
-      //       let data;
-      //       console.log("runAction gasRequest .fetch res: ", res);
-      //       try {
-      //         data = JSON.parse(res.body);
-      //       } catch (error) {
-      //         console.log("unable to parse body, returning default body");
-      //         data = res.body;
-      //       }
-      //       return this.handleResponse(data, extraData, location);
-      //     })
-      //     .withFailureHandler(error => {
-      //       console.log("GAS via OAS error: ", error);
-      //       return this.handleError(error, "onRunReport", action);
-      //     })
-      //     .fetch(url, options);
-      // } else {
-      //   // AXIOS
-      //   const options = {
-      //     method: "get",
-      //     baseURL: this.apiUrl,
-      //     url: action,
-      //     headers: {
-      //       "X-Cisco-Meraki-API-Key": this.apiKey
-      //     }
-      //   };
-      //   return axios(options)
-      //     .then(res => this.handleResponse(res.data, extraData, location))
-      //     .catch(e => {
-      //       this.handleError(e, "onRunReport", action);
-      //     });
-      // }
     },
-    // hasNull(target) {
-    //   for (var member in target) {
-    //     if (target[member] == null) return true;
-    //   }
-    //   return false;
-    // },
-    // whichIsNull(target) {
-    //   for (var member in target) {
-    //     if (target[member] == null) return member;
-    //   }
-    //   return false;
-    // },
 
     async onRunReport(location) {
       // check if any required path params are missing
@@ -1072,7 +1021,7 @@ export default Vue.extend({
       // Throttle the API calls to avoid rate limit (5 calls/s)
       this.looperProgress = 0;
       var throttledAction = rateLimit(1, 1000, (action, i, extraData) => {
-        console.log("running rate limited action: ", i, action);
+        // console.log("running rate limited action: ", i, action);
         this.looperProgress = ((i + 1) / this.report.actions.length) * 100;
         if (this.looperProgress >= 100) {
           this.looperProgress = 0;
@@ -1098,7 +1047,7 @@ export default Vue.extend({
 
         extraData["reportAction"] = action; // Create option to toggle this
 
-        console.log("queueing rate limited action: ", action);
+        // console.log("queueing rate limited action: ", action);
 
         throttledAction(action, i, extraData, location);
       }
@@ -1106,8 +1055,10 @@ export default Vue.extend({
     // Custom report handlers (to override default key/value info for report)
     adjustMerakiReport(path, res) {
       if (path.includes("/openapiSpec")) {
-        //return this.parseSwaggerPaths(res);
         return reportHelpers.parseSwaggerPaths(res);
+      }
+      if (path.includes("/events") && !path.includes("/events/")) {
+        return reportHelpers.parseNetworkEvents(res);
       }
       return res;
     },
@@ -1167,29 +1118,29 @@ export default Vue.extend({
       this.$utilities.saveFile(this.reportData, this.selectedReport.shortTitle);
     }
     // handleError(error, errorTitle, action) {
-    //   console.log("handleError error: ", error);
+    //   // console.log("handleError error: ", error);
     //   this.$store.commit("setLoading", false);
-    //   console.log(errorTitle);
+    //   // console.log(errorTitle);
     //   if (error.errorCode === 400) {
-    //     console.log("Bad request, often due to missing a required parameter.");
+    //     // console.log("Bad request, often due to missing a required parameter.");
     //     this.$store.commit("setSnackbar", {
     //       msg: "Bad request, often due to missing a required parameter.",
     //       color: "danger"
     //     });
     //   } else if (error.errorCode === 401) {
-    //     console.log("No valid API key provided.");
+    //     // console.log("No valid API key provided.");
     //     this.$store.commit("setSnackbar", {
     //       msg: "No valid API key provided.",
     //       color: "danger"
     //     });
     //   } else if (error.errorCode >= 500 && error.errorCode < 600) {
-    //     console.log("Server error");
+    //     // console.log("Server error");
     //     this.$store.commit("setSnackbar", {
     //       msg: "Server error or invalid parameters",
     //       color: "danger"
     //     });
     //   } else if (error.errorCode === 404) {
-    //     console.log(
+    //     // console.log(
     //       "The requested resource doesn't exist or you do not have permission"
     //     );
     //     this.$store.commit("setSnackbar", {
@@ -1198,7 +1149,7 @@ export default Vue.extend({
     //       color: "danger"
     //     });
     //   } else {
-    //     console.log("Welp, that's not good: ", action);
+    //     // console.log("Welp, that's not good: ", action);
     //     this.$store.commit("setSnackbar", {
     //       msg: error.Error ? error.Error : error,
     //       color: "danger"

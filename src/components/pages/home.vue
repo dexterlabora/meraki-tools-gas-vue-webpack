@@ -37,12 +37,16 @@
           </v-card-title>
           <v-card-text>
             <p>
-              <a href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack">Website</a>
+              <a
+                href="https://developer.cisco.com/docs/meraki-tools-google-sheets-add-on/"
+                target="_blank"
+              >Website</a>
             </p>
 
             <p>
               <a
-                href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack/privacy-terms.html"
+                href="https://developer.cisco.com/docs/meraki-tools-google-sheets-add-on/#!privacy-and-terms"
+                target="_blank"
               >Privacy Policy</a>
             </p>
             <p>

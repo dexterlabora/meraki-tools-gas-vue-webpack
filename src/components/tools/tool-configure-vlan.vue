@@ -171,7 +171,7 @@ export default Vue.extend({
       this.vlanForm = Object.assign({}, this.vlan);
     },
     vlanForm: function(change) {
-      console.log("vlanForm changes: ", change);
+      //console.log("vlanForm changes: ", change);
     }
   },
   created: function() {
@@ -179,7 +179,7 @@ export default Vue.extend({
   },
   methods: {
     onWriteSheet: function() {
-      this.$utilities.writeData(this.updatedVlan, google);
+      this.$utilities.writeData(this.updatedVlan, "VLAN Updated");
     },
     fetchVlans: function() {
       if (!this.net) {
@@ -205,8 +205,16 @@ export default Vue.extend({
       delete data.id; //not required in body
       delete data.fixedIpAssignments; // debugging
       delete data.reservedIpRanges; // debugging
+      let keys = Object.keys(data);
 
-      console.log("data: ", data);
+      // clear null values
+      keys.forEach(k => {
+        if (!data[k]) {
+          delete data[k];
+        }
+      });
+
+      //console.log("data: ", data);
       this.$merakiSdk.VlansController.updateNetworkVlan({
         networkId: this.net.id,
         vlanId: this.vlan.id,
@@ -215,7 +223,7 @@ export default Vue.extend({
         .then(res => {
           this.updatedVlan = res;
           this.fetchVlans(); // get clean copy of VLANs list and update form
-          console.log("VLANs updated!", res);
+          //console.log("VLANs updated!", res);
         })
         .catch(err => {
           console.log("VLAN update Error: ", err);

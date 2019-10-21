@@ -17,10 +17,10 @@ const APIHelper = require("../../APIHelper");
 // CUSTOM GOOGLE APPS REQUEST HANDLER - BY CORY
 var request;
 if (process.env.VUE_APP_SERVICE == "dev") {
-  console.log("using native request ");
+  //console.log("using native request ");
   request = require("request");
 } else {
-  console.log("using reqest-gas");
+  //console.log("using reqest-gas");
   request = require("./request-gas");
 }
 
@@ -71,34 +71,6 @@ const convertHttpResponse = function convertHttpResponse(resp) {
 
   return response;
 };
-
-/* no longer needed
-const convertHttpResponse = function convertHttpResponse(resp) {
-  console.log("convertHttpResponse, resp", resp);
-  const response = new HttpResponse();
-
-  // ADDED BY CORY -- To fix incorrect organizationId type (should be a string, but being sent as number, which then is parsed incorrectly by JS)
-  if (resp) {
-    //response.body = resp.body;
-    if (resp.body) {
-      try {
-        //response.body = JSON.stringify(JSONbig.parse(resp.body)); // WORKS!
-        response.body = JSON.stringify(resp.body);
-      } catch (error) {
-        console.log("unable to parse body, returning default body");
-        response.body = resp.body;
-      }
-    }
-
-    response.headers = resp.headers;
-    response.statusCode = resp.statusCode;
-  }
-  console.log("convertHttpResponse, response (after JSONBig)", response);
-  return response;
-};
-*/
-
-//
 
 /**
  * Execute a given HttpRequest to get string response back
