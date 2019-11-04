@@ -1,14 +1,6 @@
 <template id="devices-selector">
   <div>
-    <v-select
-      v-if="!model"
-      :items="models"
-      v-model="modelSelected"
-      label="Model"
-      class="input-group--focused"
-      single-line
-      autofocus
-    ></v-select>
+    <v-select v-if="!model" :items="models" v-model="modelSelected" label="Model" single-line></v-select>
     <v-select
       :items="filteredDevices"
       v-model="devicesSelected"
@@ -19,7 +11,6 @@
       small-chips
       multiple
       clearable
-      autofocus
     >
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip small v-if="index === 0">

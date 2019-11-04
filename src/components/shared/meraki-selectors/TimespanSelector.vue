@@ -6,7 +6,6 @@
       item-value="time"
       v-model="form.time"
       label="Timespan"
-      autofocus
     ></v-select>
   </div>
 </template>

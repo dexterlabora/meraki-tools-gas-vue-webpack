@@ -7,7 +7,6 @@
       return-object
       v-model="form.net"
       label="Networks"
-      autofocus
     ></v-select>
   </div>
 </template>

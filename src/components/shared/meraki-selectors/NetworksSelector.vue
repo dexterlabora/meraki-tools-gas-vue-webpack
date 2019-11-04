@@ -10,7 +10,6 @@
       small-chips
       multiple
       clearable
-      autofocus
       class="small"
     >
       <template v-slot:prepend-item>

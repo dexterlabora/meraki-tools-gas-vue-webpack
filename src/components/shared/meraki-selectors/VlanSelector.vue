@@ -4,7 +4,6 @@
       v-bind:items="vlans"
       return-object
       v-model="form.vlan"
-      autofocus
       label="VLANs"
       @change="onChange"
     >

@@ -9,7 +9,6 @@
     small-chips
     multiple
     clearable
-    autofocus
     class="small"
     dense
   >

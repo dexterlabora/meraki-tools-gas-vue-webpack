@@ -4,7 +4,6 @@
       v-bind:items="ports"
       return-object
       v-model="form.port"
-      autofocus
       label="Ports"
       @change="onChange"
     >

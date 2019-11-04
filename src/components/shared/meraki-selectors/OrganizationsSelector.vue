@@ -10,7 +10,6 @@
       small-chips
       multiple
       clearable
-      autofocus
     >
       <template v-slot:prepend-item>
         <v-list-tile ripple @click="toggle">

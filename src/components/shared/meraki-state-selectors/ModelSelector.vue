@@ -1,12 +1,6 @@
 <template id="model-selector">
   <div>
-    <v-select
-      v-bind:items="models"
-      v-model="form.model"
-      autofocus
-      label="Device Model (optional)"
-      clearable
-    ></v-select>
+    <v-select v-bind:items="models" v-model="form.model" label="Device Model (optional)" clearable></v-select>
   </div>
 </template>
 

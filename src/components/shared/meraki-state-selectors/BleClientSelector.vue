@@ -8,7 +8,6 @@
       return-object
       v-model="bleClient"
       label="BLE Client"
-      autofocus
     ></v-select>
   </div>
 </template>

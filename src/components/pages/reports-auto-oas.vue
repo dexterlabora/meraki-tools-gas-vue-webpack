@@ -1,6 +1,19 @@
 <template id="page-reports-auto-oas">
   <v-container>
     <v-layout>
+      <v-btn
+        fab
+        fixed
+        bottom
+        left
+        dark
+        ripple
+        color="primary"
+        @click="onRunReport('overwrite')"
+        v-if="selectedReport.title"
+      >
+        <v-icon>play_arrow</v-icon>
+      </v-btn>
       <v-flex xs12 md12>
         <v-card pb-4>
           <v-card-title>
@@ -40,38 +53,14 @@
           </v-card-title>
           <v-card-text>
             <div>
-              <!--
-              <v-btn
-                fab
-                fixed
-                bottom
-                left
-                dark
-                :loading="loading"
-                color="primary"
-                @click="onRunReport"
-                v-if="selectedReport.title"
-              >
-                <v-icon>play_arrow</v-icon>
-              </v-btn>
-              -->
-
-              <v-speed-dial
-                fab
-                fixed
-                bottom
-                center
-                color="primary"
-                open-on-hover
-                :loading="loading"
-              >
+              <!-- <v-speed-dial fab fixed bottom center color="primary" :loading="loading">
                 <template v-slot:activator>
                   <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
                     <v-icon>play_arrow</v-icon>
                   </v-btn>
                 </template>
 
-                <!-- Beta 
+                Beta 
                 <v-btn round color="gray" @click="onRunReport('newRows')">
                   <b>insert rows</b>
                 </v-btn>
@@ -79,8 +68,8 @@
                   <b>overwrite rows</b>
                 </v-btn>
               <v-btn round color="gray" @click="onRunReport('newSheet')">new sheet</v-btn>
-                -->
-              </v-speed-dial>
+               
+              </v-speed-dial>-->
 
               <div class="pt-4">
                 <v-flex xs12 sm6 d-flex>

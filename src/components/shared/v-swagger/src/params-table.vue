@@ -193,7 +193,7 @@ export default {
       if (!Array.isArray(this.lastResponseData)) {
         let arrayData = [];
         arrayData.push(this.lastResponseData);
-        this.$utilities.writeData(arrayData);
+        this.$utilities.writeData(arrayData, this.description);
       } else {
         this.$utilities.writeData(this.lastResponseData, this.description);
       }
@@ -210,6 +210,7 @@ export default {
 
       let config = {
         baseUrl: this.apiUrl,
+        apiKey: this.apiKey,
         url,
         method: this.$parent.method,
         headers: this.getHeaders(),

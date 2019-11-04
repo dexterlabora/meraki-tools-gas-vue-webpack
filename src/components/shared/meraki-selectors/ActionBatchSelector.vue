@@ -7,7 +7,6 @@
       return-object
       v-model="form.actionBatch"
       label="Action Batch"
-      autofocus
     ></v-select>
   </div>
 </template>

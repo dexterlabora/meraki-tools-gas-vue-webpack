@@ -7,7 +7,6 @@
       return-object
       v-model="device"
       label="Devices"
-      autofocus
     >
       <template slot="selection" slot-scope="{ item, index }">
         <v-chip v-if="index === 0">

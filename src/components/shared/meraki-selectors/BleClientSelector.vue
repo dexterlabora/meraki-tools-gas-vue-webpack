@@ -6,7 +6,6 @@
       return-object
       v-model="form.bleClient"
       label="BLE Client"
-      autofocus
     >
       <template
         slot="selection"

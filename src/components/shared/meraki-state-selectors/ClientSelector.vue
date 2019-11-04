@@ -7,7 +7,6 @@
       return-object
       v-model="client"
       label="Client"
-      autofocus
     ></v-select>
   </div>
 </template>

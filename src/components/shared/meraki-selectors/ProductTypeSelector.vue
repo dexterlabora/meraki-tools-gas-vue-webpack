@@ -1,12 +1,6 @@
 <template id="product-type-selector">
   <div>
-    <v-select
-      v-bind:items="productTypes"
-      v-model="form.productType"
-      autofocus
-      label="Product Type"
-      clearable
-    ></v-select>
+    <v-select v-bind:items="productTypes" v-model="form.productType" label="Product Type" clearable></v-select>
   </div>
 </template>
 
