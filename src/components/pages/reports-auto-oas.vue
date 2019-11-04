@@ -185,8 +185,6 @@
                   :key="report.title"
                 ></component>
               </v-flex>
-
-              <v-progress-linear v-if="looperProgress > 0" v-model="looperProgress"></v-progress-linear>
             </v-card-text>
             <v-card-actions></v-card-actions>
           </v-card>
@@ -296,15 +294,6 @@ export default Vue.extend({
       this.formData = {}; // reset form data
       this.formData.org = this.org;
       this.formData.net = this.net;
-    },
-    showSearchDialog(val) {
-      if (!val) {
-        return;
-      }
-
-      this.$nextTick(() => {
-        this.$refs.search.$el.querySelector("input").focus();
-      });
     }
   },
   directives: {
@@ -983,7 +972,7 @@ export default Vue.extend({
         method: "get",
         baseUrl: this.apiUrl,
         url: action,
-        headers: { "X-Cisco-Meraki-API-Key": this.apiKey },
+        apiKey: this.apiKey,
         contentType: "application/json"
       };
       rh.request(options).then(res => this.handleResponse(res));
@@ -1066,8 +1055,13 @@ export default Vue.extend({
       return Array.isArray(array) || array.length;
     },
     handleResponse(res, extraData, location) {
+      this.$store.commit("setLoading", false);
       if (!res) {
         console.log("handleResponse No Response");
+        this.$store.commit("setSnackbar", {
+          msg: "No results or invalid options",
+          color: "warning"
+        });
         return;
       }
 

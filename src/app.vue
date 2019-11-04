@@ -31,6 +31,13 @@
             <v-spacer></v-spacer>
             <org-selector></org-selector>
             <net-selector></net-selector>
+            <v-progress-linear
+              :active="loading"
+              :indeterminate="loading"
+              absolute
+              color="green"
+              v-if="loading"
+            ></v-progress-linear>
 
             <router-view></router-view>
             <snackbar></snackbar>
@@ -55,6 +62,11 @@ export default {
     "org-selector": OrgSelector,
     "net-selector": NetSelector,
     snackbar: Snackbar
+  },
+  computed: {
+    loading: function() {
+      return this.$store.state.loading;
+    }
   }
 };
 </script>
