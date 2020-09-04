@@ -77,7 +77,7 @@
     "global-request-logger": "^0.1.1",
     "intellisense": "^0.0.1",
     "json-loader": "^0.5.7",
-    "marked": "^0.6.2",
+    "marked": "^1.1.1",
     "material-design-icons-iconfont": "^5.0.1",
     "moment": "^2.22.2",
     "morgan": "^1.9.1",
