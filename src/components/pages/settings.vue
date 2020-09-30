@@ -5,17 +5,18 @@
         <api-key-input></api-key-input>
       </v-flex>
       <v-flex xs12 md12 lg12 pt-5>
-        <api-url-input></api-url-input>
+        
+        <!-- <input-base-url-selector></input-base-url-selector> -->
       </v-flex>
       <v-flex xs12 md12 lg12 class="pt-4">
         <org-refresh-button></org-refresh-button>
       </v-flex>
       <v-flex xs12 md12 lg12 pt-5>
-        <v-switch
+        <!-- <v-switch
           v-model="form.displayJson"
           label="Display JSON for Reports"
           @change="onDisplayJson"
-        ></v-switch>
+        ></v-switch> -->
       </v-flex>
       <!-- not need for now
       <v-flex xs12 md12 lg12 pt-5>
@@ -29,13 +30,16 @@
 <script>
 import Vue from "vue";
 import ApiKeyInput from "../shared/meraki-state-selectors/ApiKeyInput";
-import ApiUrlInput from "../shared/meraki-state-selectors/ApiUrlInput";
+//import ApiUrlInput from "../shared/meraki-state-selectors/ApiUrlInput";
+//import InputBaseUrlSelector from "../shared/meraki-state-selectors/InputBaseUrlSelector";
 import OrgRefreshButton from "../shared/OrgRefreshButton";
+
 export default Vue.extend({
   template: "#page-settings",
   components: {
     ApiKeyInput,
-    ApiUrlInput,
+    //ApiUrlInput,
+    //InputBaseUrlSelector,
     OrgRefreshButton
   },
   data() {
@@ -79,6 +83,7 @@ export default Vue.extend({
     onDisplayJson: function() {
       this.$store.commit("setDisplayJson", this.form.displayJson);
     },
+    // TODO: Remove SDK dependency
     fetchOrgs: function() {
       let orgs = [];
       this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {

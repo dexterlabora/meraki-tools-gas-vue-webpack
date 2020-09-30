@@ -73,7 +73,7 @@ yarn serve
 
 > A local development proxy server will run on http://localhost:8080, be sure to update your API Base URL in the running application with your local URL.
 
-This will not only serve a local instance of the application but it will also forward all Meraki API requests where the path begins with `/api` to the local proxy server. These requests will then make be forwarded to `https://api.meraki.com/api/v0`.
+This will not only serve a local instance of the application but it will also forward all Meraki API requests where the path begins with `/api` to the local proxy server. These requests will then be forwarded to `https://api.meraki.com/api/v0`.
 
 ### Deploy to Production
 First ensure that you have the [Google clasp](https://developers.google.com/apps-script/guides/clasp) tool installed.

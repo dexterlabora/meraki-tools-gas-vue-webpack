@@ -28,14 +28,16 @@
       <span>Reports dynamically created from the Meraki API.</span>
     </v-tooltip>
 
-    <v-tooltip bottom>
+    <!-- DISABLED - built for v0 using old SDK -->
+
+    <!-- <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn icon v-on="on" to="/tools">
           <v-icon>build</v-icon>
         </v-btn>
       </template>
       <span>Tools to update a Meraki Network.</span>
-    </v-tooltip>
+    </v-tooltip> -->
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">

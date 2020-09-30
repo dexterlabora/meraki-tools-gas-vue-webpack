@@ -42,14 +42,19 @@ new Vue({
       );
     }
     //https://api-mp.meraki.com/api/v0
-    if (!this.$store.state.apiUrl) {
-      // set sandbox key if not defined
-      if (process.env.VUE_APP_SERVICE === "dev") {
-        this.$store.commit("setApiUrl", "http://localhost:8080/api");
-      } else {
-        this.$store.commit("setApiUrl", "https://api-mp.meraki.com/api/v0");
-      }
+    // if (!this.$store.state.apiUrl) {
+    //   // set sandbox key if not defined
+    //   if (process.env.VUE_APP_SERVICE === "dev") {
+    //     this.$store.commit("setApiUrl", "http://localhost:8080/api");
+    //   } else {
+    //     this.$store.commit("setApiUrl", "https://api-mp.meraki.com/api/v1");
+    //   }
+    // }
+
+    if (process.env.VUE_APP_API_URL ) {
+      this.$store.commit("setApiUrl", process.env.VUE_APP_API_URL);
     }
+
     merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
     merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
   },

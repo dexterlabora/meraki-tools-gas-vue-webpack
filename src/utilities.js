@@ -145,7 +145,7 @@ export function writeData(json, title, options = {}, location) {
     const report = formatReport(jsonArray);
 
     const defaultOptions = {
-      defaultValue: "undefined",
+      defaultValue: "",
       //flatten: true,
       eol: "\r\n", // TESTING
       //unwind: true,

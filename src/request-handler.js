@@ -19,10 +19,11 @@ export function request(requestOptions, count, extraData, location) {
 
   if (process.env.VUE_APP_SERVICE === "gas") {
     // ** Google Apps Script (GAS) **
-    requestOptions.url = `${requestOptions.baseUrl}/${requestOptions.url}`;
+    requestOptions.baseURL = "https://api-mp.meraki.com/api/v1" // hard coded for testing
+    requestOptions.url = `${requestOptions.baseURL}/${requestOptions.url}`;
     // console.log("gas requestOptions.url ", requestOptions.url);
     requestOptions.payload = JSON.stringify(requestOptions.data);
-    //console.log("gas: requestOptions", requestOptions);
+    console.log("gas: requestOptions", requestOptions);
     return gasRequest(requestOptions);
   } else {
     // ** AXIOS **
@@ -35,6 +36,7 @@ export function request(requestOptions, count, extraData, location) {
       })
       .catch(e => {
         console.log("request-handler error: ", e);
+        return e.response.data
       });
   }
 }

@@ -20,11 +20,6 @@
                 </v-btn>Generate a Report
               </p>
 
-              <p>
-                <v-btn icon to="/tools">
-                  <v-icon>build</v-icon>
-                </v-btn>Network Tools
-              </p>
             </v-flex>
           </v-card-text>
         </v-card>
@@ -64,13 +59,7 @@
               >Meraki OpenAPI specification</a>.
             </p>
             <p>As Meraki releases new API endpoints, the app will automatically generate updated reports.</p>
-            <p>
-              Custom reports and tools are created using the
-              <a
-                href="https://developer.cisco.com/meraki/api/#/node-js"
-                target="_blank"
-              >Meraki Node SDK</a>.
-            </p>
+          
             <p>
               <a
                 href="https://github.com/dexterlabora/meraki-tools-gas-vue-webpack"

@@ -1,11 +1,11 @@
 <template id="page-reports-auto-oas">
   <v-container>
     <v-layout>
-      <v-btn
+      <!-- <v-btn
         fab
         fixed
         bottom
-        left
+        right
         dark
         ripple
         color="primary"
@@ -13,47 +13,153 @@
         v-if="selectedReport.title"
       >
         <v-icon>play_arrow</v-icon>
-      </v-btn>
-      <v-flex xs12 md12>
-        <v-card pb-4>
-          <v-card-title>
-            Meraki Reports
-            <v-spacer></v-spacer>
+      </v-btn> -->
 
-            <v-autocomplete
-              class="mt-2"
-              :items="reports"
-              :filter="searchFilter"
-              @change="onSearch"
-              return-object
-              hide-no-data
-              hide-selected
-              clearable
-              item-text="name"
-              item-value="symbol"
-              filled
-              solo
-              rounded
+      <v-speed-dial
+        v-if="selectedReport.title"
+        v-model="speedDial"
+        right
+        fixed
+        bottom
+        direction="top"
+        open-on-hover
+      >
+        <template v-slot:activator>
+          <v-tooltip left class="pr-10">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="blue darken-2"
+                dark
+                fab
+                v-bind="attrs"
+                v-on="on"
+                @click="onRunAndPrint()"
+              >
+                <v-icon>play_arrow</v-icon>
+              </v-btn>
+            </template>
+            <span>Run and print to Sheet</span>
+          </v-tooltip>
+        </template>
+        <v-tooltip left class="pr-10">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              fab
+              dark
+              small
+              color="green"
+              @click="onRunOnly()"
             >
-              <template v-slot:label>
+              <v-icon>play_arrow</v-icon>
+            </v-btn>
+          </template>
+          <span>Run only</span>
+        </v-tooltip>
+
+        <!-- <v-tooltip left class="pr-10">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              fab
+              dark
+              small
+              color="green"
+              @click="onResultsToSheet()"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          <span>Results to Sheet</span>
+        </v-tooltip>
+        <v-tooltip left class="pr-10">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              fab
+              dark
+              small
+              color="green"
+              @click="onFilteredResultsToSheet()"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          <span>Filtered Results to Sheet</span>
+        </v-tooltip> -->
+      </v-speed-dial>
+
+      <v-flex xs12 md12>
+        <v-expansion-panels v-model="panel" multiple>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Meraki Reports <v-spacer></v-spacer>
+              <i v-if="parsedSwagger.info" style="font-weight: 100"
+                >API: {{ parsedSwagger.info.version }}</i
+              ></v-expansion-panel-header
+            >
+            <v-expansion-panel-content>
+              <v-autocomplete
+                class="mt-2 p-2 ml-1 mr-1"
+                style="font-size: small;"
+                :items="reports"
+                :filter="searchFilter"
+                @change="onSearch"
+                return-object
+                hide-no-data
+                hide-selected
+                clearable
+                item-text="name"
+                item-value="symbol"
+                filled
+                solo
+                prepend-icon="mdi-magnify"
+              >
+                <!-- <template v-slot:label>
                 <p>
                   <i>Search reports ...</i>
                 </p>
-              </template>
-              <template v-slot:selection="{ item, selected }" class="selected">
-                <label class="caption">{{item.shortTitle}}</label>
-              </template>
-              <template v-slot:item="{ item }">
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.shortTitle" class="caption"></v-list-item-title>
-                  <v-list-item-subtitle v-text="item.summary" class="body-2"></v-list-item-subtitle>
-                </v-list-item-content>
-              </template>
-            </v-autocomplete>
-          </v-card-title>
-          <v-card-text>
-            <div>
-              <!-- <v-speed-dial fab fixed bottom center color="primary" :loading="loading">
+              </template>-->
+                <template
+                  v-slot:selection="{ item, selected }"
+                  class="selected"
+                >
+                  <label class="caption">{{ item.shortTitle }}</label>
+                </template>
+                <!-- <template v-slot:item="{ item }">
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-text="item.shortTitle"
+                      class="caption"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-text="item.summary"
+                      class="body-2"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
+                </template> -->
+                <template slot="item" slot-scope="data">
+
+                       
+                     <v-tooltip bottom >
+                      <template v-slot:activator="{ on }">
+                        <v-icon color="grey lighten-1" v-on="on" class="mr-2">info</v-icon>
+                      </template>
+                      
+                        {{data.item.description}}
+                       
+                    </v-tooltip>
+<div class="caption">
+                     {{ data.item.shortTitle}}
+                      </div>
+                </template>
+              </v-autocomplete>
+
+              <div>
+                <!-- <v-speed-dial fab fixed bottom center color="primary" :loading="loading">
                 <template v-slot:activator>
                   <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
                     <v-icon>play_arrow</v-icon>
@@ -71,93 +177,141 @@
                
               </v-speed-dial>-->
 
-              <div class="pt-4">
-                <v-flex xs12 sm6 d-flex>
-                  <v-select
-                    v-model="selectedGroup"
-                    :items="groups"
-                    item-text="group"
-                    label="Group"
-                    outline
-                    @change="onSelectedGroup"
-                    dense
-                  ></v-select>
-                </v-flex>
+                <div class="pt-4">
+                  <v-flex xs12 sm6 d-flex>
+                    <v-select
+                      v-model="selectedGroup"
+                      :items="groups"
+                      item-text="group"
+                      label="Group"
+                      outline
+                      @change="onSelectedGroup"
+                      dense
+                    ></v-select>
+                  </v-flex>
 
-                <v-flex xs12 sm6 md6 pt-2 d-flex v-if="selectedReport.title">
-                  <v-select
-                    v-model="selectedReport"
-                    :items="groupReports"
-                    item-text="shortTitle"
-                    return-object
-                    label="Reports"
-                    outline
-                    dense
-                  >
-                    <!-- <template slot="item" slot-scope="data">{{ data.item.shortTitle}}</template>
-                    <template
+                  <v-flex xs12 sm6 md6 pt-2 d-flex v-if="selectedReport.title">
+                    <v-select
+                      v-model="selectedReport"
+                      :items="groupReports"
+                      item-text="shortTitle"
+                      return-object
+                      label="Reports"
+                      outline
+                      dense
+                    >
+                      <template slot="item" slot-scope="data">
+
+                       
+                     <v-tooltip bottom >
+                      <template v-slot:activator="{ on }">
+                        <v-icon color="grey lighten-1" v-on="on" class="mr-2">info</v-icon>
+                      </template>
+                      
+                        {{data.item.description}}
+                       
+                    </v-tooltip>
+<div class="caption">
+                     {{ data.item.shortTitle}}
+                      </div>
+                     
+                      
+                      </template>
+                    <!-- <template
                       slot="selection"
                       slot-scope="data"
                       class="selected"
-                    >{{ data.item.title}}</template>-->
-                  </v-select>
-                </v-flex>
-              </div>
-
-              <div v-if="report.requiredSelectors">
-                <div v-if="report.requiredSelectors.length">
-                  <h4>Required</h4>
-                  <v-flex
-                    xs12
-                    sm6
-                    md6
-                    pt-2
-                    d-flex
-                    v-for="c in report.requiredSelectors"
-                    :key="c.component.title"
-                  >
-                    <component
-                      :is="c.component"
-                      v-bind="c.attributes"
-                      v-dynamic-events="c.knownEvents"
-                    ></component>
+                    >{{ data.item.title}}</template> -->
+                    </v-select>
                   </v-flex>
                 </div>
-              </div>
-              <div v-if="report.optionalSelectors">
-                <div v-if="report.optionalSelectors.length">
-                  <h4>Optional</h4>
-                  <v-flex
-                    xs12
-                    sm6
-                    md6
-                    pt-2
-                    d-flex
-                    v-for="c in report.optionalSelectors"
-                    :key="c.component.title"
-                  >
-                    <component
-                      :is="c.component"
-                      v-bind="c.attributes"
-                      v-dynamic-events="c.knownEvents"
-                    ></component>
-                  </v-flex>
+                <p>{{ selectedReport.description }}</p>
+                <div v-if="report.requiredSelectors">
+                  <div v-if="report.requiredSelectors.length">
+                    <h4>Required</h4>
+                    <v-flex
+                      xs12
+                      sm6
+                      md6
+                      pt-2
+                      d-flex
+                      v-for="c in report.requiredSelectors"
+                      :key="c.component.title"
+                    >
+                      <component
+                        :is="c.component"
+                        v-bind="c.attributes"
+                        v-dynamic-events="c.knownEvents"
+                      ></component>
+                    </v-flex>
+                  </div>
+                </div>
+                <div v-if="report.optionalSelectors">
+                  <div v-if="report.optionalSelectors.length">
+                    <h4>Optional</h4>
+                    <v-flex
+                      xs12
+                      sm6
+                      md6
+                      pt-2
+                      d-flex
+                      v-for="c in report.optionalSelectors"
+                      :key="c.component.title"
+                    >
+                      <component
+                        :is="c.component"
+                        v-bind="c.attributes"
+                        v-dynamic-events="c.knownEvents"
+                      ></component>
+                    </v-flex>
+                  </div>
                 </div>
               </div>
-            </div>
-          </v-card-text>
-        </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
 
-        <v-flex xs12 sm12 md12 pt-2 v-if="report.looperParam">
+          <v-expansion-panel v-if="report.looperParam ">
+            <v-expansion-panel-header>Looper
+              <v-spacer></v-spacer>
+               <v-progress-linear
+               class="pl-5"
+              v-show="looperProgress && looperProgressPct < 100"
+              v-model="looperProgressPct"
+              color="green"
+              height="25"
+            >
+              <template v-slot="{  }">
+                <strong>{{looperProgress}} of {{report.actions.length}}</strong>
+              </template>
+            </v-progress-linear>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <!-- <v-flex xs12 sm12 md12 pt-2 >
           <v-card>
             <v-card-title>Looper</v-card-title>
 
-            <v-card-text p1>
-              <p>
-                Run multiple reports based on the selected items.
-                This will override the default selector.
-                <i>Some reports may not be appropriate for the selection.</i>
-              </p>
+              <v-card-text p1>-->
+              <div class="caption ">
+                Run multiple reports based on the selected items. 
+                <v-tooltip bottom class="pr-10">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="gray"
+                        small
+                        v-bind="attrs"
+                        v-on="on"
+                    
+                        icon
+                      >
+                        <v-icon>info</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>This will
+                override the default selector.
+                Some reports may not be appropriate for the selection.</span>
+                  </v-tooltip>
+              </div>
+
               <v-flex
                 xs12
                 sm6
@@ -174,33 +328,113 @@
                   :key="report.title"
                 ></component>
               </v-flex>
-            </v-card-text>
+              <!-- <div v-if="looperProgress">
+                {{looperProgress}} of {{report.actions.length}}
+                <br>
+              <i>at {{looperRate}} calls p/second</i>
+              </div> -->
+             
+              
+              <!-- </v-card-text>
             <v-card-actions></v-card-actions>
-          </v-card>
-        </v-flex>
+              </v-card>-->
+              <!-- </v-flex> -->
+            </v-expansion-panel-content>
+          </v-expansion-panel>
 
-        <v-flex xs12 sm12 md12 pt-2>
+          <v-expansion-panel v-show="reportData.length" >
+            <v-expansion-panel-header >JSON Results</v-expansion-panel-header>
+
+            <v-expansion-panel-content >
+              <!-- <v-flex xs12 sm12 md12 pt-2>
           <v-card>
             <v-card-title>
-              JSON Results
-              <v-btn
-                absolute
-                right
-                small
-                rounded
-                color="gray"
-                @click="onSaveFile"
-                v-if="reportData"
+              JSON Results-->
+
+              <!-- <v-toolbar width="100%" flat>
+              
+             -->
+
+              <!-- </v-toolbar> -->
+              <v-toolbar dense flat >
+                  <v-tooltip bottom class="pr-10">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="gray"
+                        small
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="onSaveFile(reportData)"
+                        v-if="reportData"
+                        class="pr-15"
+                        icon
+                      >
+                        <v-icon>save_alt</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Download JSON</span>
+                  </v-tooltip>
+                  <v-spacer></v-spacer>
+                  <v-tooltip bottom class="pr-10">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="green"
+                        small
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="onWriteSheet(reportData, report.title)"
+                        v-if="reportData"
+                        
+                      >
+                        <v-icon>mdi-table</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>to Sheet</span>
+                  </v-tooltip>
+                </v-toolbar>
+                
+              <div
+                style="overflow: auto; max-height: 400px"
+                v-if="reportData.length"
               >
-                <v-icon>save_alt</v-icon>
-              </v-btn>
-            </v-card-title>
-            <v-card-text p1>
-              <vue-json-pretty showLength :data="reportData"></vue-json-pretty>
-            </v-card-text>
-            <v-card-actions></v-card-actions>
-          </v-card>
-        </v-flex>
+                
+                <vue-json-pretty
+                  height="100%"
+                  :data="reportData"
+                  v-model="jsonResultSelection"
+                  showLength
+                  showLine
+                  collapsedOnClickBrackets
+                  highlightSelectedNode
+                  highlightMouseoverNode
+                  showDoubleQuotes
+                  selectOnClickNode
+                  @click="handleResultClick($event)"
+                  selectableType="single"
+                ></vue-json-pretty>
+              </div>
+
+              <!-- </v-card-text>
+              
+              </v-card>-->
+              <!-- </v-flex> -->
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+
+          <v-expansion-panel v-show="reportData.length">
+            <v-expansion-panel-header
+              >Filtered Results
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <jsonata
+              :key="selectedReport.shortTitle"
+                :data="reportData"
+                :query="form.query"
+                :title="selectedReport.shortTitle"
+              ></jsonata>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-flex>
     </v-layout>
   </v-container>
@@ -237,11 +471,13 @@ import ZoneSelector from "../shared/meraki-selectors/ZoneSelector";
 import InputSelector from "../shared/meraki-selectors/InputSelector";
 import FirewalledServiceSelector from "../shared/meraki-selectors/FirewalledServiceSelector.vue";
 import BleClientSelector from "../shared/meraki-selectors/BleClientSelector.vue";
+import Jsonata from "../shared/Jsonata.vue";
 
 import * as reportHelpers from "../../report-helpers";
 import * as oasReporter from "../../oas-reporter";
 
 var rateLimit = require("function-rate-limit");
+const jsonata = require("jsonata");
 
 // disable // console.log for production
 //// console.log = function() {};
@@ -264,9 +500,10 @@ export default Vue.extend({
     SwitchPortSelector,
     TimespanSelector,
     VlanSelector,
-    VueJsonPretty
+    VueJsonPretty,
+    Jsonata,
   },
-  mounted() {
+  created() {
     this.initReports();
   },
   watch: {
@@ -276,14 +513,18 @@ export default Vue.extend({
     reports() {
       if (!this.selectedReport.title) return;
       this.selectedReport = this.reports.find(
-        r => r.title == this.selectedReport.title
+        (r) => r.title == this.selectedReport.title
       );
     },
     selectedReport() {
       this.formData = {}; // reset form data
       this.formData.org = this.org;
       this.formData.net = this.net;
-    }
+    },
+    jsonResultSelection() {
+      console.log("watch jsonResultSelection", this.jsonResultSelection);
+      this.handleResultClick(this.jsonResultSelection);
+    },
   },
   directives: {
     DynamicEvents: {
@@ -292,27 +533,32 @@ export default Vue.extend({
         if (!allEvents) {
           return;
         }
-        Object.keys(allEvents).forEach(event => {
+        Object.keys(allEvents).forEach((event) => {
           // register handler in the dynamic component
-          vnode.componentInstance.$on(event, eventData => {
+          vnode.componentInstance.$on(event, (eventData) => {
             const targetEvent = allEvents[event];
             vnode.context[targetEvent]({
               event: event,
               eventData,
-              eventData
+              eventData,
             });
           });
         });
       },
-      unbind: function(el, binding, vnode) {
+      unbind: function (el, binding, vnode) {
         vnode.componentInstance.$off();
-      }
-    }
+      },
+    },
   },
   data() {
     return {
+      panel: [0, 0, 0],
+      speedDial: false,
+
       showSearchDialog: false,
       looperProgress: 0,
+      looperProgressPct:0,
+      looperRate: 1,
       browseByGroup: false,
       selectedGroup: "",
       selectedReport: {
@@ -322,39 +568,45 @@ export default Vue.extend({
         requiredSelectors: [],
         optionalSelectors: [],
         paramVals: {},
-        group: "All"
+        group: "All",
       },
       parsedSwagger: {},
       swaggerReports: [],
       filteredPaths: [],
       reportData: [],
-      formData: {}
+      reportDataFiltered: [],
+      formData: {},
+      form: {
+        includeIndex: false,
+        query: "$",
+      },
+      jsonResultSelection: [],
     };
   },
 
   computed: {
-    loading: function() {
+    loading: function () {
       return this.$store.state.loading;
     },
-    apiKey: function() {
+    apiKey: function () {
       return this.$store.state.apiKey;
     },
-    apiUrl: function() {
+    apiUrl: function () {
       return this.$store.state.apiUrl;
     },
-    org: function() {
+    org: function () {
       return this.$store.state.org;
     },
-    net: function() {
+    net: function () {
       return this.$store.state.net;
     },
-    reportItems: function() {
-      return this.reports.filter(r => r.group === this.selectedGroup.group);
+    reportItems: function () {
+      return this.reports.filter((r) => r.group === this.selectedGroup.group);
     },
     /**
      * Creates a computed report based off of generated template and selector formData
      */
-    report: function() {
+    report: function () {
       // Copy selected report template
       let report = this.selectedReport;
 
@@ -365,14 +617,14 @@ export default Vue.extend({
       if (report.parameters) {
         // Filter unneeded parameters
         report.adjustedParams = report.parameters.filter(
-          p =>
+          (p) =>
             !p.name.includes("startingAfter") &&
             !p.name.includes("endingBefore") &&
             !p.name.includes("t0") &&
             !p.name.includes("t1")
         );
         // Normalize the parameter names for global variables, store a single object
-        report.adjustedParams = report.adjustedParams.map(p => {
+        report.adjustedParams = report.adjustedParams.map((p) => {
           p.name = this.adjustMerakiParam(report.path, p.name);
           return p;
         });
@@ -387,24 +639,24 @@ export default Vue.extend({
 
         // Required Selectors
         report.requiredSelectors = this.getSelectors(
-          report.adjustedParams.filter(p => p.required)
+          report.adjustedParams.filter((p) => p.required)
         );
 
         // Optional / Query Selectors
         report.optionalSelectors = this.getSelectors(
-          report.adjustedParams.filter(p => !p.required)
+          report.adjustedParams.filter((p) => !p.required)
         );
 
         // Looper Parameters
         let pathParamNames = [];
-        report.pathParams.forEach(p => pathParamNames.push(p.name));
+        report.pathParams.forEach((p) => pathParamNames.push(p.name));
 
         report.looperParam = this.getIterableParam(pathParamNames);
         // Looper Selectors
         if (report.looperParam) {
           report.looperSelectors = this.getSelectors([report.looperParam]);
           report.looperParamVals = this.getComponentParamVals([
-            report.looperParam
+            report.looperParam,
           ]);
         }
 
@@ -414,12 +666,12 @@ export default Vue.extend({
 
         // Required Selectors
         report.requiredSelectors = this.getSelectors(
-          report.adjustedParams.filter(p => p.required)
+          report.adjustedParams.filter((p) => p.required)
         );
 
         // Optional / Query Selectors
         report.optionalSelectors = this.getSelectors(
-          report.adjustedParams.filter(p => !p.required)
+          report.adjustedParams.filter((p) => !p.required)
         );
       }
 
@@ -477,7 +729,7 @@ export default Vue.extend({
 
       return report;
     },
-    reports: function() {
+    reports: function () {
       // skip reports if no network selected
       return this.swaggerReports;
     },
@@ -488,24 +740,24 @@ export default Vue.extend({
       if (!this.report.parameters) {
         return;
       }
-      return this.report.parameters.filter(p => p.required);
+      return this.report.parameters.filter((p) => p.required);
     },
     // Group Selectors
-    groups: function() {
-      let groups = this.reports.filter(r => r.group);
-      return groups.sort(function(a, b) {
+    groups: function () {
+      let groups = this.reports.filter((r) => r.group);
+      return groups.sort(function (a, b) {
         if (a.group < b.group) return -1;
         if (a.group > b.group) return 1;
         return 0;
       });
     },
     groupReports() {
-      this.reports.sort(function(a, b) {
+      this.reports.sort(function (a, b) {
         if (a.group < b.group) return -1;
         if (a.group > b.group) return 1;
         return 0;
       });
-      return this.reports.filter(r => {
+      return this.reports.filter((r) => {
         if (r.group === this.selectedGroup) {
           return r;
         } else if (this.selectedGroup == "All") {
@@ -527,6 +779,9 @@ export default Vue.extend({
       }
       if (this.selectedReport["path"].includes("appliance")) {
         return { model: "MX" };
+      }
+      if (this.selectedReport["path"].includes("cellularGateway")) {
+        return { model: "MG" };
       }
       if (this.selectedReport["path"].includes("radio")) {
         return { model: "MR" };
@@ -551,33 +806,33 @@ export default Vue.extend({
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["actionBatch"]
             ? this.formData["actionBatch"]["id"]
-            : undefined
+            : undefined,
         },
         bluetoothClientId: {
           component: BleClientSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["bluetoothClient"]
             ? this.formData["bluetoothClient"]["id"]
-            : undefined
+            : undefined,
         },
         clientId: {
           component: ClientSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["client"]
             ? this.formData["client"]["id"]
-            : undefined
+            : undefined,
         },
         clientMac: {
           component: ClientSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["client"]
             ? this.formData["client"]["mac"]
-            : undefined
+            : undefined,
         },
         connectivityHistoryTimespan: {
           component: TimespanSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["timespan"]
+          paramVal: this.formData["timespan"],
         },
         excludedEventTypes: {
           component: EventTypeSelector,
@@ -589,20 +844,20 @@ export default Vue.extend({
               this.parsedSwagger,
               "getNetworkEvents",
               "excludedEventTypes"
-            )
+            ),
           },
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["excludedEventTypes"]
+          paramVal: this.formData["excludedEventTypes"],
         },
 
         includeConnectivityHistory: {
           component: ToggleSelector,
           attributes: {
             label: "includeConnectivityHistory",
-            param: "includeConnectivityHistory"
+            param: "includeConnectivityHistory",
           },
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["includeConnectivityHistory"]
+          paramVal: this.formData["includeConnectivityHistory"],
         },
         includedEventTypes: {
           component: EventTypeSelector,
@@ -614,17 +869,17 @@ export default Vue.extend({
               this.parsedSwagger,
               "getNetworkEvents",
               "includedEventTypes"
-            )
+            ),
           },
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["includedEventTypes"]
+          paramVal: this.formData["includedEventTypes"],
         },
         idOrMacOrIp: {
           component: ClientSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["client"]
             ? this.formData["client"]["id"]
-            : undefined
+            : undefined,
         },
         // TODO: use adjusted param
         mac: {
@@ -632,34 +887,44 @@ export default Vue.extend({
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["client"]
             ? this.formData["client"]["mac"]
-            : undefined
+            : undefined,
         },
         method: {
           component: MethodSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["method"]
+          paramVal: this.formData["method"],
         },
         networkId: {
           //component: // Using global state
-          paramVal: this.net ? this.net.id : undefined
+          paramVal: this.net ? this.net.id : undefined,
         },
         networkIds: {
           component: NetworksSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
+          attributes: {
+            label: "networkIds",
+            param: "networkIds",
+            // description: oasReporter.getParamDescription(
+            //   this.parsedSwagger,
+            //   "getOrganizationNetworks",
+            //   "networkIds"
+            // )
+          },
           paramVal: this.formData["networks"]
-            ? this.formData["networks"].map(n => n.id)
-            : undefined
+            ? this.formData["networks"].map((n) => n.id)
+            : undefined,
+          // paramVal: this.formData["networkIds"],
         },
         organizationId: {
           //component: // using global state
-          paramVal: this.org ? this.org.id : undefined
+          paramVal: this.org ? this.org.id : undefined,
         },
         organizationIds: {
           component: OrganizationsSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["organizations"]
-            ? this.formData["organizations"].map(o => o.id)
-            : undefined
+            ? this.formData["organizations"].map((o) => o.id)
+            : undefined,
         },
         productType: {
           component: ProductTypeSelector,
@@ -668,15 +933,15 @@ export default Vue.extend({
               ? this.net.productTypes
                 ? this.net.productTypes[0]
                 : undefined
-              : undefined
+              : undefined,
           }, // use first product in list
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["productType"]
+          paramVal: this.formData["productType"],
         },
         service: {
           component: FirewalledServiceSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["firewalledService"]
+          paramVal: this.formData["firewalledService"],
         },
 
         serial: {
@@ -685,22 +950,22 @@ export default Vue.extend({
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["device"]
             ? this.formData["device"]["serial"]
-            : undefined
+            : undefined,
         },
         serials: {
           component: DevicesSelector,
           attributes: this.deviceSelectorAttributes,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["devices"]
-            ? this.formData["devices"].map(d => d.serial)
-            : undefined
+            ? this.formData["devices"].map((d) => d.serial)
+            : undefined,
         },
         ssidNumber: {
           component: SsidSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["ssid"]
             ? this.formData["ssid"]["number"]
-            : undefined
+            : undefined,
         },
         switchPortNumber: {
           component: SwitchPortSelector,
@@ -708,13 +973,13 @@ export default Vue.extend({
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["switchPort"]
             ? this.formData["switchPort"]["number"]
-            : undefined
+            : undefined,
         },
         timespan: {
           attributes: this.timespanSelectorAttributes,
           component: TimespanSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
-          paramVal: this.formData["timespan"]
+          paramVal: this.formData["timespan"],
         },
 
         vlanId: {
@@ -722,7 +987,7 @@ export default Vue.extend({
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["vlan"]
             ? this.formData["vlan"]["id"]
-            : undefined
+            : undefined,
         },
 
         zoneId: {
@@ -730,11 +995,11 @@ export default Vue.extend({
           attributes: { device: this.formData["device"] },
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["zone"]
-            ? this.formData["zone"]["id"]
-            : undefined
-        }
+            ? this.formData["zone"]["zoneId"]
+            : undefined,
+        },
       };
-    }
+    },
   },
   methods: {
     // *****
@@ -769,38 +1034,54 @@ export default Vue.extend({
     // SWAGGER Reports
     // *****
     initReports() {
-      this.parseMerakiSwagger(this.org.id).then(parsed => {
+      // using gitub source because its faster and doesn't impact API
+      const specJsonUrl =
+        "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json";
+
+      this.parseMerakiSwagger(specJsonUrl).then((parsed) => {
         this.parsedSwagger = parsed;
         this.swaggerReports = oasReporter.generateReportTemplates(parsed);
       });
     },
-    parseMerakiSwagger(orgId) {
-      if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
-        // Public OAS
-        // console.log("parseMerakiSwagger - using public openapiSpec");
-        return axios
-          .get(this.apiUrl + "/openapiSpec")
-          .then(res => {
-            return res.data;
-          })
-          .catch(e => console.log("axios openapiSpec get error ", e));
-      } else {
-        // Org specific OAS
-        // console.log("parseMerakiSwagger - using org specific openapiSpec");
-        return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
-          orgId
-        )
-          .then(res => {
-            // Parsing Swagger Spec
-            return oasReporter.swaggerParser
-              .parse(res)
-              .then(r => {
-                return r;
-              })
-              .catch(e => console.log("oasReporter.swaggerParser error ", e));
-          })
-          .catch(e => this.handleError(e));
-      }
+    parseMerakiSwagger(specJsonUrl) {
+      return axios
+        .get(specJsonUrl)
+        .then((res) => {
+          return res.data;
+        })
+        .catch((e) => console.log("axios openapiSpec get error ", e));
+
+      // if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
+      //   // Public OAS
+      //   console.log("parseMerakiSwagger - using public openapiSpec");
+      //   return axios
+      //     .get(this.apiUrl + "/openapiSpec")
+      //     .then(res => {
+      //       return res.data;
+      //     })
+      //     .catch(e => console.log("axios openapiSpec get error ", e));
+      // } else {
+      // Org specific OAS
+      // console.log("parseMerakiSwagger - using org specific openapiSpec");
+      // let url =
+      // return axios.get('https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json').then(res => {
+      //     return res.data;
+      //   })
+      //   .catch(e => console.log("axios openapiSpec get error ", e));
+      // return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
+      //   orgId
+      // )
+      //   .then(res => {
+      //     // Parsing Swagger Spec
+      //     return oasReporter.swaggerParser
+      //       .parse(res)
+      //       .then(r => {
+      //         return r;
+      //       })
+      //       .catch(e => console.log("oasReporter.swaggerParser error ", e));
+      //   })
+      //   .catch(e => this.handleError(e));
+      //}
     },
 
     /**
@@ -816,7 +1097,7 @@ export default Vue.extend({
           description: "list of device serials",
           type: "array",
           in: "path",
-          iterate: "serial"
+          iterate: "serial",
         };
       }
 
@@ -830,7 +1111,7 @@ export default Vue.extend({
           description: "list of organization IDs",
           type: "array",
           in: "path",
-          iterate: "organizationId"
+          iterate: "organizationId",
         };
       }
       if (pathParams.includes("networkId")) {
@@ -839,7 +1120,7 @@ export default Vue.extend({
           description: "list of network IDs",
           type: "array",
           in: "path",
-          iterate: "networkId"
+          iterate: "networkId",
         };
       }
     },
@@ -898,7 +1179,7 @@ export default Vue.extend({
       }
       let selectors = [];
       // Assign selector for each known parameter
-      paramObjects.forEach(p => {
+      paramObjects.forEach((p) => {
         if (this.paramComponentMap[p.name] !== undefined) {
           if (!this.paramComponentMap[p.name].component) {
             return;
@@ -912,9 +1193,9 @@ export default Vue.extend({
             attributes: {
               //label: lodash.startCase(p.name).toLowerCase(),
               label: p.name,
-              description: p.description
+              description: p.description,
             },
-            knownEvents: { onChange: "handleSelectorEvent" }
+            knownEvents: { onChange: "handleSelectorEvent" },
           });
         }
       });
@@ -924,7 +1205,7 @@ export default Vue.extend({
     handleSelectorEvent(event) {
       this.formData = {
         ...this.formData,
-        ...event.eventData
+        ...event.eventData,
       };
     },
     getComponentParamVals(params) {
@@ -932,7 +1213,7 @@ export default Vue.extend({
         return;
       }
       let paramVals = {};
-      params.forEach(p => {
+      params.forEach((p) => {
         if (this.paramComponentMap[p.name]) {
           paramVals[p.name] = this.paramComponentMap[p.name].paramVal;
         } else {
@@ -949,7 +1230,7 @@ export default Vue.extend({
       if (paramNames.length > 0) {
         var mapping = {};
         paramNames.forEach((e, i) => (mapping[`{${e}}`] = pathParams[e]));
-        let newPath = path.replace(/\{\w+\}/gi, n => mapping[n]);
+        let newPath = path.replace(/\{\w+\}/gi, (n) => mapping[n]);
         return newPath;
       } else {
         return path;
@@ -962,9 +1243,17 @@ export default Vue.extend({
         baseUrl: this.apiUrl,
         url: action,
         apiKey: this.apiKey,
-        contentType: "application/json"
+        contentType: "application/json",
       };
-      rh.request(options).then(res => this.handleResponse(res));
+      rh.request(options)
+        .then((res) => {
+         // res['meta'] = extraData
+          this.handleResponse(res,extraData, location)
+          }
+        )
+        .catch((e) => {
+          this.handleResponse(e.errors.length ? e.errors[0] : e,extraData,location);
+        });
     },
 
     async onRunReport(location) {
@@ -972,7 +1261,7 @@ export default Vue.extend({
 
       if (this.requiredParams) {
         let missingParams = [];
-        this.requiredParams.forEach(p => {
+        this.requiredParams.forEach((p) => {
           if (!this.report.paramVals[p.name]) {
             missingParams.push(p.name);
           }
@@ -982,7 +1271,7 @@ export default Vue.extend({
           this.$store.commit("setSnackbar", {
             msg:
               "Missing required parameters: " + JSON.stringify(missingParams),
-            color: "danger"
+            color: "danger",
           });
           return;
         }
@@ -998,17 +1287,18 @@ export default Vue.extend({
 
       // Throttle the API calls to avoid rate limit (5 calls/s)
       this.looperProgress = 0;
-      var throttledAction = rateLimit(1, 1000, (action, i, extraData) => {
+      this.looperProgressPct = 0;
+      var throttledAction = rateLimit(this.looperRate, 1000, (action, i, extraData) => {
         // console.log("running rate limited action: ", i, action);
-        this.looperProgress = ((i + 1) / this.report.actions.length) * 100;
-        if (this.looperProgress >= 100) {
-          this.looperProgress = 0;
-        }
+        
+        this.looperProgress++
+        this.looperProgressPct = this.looperProgress/this.report.actions.length * 100
         return this.runAction(action, i, extraData, location);
       });
 
       // Loops through each action in series, and adjusts the headers
       for (let [i, action] of this.report.actions.entries()) {
+        console.log("Looper i action", i, action);
         let extraData = {};
         if (this.report.looperParamVals) {
           if (Object.keys(this.report.looperParamVals).length > 0) {
@@ -1023,11 +1313,11 @@ export default Vue.extend({
           }
         }
 
-        extraData["reportAction"] = action; // Create option to toggle this
+        extraData["_report"] = action; // Create option to toggle this
 
         // console.log("queueing rate limited action: ", action);
 
-        throttledAction(action, i, extraData, location);
+         throttledAction(action, i, extraData, location);
       }
     },
     // Custom report handlers (to override default key/value info for report)
@@ -1043,13 +1333,15 @@ export default Vue.extend({
     isIterable(array) {
       return Array.isArray(array) || array.length;
     },
+
+    // Results
     handleResponse(res, extraData, location) {
       this.$store.commit("setLoading", false);
       if (!res) {
         console.log("handleResponse No Response");
         this.$store.commit("setSnackbar", {
           msg: "No results or invalid options",
-          color: "warning"
+          color: "warning",
         });
         return;
       }
@@ -1061,12 +1353,13 @@ export default Vue.extend({
       if (extraData) {
         if (Array.isArray(adjustedReport)) {
           adjustedReport = adjustedReport.map(
-            i => (i = { ...i, ...extraData })
+            (i) => (i = { ...i, ...extraData })
           );
         } else {
           adjustedReport = { ...adjustedReport, ...extraData };
         }
       }
+      console.log("adjustedReport", JSON.stringify(adjustedReport, "null", 4));
 
       // send to report
 
@@ -1081,11 +1374,40 @@ export default Vue.extend({
       }
       // store report data for this run (cleared on next onRunReport())
       this.reportData = [...this.reportData, ...report] || [];
-
+      //this.onQuery(); // Run initial JSONata query
+      this.panel = [0, 1, 2];
       // print data to sheet
-      this.$utilities.writeData(this.reportData, title, options, location);
+      if(location){
+        this.$utilities.writeData(this.reportData, title, options, location);
+      }
+      //
       this.$store.commit("setLoading", false);
     },
+    onRunAndPrint() {
+      this.onRunReport("overwrite")
+   
+      
+    },
+    onRunOnly() {
+      this.onRunReport();
+    },
+    onResultsToSheet() {
+      this.$utilities.writeData(
+        this.reportData,
+        this.report.title,
+        {},
+        "overwrite"
+      );
+    },
+    onFilteredResultsToSheet() {
+      this.$utilities.writeData(
+        this.reportDataFiltered,
+        this.report.title,
+        {},
+        "overwrite"
+      );
+    },
+
     onClearReport() {
       this.selectedReport = {
         title: "",
@@ -1094,12 +1416,44 @@ export default Vue.extend({
         requiredSelectors: [],
         optionalSelectors: [],
         paramVals: {},
-        group: "All"
+        group: "All",
       };
     },
-    onSaveFile() {
-      this.$utilities.saveFile(this.reportData, this.selectedReport.shortTitle);
-    }
+    onSaveFile(file) {
+      this.$utilities.saveFile(file, this.selectedReport.shortTitle);
+    },
+    onWriteSheet(data, title){
+      this.$utilities.writeData(data,title)
+    },
+    handleResultClick(value) {
+      //value = this.jsonResultSelection
+      console.log("handleResultClick value", value);
+      let split = value.split(".");
+      split.shift();
+      split = split.map((s) => {
+        // console.log('s', s)
+        // if (s.includes(null)) {
+        //   s = 'Nothing'
+        // }
+        if (!s.includes("[")) {
+          s = `\`${s}\``;
+        }
+        return s;
+      });
+      // console.log('handleResultClick split', split)
+      let query = split.length ? `.${split.join(".")}` : "";
+      this.form.query = query;
+      // if (!this.form.includeIndex) {
+      //   query = query.replace(/ *\[[^\]]*]/, ""); // removes everyting in brackets
+      // }
+      // //this.form.query = this.form.query + query;
+      // this.form.query = "$" + query;
+      // this.reportDataFiltered = this.generateJsonataResult(
+      //   this.form.query,
+      //   this.reportData
+      // );
+    },
+
     // handleError(error, errorTitle, action) {
     //   // console.log("handleError error: ", error);
     //   this.$store.commit("setLoading", false);
@@ -1140,12 +1494,12 @@ export default Vue.extend({
     //   }
     //   return;
     // }
-  }
+  },
 });
 </script>
 <style >
 .v-autocomplete {
-  text-size: smaller;
+  font-size: smaller;
 }
 .v-text-field .v-label {
   top: 0px !important;
@@ -1153,4 +1507,12 @@ export default Vue.extend({
 .select__selections {
   padding-top: 2px !important;
 }
+
+.vjs-tree {
+    font-family: Monaco,Menlo,Consolas,Bitstream Vera Sans Mono,monospace;
+    font-size: 11px !important;;
+}
+
+
+
 </style>
