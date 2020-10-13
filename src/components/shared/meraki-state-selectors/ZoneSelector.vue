@@ -38,17 +38,34 @@ export default Vue.extend({
         this.zone = "";
         return;
       }
-      this.$meraki
-        .getDeviceCameraAnalyticsZones({
-          serial: this.device.serial,
-          $queryParameters: {
-            timespan: this.timespan
-          }
-        })
-        .then(res => {
-          this.zones = res.data;
-          this.zone = this.zones[0]; // set default ssid
+      const options = {
+        method: "get",
+        url: `/api/devices/${this.device.serial}/camera/analtyics/zones?${this.timespan}`,
+      };
+      this.$rh.request(options)
+      .then(res => {
+        // order and save the networks
+        this.zones = res.sort(function(a, b) {
+          if (a.label < b.label) return -1;
+          if (a.label > b.label) return 1;
+          return 0;
         });
+        
+        this.zone = this.zones[0]; // set default ssid
+      }).catch(e => {console.log("error fetching zones",e)})
+
+
+      // this.$meraki
+      //   .getDeviceCameraAnalyticsZones({
+      //     serial: this.device.serial,
+      //     $queryParameters: {
+      //       timespan: this.timespan
+      //     }
+      //   })
+      //   .then(res => {
+      //     this.zones = res.data;
+      //     this.zone = this.zones[0]; // set default ssid
+      //   });
     }
   },
   watch: {

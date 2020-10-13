@@ -235,7 +235,8 @@ export default {
     },
     parseItems(item) {
       if (!item.items) return item;
-
+      if (!Array.isArray(item.items)) return item;
+      console.log('parseItems item.items', item.items)
       item.items = (item.items || []).map((it, index) => {
         if (typeof it === "string") {
           it = { text: it, value: it };

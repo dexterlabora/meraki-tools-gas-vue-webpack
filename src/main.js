@@ -21,8 +21,16 @@ if (process.env.VUE_APP_SERVICE === "dev") {
   //   return e;
   // }; // ********   DISABLES console.log
 }
-import merakiSdk from "meraki";
-Vue.prototype.$merakiSdk = merakiSdk;
+
+
+// import merakiSdk from "meraki";
+// Vue.prototype.$merakiSdk = merakiSdk;
+
+import axios from 'axios';
+Vue.prototype.$axios = axios;
+
+import * as rh from './request-handler.js'
+Vue.prototype.$rh = rh;
 
 import * as utilities from "./utilities.js";
 
@@ -32,6 +40,11 @@ new Vue({
   router: Router,
   store: Store,
   el: "#app",
+  computed:{
+    apiKey(){
+      return this.$store.state.apiKey
+    }
+  },
 
   created() {
     if (!this.$store.state.apiKey) {
@@ -55,8 +68,29 @@ new Vue({
       this.$store.commit("setApiUrl", process.env.VUE_APP_API_URL);
     }
 
-    merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
-    merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
+   // merakiSdk.Configuration.xCiscoMerakiAPIKey = this.$store.state.apiKey;
+   // merakiSdk.Configuration.BASEURI = this.$store.state.apiUrl;
+
+    this.$axios.defaults.baseURL = this.$store.state.apiUrl;
+    //this.$axios.defaults.headers.common['X-Cisco-Meraki-API-Key'] = this.$store.state.apiKey;
+    this.$axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+    // Applies updaed API Key to headers for each API request
+    this.$axios.interceptors.request.use(
+      (config) => {
+        let token = this.apiKey
+    
+        if (token) {
+          config.headers['X-Cisco-Meraki-API-Key'] = `${ token }`
+        }
+    
+        return config
+      },
+    
+      (error) => {
+        return Promise.reject(error)
+      }
+    )
   },
 
   vuetify,

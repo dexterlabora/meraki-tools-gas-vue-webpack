@@ -6,6 +6,7 @@
 
 <script>
 import Vue from "vue";
+
 export default Vue.extend({
   template: "#org-refresh-button",
   data() {
@@ -14,7 +15,12 @@ export default Vue.extend({
   methods: {
     fetchOrgs: function() {
       let orgs = [];
-      this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
+      const options = {
+        method: "get",
+        url: "/organizations",
+      };
+      this.$rh.request(options)
+        .then((res) => {
         // order and save orgs
         orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;

@@ -5,7 +5,7 @@ import * as Cookies from "js-cookie";
 //import * as meraki from "./meraki-api.js";
 //import * as merakiSdk from "./lib";
 //import * as merakiSdk from "meraki";
-import * as merakiSdk from "meraki";
+//import * as merakiSdk from "meraki";
 //merakiConfig = merakiSdk.Configuration;
 //merakiConfig; //const configuration = merakiSdk.Configuration;
 
@@ -57,12 +57,14 @@ export default new Vuex.Store({
     setApiKey: (state, payload) => {
       state.apiKey = payload;
       //meraki.setApiKey(payload);
-      merakiSdk.Configuration.xCiscoMerakiAPIKey = payload;
+      //Vue.$axios.defaults.headers.common['X-Cisco-Meraki-API-Key'] = payload;
+      //merakiSdk.Configuration.xCiscoMerakiAPIKey = payload;
     },
     setApiUrl(state, payload) {
       state.apiUrl = payload;
       //meraki.setDomain(payload);
-      merakiSdk.Configuration.BASEURI = payload;
+      //Vue.$axios.defaults.baseURL = payload;
+      //merakiSdk.Configuration.BASEURI = payload;
     },
     setActionBatch(state, payload) {
       state.actionBatch = payload;

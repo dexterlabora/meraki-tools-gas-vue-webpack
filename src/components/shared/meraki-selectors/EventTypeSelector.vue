@@ -59,10 +59,8 @@ export default Vue.extend({
     getEventTypes() {
       let options = {};
       options.url = `networks/${this.networkId}/events/eventTypes`;
-      options.baseUrl = this.apiUrl;
-      options.apiKey = this.apiKey;
       options.method = "get";
-      rh.request(options).then(res => {
+      this.$rh.request(options).then(res => {
         this.eventTypes = res.sort(function(a, b) {
           if (a.description < b.description) return -1;
           if (a.description > b.description) return 1;

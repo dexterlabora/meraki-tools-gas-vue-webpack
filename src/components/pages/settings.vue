@@ -86,7 +86,15 @@ export default Vue.extend({
     // TODO: Remove SDK dependency
     fetchOrgs: function() {
       let orgs = [];
-      this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
+      const options = {
+        method: "get",
+        //baseUrl: this.apiUrl,
+        url: `/organizations`,
+        //apiKey: this.apiKey,
+       // contentType: "application/json",
+      };
+      rh.request(options)
+        .then((res) => {
         //console.log("getOrganizations res", res);
         // order and save orgs
         orgs = res.sort(function(a, b) {

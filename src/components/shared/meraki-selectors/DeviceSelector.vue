@@ -53,12 +53,29 @@ export default Vue.extend({
       if (!this.net) {
         return;
       }
-      this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
-        res => {
-          this.devices = res;
-          this.device = this.devices[0]; // set default device
-        }
-      );
+      const options = {
+        method: "get",
+        url: `/networks/${this.net.id}/devices`,
+      };
+      this.$rh.request(options)
+      .then(res => {
+        // order and save the networks
+        this.devices = res.sort(function(a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
+        
+        
+        this.devicesSelected = []; // set default ssid
+      }).catch(e => {console.log("error fetching devices",e)})
+
+      // this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
+      //   res => {
+      //     this.devices = res;
+      //     this.device = this.devices[0]; // set default device
+      //   }
+      // );
     }
   },
   watch: {

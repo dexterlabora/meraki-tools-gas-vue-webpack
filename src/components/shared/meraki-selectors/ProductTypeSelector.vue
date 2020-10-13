@@ -14,7 +14,7 @@ export default Vue.extend({
       form: {
         productType: ""
       },
-      productTypes: ["appliance", "camera", "switch", "wireless"]
+      productTypes: ["appliance", "camera", "switch", "wireless", "environmental","cellularGateway"]
     };
   },
   methods: {},

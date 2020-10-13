@@ -38,12 +38,30 @@ export default Vue.extend({
       if (!this.net) {
         return;
       }
-      this.$merakiSdk.SsidsController.getNetwork_ssids(this.net.id).then(
-        res => {
-          this.ssids = res;
-          this.form.ssid = this.ssids[0]; // set default ssid
-        }
-      );
+      const options = {
+        method: "get",
+        url: `/networks/${this.net.id}/wireless/ssids`,
+      };
+      this.$rh.request(options)
+      .then(res => {
+       
+        // order and save the networks
+        this.ssids = res.sort(function(a, b) {
+          if (a.number < b.number) return -1;
+          if (a.number > b.number) return 1;
+          return 0;
+        });
+        
+        //this.vlan = this.vlans[0]; // set default ssid
+      }).catch(e => {console.log("error fetching ssids",e)})
+
+
+      // this.$merakiSdk.SsidsController.getNetwork_ssids(this.net.id).then(
+      //   res => {
+      //     this.ssids = res;
+      //     this.form.ssid = this.ssids[0]; // set default ssid
+      //   }
+      // );
     },
     onChange: function() {
       //this.$store.commit("setInput", this.form.input);

@@ -57,9 +57,11 @@ export default Vue.extend({
       if (!this.org.id) {
         return;
       }
-      this.$merakiSdk.NetworksController.getOrganizationNetworks({
-        organizationId: this.org.id
-      }).then(res => {
+      const options = {
+        method: "get",
+        url: `/organizations/${this.org.id}/networks`,
+      };
+      this.$rh.request(options).then(res => {
         // order and save the networks
         nets = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
@@ -68,7 +70,19 @@ export default Vue.extend({
         });
         this.form.net = nets[0]; // set default
         this.$store.commit("setNets", nets); // set state
-      });
+      }).catch(e => {console.log('error fetching nets',e)});
+      // this.$merakiSdk.NetworksController.getOrganizationNetworks({
+      //   organizationId: this.org.id
+      // }).then(res => {
+      //   // order and save the networks
+      //   nets = res.sort(function(a, b) {
+      //     if (a.name < b.name) return -1;
+      //     if (a.name > b.name) return 1;
+      //     return 0;
+      //   });
+      //   this.form.net = nets[0]; // set default
+      //   this.$store.commit("setNets", nets); // set state
+      // });
     }
   },
   watch: {

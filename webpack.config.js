@@ -1,4 +1,4 @@
-const webpack = require("webpack");
+  const webpack = require("webpack");
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
@@ -7,9 +7,9 @@ require("babel-polyfill");
 var path = require("path");
 
 const VuetifyLoaderPlugin = require("vuetify-loader/lib/plugin");
-module.exports = {
-  plugins: [new VuetifyLoaderPlugin()]
-};
+// module.exports = {
+//   plugins: [new VuetifyLoaderPlugin()]
+// };
 
 module.exports = {
   mode: "production",

@@ -4,9 +4,9 @@
   "description": "Google Apps Script With Typescript, Vue, and Webpack",
   "author": "Cory Guynn",
   "scripts": {
-    "serve": "./scripts/api-to-gas.sh && VUE_APP_SERVICE=dev vue-cli-service serve",
-    "build": "VUE_APP_SERVICE=gas webpack --config webpack.config.js && ./scripts/api-to-gas.sh",
-    "deploy": "VUE_APP_SERVICE=gas webpack --config webpack.config.js && ./scripts/api-to-gas.sh && ./scripts/clush.sh",
+    "serve": "VUE_APP_SERVICE=dev vue-cli-service serve",
+    "build": "VUE_APP_SERVICE=gas webpack --config webpack.config.js",
+    "deploy": "VUE_APP_SERVICE=gas webpack --config webpack.config.js && ./scripts/clush.sh",
     "clush": "./scripts/clush.sh"
   },
   "dependencies": {
@@ -15,6 +15,13 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.12",
     "@fortawesome/free-solid-svg-icons": "^5.6.3",
     "@fortawesome/vue-fontawesome": "^0.1.4",
+   
+  
+   
+    "vuetify": "2.1.9"
+   
+  },
+  "devDependencies": {
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "ee-class": "^1.4.0",
@@ -25,13 +32,13 @@
     "gas-webpack-plugin": "^1.0.1",
     "get-function-arguments": "^1.0.0",
     "i": "^0.3.6",
+    "js-beautify": "^1.13.0",
     "js-cookie": "^2.2.0",
     "json-2-csv": "^3.4.1",
     "json-bigint": "^0.3.0",
     "json2csv": "^4.3.2",
     "jsonata": "^1.8.3",
     "lodash": "^4.17.13",
-    "meraki": "1.1.0",
     "npm": "^6.5.0",
     "papaparse": "^4.6.3",
     "register-service-worker": "^1.5.2",
@@ -43,12 +50,10 @@
     "vue-material": "^1.0.0-beta-10.2",
     "vue-quaggajs": "^1.0.6",
     "vue-router": "^3.0.2",
-    "vuetify": "2.1.9",
+    "vue2-ace-editor": "^0.0.15",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4",
-    "webpack-shell-plugin": "^0.5.0"
-  },
-  "devDependencies": {
+    "webpack-shell-plugin": "^0.5.0",
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.3",

@@ -5,7 +5,7 @@
       v-model="organizationsSelected"
       label="Organizations"
       item-text="name"
-      :menu-props="{ maxHeight: '400'}"
+      :menu-props="{ maxHeight: '400' }"
       return-object
       small-chips
       multiple
@@ -25,10 +25,9 @@
         <v-chip small v-if="index === 0">
           <span class="small-chips">{{ item.name }}</span>
         </v-chip>
-        <span
-          v-if="index === 1"
-          class="grey--text caption"
-        >(+{{ organizationsSelected.length - 1 }} others)</span>
+        <span v-if="index === 1" class="grey--text caption"
+          >(+{{ organizationsSelected.length - 1 }} others)</span
+        >
       </template>
     </v-select>
   </div>
@@ -42,23 +41,37 @@ export default Vue.extend({
   data() {
     return {
       organizationsSelected: [],
-      organizations: []
+      organizations: [],
     };
   },
   computed: {
-    apiKey: function() {
+    apiKey: function () {
       return this.$store.state.apiKey;
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.fetchOrganizations();
   },
   methods: {
     fetchOrganizations() {
-      this.devices = [];
-      this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
-        this.organizations = res;
-        this.organizationsSelected = []; // set default
+      this.organizations = [];
+
+      const options = {
+        method: "get",
+        url: "/organizations",
+      };
+      this.$rh.request(options).then((res) => {
+        console.log("getOrganizations res", res);
+        // order and save orgs
+        if (!res) {
+          console.log("no data", res);
+        }
+        orgs = res.sort(function (a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
+        this.organizations = orgs;
       });
     },
     toggle() {
@@ -69,18 +82,18 @@ export default Vue.extend({
           this.organizationsSelected = this.organizations.slice();
         }
       });
-    }
+    },
   },
   watch: {
     organizationsSelected() {
       //this.$store.commit("setDevices", this.devicesSelected); // set state
       this.$emit("onChange", { organizations: this.organizationsSelected });
     },
-    apiKey: function() {
+    apiKey: function () {
       this.organizationsSelected = [];
       this.fetchOrganizations();
-    }
-  }
+    },
+  },
 });
 </script>
 

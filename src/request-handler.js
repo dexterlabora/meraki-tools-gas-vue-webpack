@@ -1,9 +1,10 @@
 import axios from "axios";
 import store from "./store";
-const API_KEY = store.state.apiKey;
-const API_URL = store.state.apiUrl;
 
 export function request(requestOptions, count, extraData, location) {
+  const API_KEY = store.state.apiKey;
+const API_URL = store.state.apiUrl;
+
   // console.log("requestOptions", requestOptions);
   //**
   // Run Report based on environment
@@ -19,7 +20,7 @@ export function request(requestOptions, count, extraData, location) {
 
   if (process.env.VUE_APP_SERVICE === "gas") {
     // ** Google Apps Script (GAS) **
-    requestOptions.baseURL = "https://api-mp.meraki.com/api/v1" // hard coded for testing
+    requestOptions.baseURL = "https://api.meraki.com/api/v1" // hard coded for testing
     requestOptions.url = `${requestOptions.baseURL}/${requestOptions.url}`;
     // console.log("gas requestOptions.url ", requestOptions.url);
     requestOptions.payload = JSON.stringify(requestOptions.data);
@@ -28,7 +29,7 @@ export function request(requestOptions, count, extraData, location) {
   } else {
     // ** AXIOS **
     requestOptions.baseURL = "http://localhost:8080/api"; // hard coded for local dev testing
-    //console.log("axios: requestOptions", requestOptions);
+    console.log("axios: requestOptions", requestOptions);
     return axios(requestOptions)
       .then(res => {
         //console.log("axios res", res);

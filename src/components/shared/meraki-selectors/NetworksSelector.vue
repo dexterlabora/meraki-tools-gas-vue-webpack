@@ -70,9 +70,11 @@ export default Vue.extend({
       if (!this.org) {
         return;
       }
-      this.$merakiSdk.NetworksController.getOrganizationNetworks({
-        organizationId: this.org.id
-      }).then(res => {
+      const options = {
+        method: "get",
+        url: `/organizations/${this.org.id}/networks`,
+      };
+      this.$rh.request(options).then((res) => {
         this.networks = res;
         this.networksSelected = []; // set default
       });

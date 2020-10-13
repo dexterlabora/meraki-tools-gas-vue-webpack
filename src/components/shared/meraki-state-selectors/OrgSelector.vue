@@ -14,6 +14,7 @@
 </template>
 
 <script>
+//import * as rh from "@/request-handler.js";
 import Vue from "vue";
 export default Vue.extend({
   template: "#org-selector",
@@ -59,16 +60,33 @@ export default Vue.extend({
         id: "",
         name: ""
       };
-      this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
-        //console.log("getOrganizations res", res);
+    //  console.log('this.$axios',this.$axios)
+     const options = {
+        method: "get",
+        url: "/organizations",
+      };
+      this.$rh.request(options).then(res => {
+        console.log("getOrganizations res", res);
         // order and save orgs
+        if(!res){console.log('no data', res)}
         orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
           return 0;
         });
         this.$store.commit("setOrgs", orgs);
-      });
+      }).catch(e => {console.log(e)});
+
+      // this.$merakiSdk.OrganizationsController.getOrganizations().then(res => {
+      //   //console.log("getOrganizations res", res);
+      //   // order and save orgs
+      //   orgs = res.sort(function(a, b) {
+      //     if (a.name < b.name) return -1;
+      //     if (a.name > b.name) return 1;
+      //     return 0;
+      //   });
+      //   this.$store.commit("setOrgs", orgs);
+      // });
     }
   },
   watch: {

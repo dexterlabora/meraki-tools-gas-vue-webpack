@@ -76,11 +76,28 @@ export default Vue.extend({
       if (!this.device.model.includes("MS")) {
         return;
       }
-      this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
-        this.device.serial
-      )
-        .then(res => (this.ports = res))
-        .catch(e => console.log(e));
+      const options = {
+        method: "get",
+        url: `/devices/${this.device.serial}/switch/ports`,
+      };
+      this.$rh.request(options)
+      .then(res => {
+       
+        // order and save the networks
+        this.ports = res.sort(function(a, b) {
+          if (a.portId < b.portId) return -1;
+          if (a.portId > b.portId) return 1;
+          return 0;
+        });
+        
+        //this.vlan = this.vlans[0]; // set default ssid
+      }).catch(e => {console.log("error fetching switch ports",e)})
+
+      // this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
+      //   this.device.serial
+      // )
+      //   .then(res => (this.ports = res))
+      //   .catch(e => console.log(e));
     },
     onChange() {
       this.$emit("onChange", { switchPort: this.form.port });

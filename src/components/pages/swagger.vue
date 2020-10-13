@@ -19,7 +19,12 @@
               ></v-select>
             </v-flex>
             <!-- <component :is="swaggerView" v-bind="{spec:filteredGroup}" :key="filteredGroup.request"></component> -->
-            <v-swagger :spec="filteredGroup" :key="filteredGroup.key" :baseUrl="apiUrl" />
+            <v-swagger
+              v-if="filteredGroup"
+              :spec="filteredGroup"
+              :key="filteredGroup.key"
+              :baseUrl="apiUrl"
+            />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -28,12 +33,12 @@
           <v-flex class="sm6 md6" style="border-outline=2px">
             <v-label>Base URL</v-label>
             <v-spacer></v-spacer>
-            <strong>{{allPaths.host}}</strong>
+            <strong>{{ allPaths.host }}</strong>
           </v-flex>
           <v-flex class="sm6 md6 mt-2">
             <v-label>Version</v-label>
             <v-spacer></v-spacer>
-            {{allPaths.version}}
+            {{ allPaths.version }}
           </v-flex>
         </v-footer>
       </v-flex>
@@ -51,7 +56,7 @@ Vue.use(VSwagger);
 export default Vue.extend({
   template: "#page-swagger",
   components: {
-    VSwagger
+    VSwagger,
   },
   computed: {
     apiKey() {
@@ -59,7 +64,7 @@ export default Vue.extend({
     },
     apiUrl() {
       return this.$store.state.apiUrl;
-    }
+    },
     // Group Selectors
     // groups() {
     //   if (!this.allPaths) {
@@ -120,23 +125,23 @@ export default Vue.extend({
       //     }
       //   ]
       // },
-      parsedSwagger: {}
+      parsedSwagger: {},
     };
   },
   computed: {
-    loading: function() {
+    loading: function () {
       return this.$store.state.loading;
     },
-    apiKey: function() {
+    apiKey: function () {
       return this.$store.state.apiKey;
     },
-    apiUrl: function() {
+    apiUrl: function () {
       return this.$store.state.apiUrl;
     },
-    org: function() {
+    org: function () {
       return this.$store.state.org;
     },
-    net: function() {
+    net: function () {
       return this.$store.state.net;
     },
     filteredGroup() {
@@ -150,10 +155,10 @@ export default Vue.extend({
         return;
       }
       filtered.request = filtered.request.filter(
-        r => r.tags[0] === this.selectedGroup || this.selectedGroup === "All"
+        (r) => r.tags[0] === this.selectedGroup || this.selectedGroup === "All"
       );
       return filtered;
-    }
+    },
   },
   mounted() {
     this.initSwagger();
@@ -161,17 +166,17 @@ export default Vue.extend({
   watch: {
     filteredGroup() {
       this.swaggerView = "v-swagger";
-    }
+    },
   },
   methods: {
     initSwagger() {
-      this.parseMerakiSwagger(this.org.id).then(parsed => {
+      this.parseMerakiSwagger(this.org.id).then((parsed) => {
         this.parsedSwagger = parsed;
         //this.groups.push("All"); // add a catch-all group // this is TOO slow to load.
-        this.groups = [...this.groups, ...parsed.tags.map(t => t.name)];
+        this.groups = [...this.groups, ...parsed.tags.map((t) => t.name)];
 
         this.allPaths = oasReporter.generateSwaggerPathsVue(parsed, {
-          baseUrl: this.apiUrl
+          baseUrl: this.apiUrl,
         });
       });
     },
@@ -182,32 +187,48 @@ export default Vue.extend({
       this.selectedGroup = this.groupReports[0]; // set default report
     },
     parseMerakiSwagger(orgId) {
-      if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
-        // Public OAS
-        // console.log("parseMerakiSwagger - using public openapiSpec");
-        return axios
-          .get(this.apiUrl + "/openapiSpec")
-          .then(res => {
-            return res.data;
-          })
-          .catch(e => console.log("axios openapiSpec get error ", e));
-      } else {
-        // Org specific OAS
-        // console.log("parseMerakiSwagger - using org specific openapiSpec");
-        return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
-          orgId
-        )
-          .then(res => {
-            // Parsing Swagger Spec
-            return oasReporter.swaggerParser
-              .parse(res)
-              .then(r => {
-                return r;
-              })
-              .catch(e => console.log("oasReporter.swaggerParser error ", e));
-          })
-          .catch(e => this.handleError(e));
+      if (!orgId) {
+        return;
       }
+      // Public OAS
+      // console.log("parseMerakiSwagger - using public openapiSpec");
+      const options = {
+        method: "get",
+        url: `/organizations/${orgId}/openapiSpec`,
+      };
+
+      return this.$rh
+        .request(options)
+        .then((res) => {
+          return res;
+        })
+        .catch((e) => {
+          console.log("error fetching openapiSpec", e);
+        });
+
+      // return this.$rh
+      //   .request(this.apiUrl + "/openapiSpec")
+      //   .then(res => {
+      //     return res.data;
+      //   })
+      //   .catch(e => console.log("axios openapiSpec get error ", e));
+      // } else {
+      //   // Org specific OAS
+      //   // console.log("parseMerakiSwagger - using org specific openapiSpec");
+      //   return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
+      //     orgId
+      //   )
+      //     .then(res => {
+      //       // Parsing Swagger Spec
+      //       return oasReporter.swaggerParser
+      //         .parse(res)
+      //         .then(r => {
+      //           return r;
+      //         })
+      //         .catch(e => console.log("oasReporter.swaggerParser error ", e));
+      //     })
+      //     .catch(e => this.handleError(e));
+      // }
     },
     handleError(error, errorTitle, action) {
       console.log("handleError error: ", error);
@@ -217,19 +238,19 @@ export default Vue.extend({
         console.log("Bad request, often due to missing a required parameter.");
         this.$store.commit("setSnackbar", {
           msg: "Bad request, often due to missing a required parameter.",
-          color: "danger"
+          color: "danger",
         });
       } else if (error.errorCode === 401) {
         console.log("No valid API key provided.");
         this.$store.commit("setSnackbar", {
           msg: "No valid API key provided.",
-          color: "danger"
+          color: "danger",
         });
       } else if (error.errorCode >= 500 && error.errorCode < 600) {
         console.log("Server error");
         this.$store.commit("setSnackbar", {
           msg: "Server error or invalid parameters",
-          color: "danger"
+          color: "danger",
         });
       } else if (error.errorCode === 404) {
         console.log(
@@ -238,17 +259,17 @@ export default Vue.extend({
         this.$store.commit("setSnackbar", {
           msg:
             "The requested resource doesn't exist or you do not have permission",
-          color: "danger"
+          color: "danger",
         });
       } else {
         console.log("Welp, that's not good: ", action);
         this.$store.commit("setSnackbar", {
           msg: error.Error ? error.Error : error,
-          color: "danger"
+          color: "danger",
         });
       }
       return;
-    }
-  }
+    },
+  },
 });
 </script>

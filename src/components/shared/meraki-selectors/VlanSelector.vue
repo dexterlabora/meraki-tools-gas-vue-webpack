@@ -52,10 +52,25 @@ export default Vue.extend({
       if (!this.net.id) {
         return;
       }
+    const options = {
+        method: "get",
+        url: `/networks/${this.net.id}/appliance/vlans`,
+      };
+      this.$rh.request(options)
+      .then(res => {
+        // order and save the networks
+        this.vlans = res.sort(function(a, b) {
+          if (a.id < b.id) return -1;
+          if (a.id > b.id) return 1;
+          return 0;
+        });
+        
+        //this.vlan = this.vlans[0]; // set default ssid
+      }).catch(e => {console.log("error fetching zones",e)})
 
-      this.$merakiSdk.VlansController.getNetwork_vlans(this.net.id)
-        .then(res => (this.vlans = res))
-        .catch(e => console.log(e));
+      // this.$merakiSdk.VlansController.getNetwork_vlans(this.net.id)
+      //   .then(res => (this.vlans = res))
+      //   .catch(e => console.log(e));
     },
     onChange() {
       this.$emit("onChange", { vlan: this.form.vlan });

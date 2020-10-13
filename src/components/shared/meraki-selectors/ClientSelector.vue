@@ -45,28 +45,43 @@ export default Vue.extend({
     };
   },
   methods: {
-    async fetchClients() {
+    fetchClients() {
       if (!this.net) {
         return;
       }
       this.clients = [];
+      const options = {
+        method: "get",
+        url: `/networks/${this.net.id}/clients`,
+      };
 
-      const api = await this.$merakiSdk.ClientsController.getNetworkClients({
-        networkId: this.net.id,
-        timespan: this.timespan
-      })
-        .then(res => {
-          this.clients = res;
-        })
-        .catch(e => console.log(e));
+      this.$rh.request(options)
+      .then(res => {
+        // order and save the networks
+        this.clients = res.sort(function(a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
 
-      const sortedClients = this.clients.sort(function(a, b) {
-        if (a.description < b.description) return -1;
-        if (a.description > b.description) return 1;
-        return 0;
-      });
-      this.$store.commit("setClients", sortedClients);
+      }).catch(e => {console.log("error fetching clients",e)})
     }
+    //   const api = await this.$merakiSdk.ClientsController.getNetworkClients({
+    //     networkId: this.net.id,
+    //     timespan: this.timespan
+    //   })
+    //     .then(res => {
+    //       this.clients = res;
+    //     })
+    //     .catch(e => console.log(e));
+
+    //   const sortedClients = this.clients.sort(function(a, b) {
+    //     if (a.description < b.description) return -1;
+    //     if (a.description > b.description) return 1;
+    //     return 0;
+    //   });
+    //   this.$store.commit("setClients", sortedClients);
+    // }
   },
   watch: {
     "form.client"() {

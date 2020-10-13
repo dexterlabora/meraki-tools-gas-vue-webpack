@@ -1,20 +1,6 @@
 <template id="page-reports-auto-oas">
   <v-container>
     <v-layout>
-      <!-- <v-btn
-        fab
-        fixed
-        bottom
-        right
-        dark
-        ripple
-        color="primary"
-        @click="onRunReport('overwrite')"
-        v-if="selectedReport.title"
-      >
-        <v-icon>play_arrow</v-icon>
-      </v-btn> -->
-
       <v-speed-dial
         v-if="selectedReport.title"
         v-model="speedDial"
@@ -57,39 +43,6 @@
           </template>
           <span>Run only</span>
         </v-tooltip>
-
-        <!-- <v-tooltip left class="pr-10">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              v-on="on"
-              fab
-              dark
-              small
-              color="green"
-              @click="onResultsToSheet()"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>Results to Sheet</span>
-        </v-tooltip>
-        <v-tooltip left class="pr-10">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              v-on="on"
-              fab
-              dark
-              small
-              color="green"
-              @click="onFilteredResultsToSheet()"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>Filtered Results to Sheet</span>
-        </v-tooltip> -->
       </v-speed-dial>
 
       <v-flex xs12 md12>
@@ -104,7 +57,7 @@
             <v-expansion-panel-content>
               <v-autocomplete
                 class="mt-2 p-2 ml-1 mr-1"
-                style="font-size: small;"
+                style="font-size: small"
                 :items="reports"
                 :filter="searchFilter"
                 @change="onSearch"
@@ -142,19 +95,18 @@
                   </v-list-item-content>
                 </template> -->
                 <template slot="item" slot-scope="data">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-icon color="grey lighten-1" v-on="on" class="mr-2"
+                        >info</v-icon
+                      >
+                    </template>
 
-                       
-                     <v-tooltip bottom >
-                      <template v-slot:activator="{ on }">
-                        <v-icon color="grey lighten-1" v-on="on" class="mr-2">info</v-icon>
-                      </template>
-                      
-                        {{data.item.description}}
-                       
-                    </v-tooltip>
-<div class="caption">
-                     {{ data.item.shortTitle}}
-                      </div>
+                    {{ data.item.description }}
+                  </v-tooltip>
+                  <div class="caption">
+                    {{ data.item.shortTitle }}
+                  </div>
                 </template>
               </v-autocomplete>
 
@@ -201,23 +153,23 @@
                       dense
                     >
                       <template slot="item" slot-scope="data">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on }">
+                            <v-icon
+                              color="grey lighten-1"
+                              v-on="on"
+                              class="mr-2"
+                              >info</v-icon
+                            >
+                          </template>
 
-                       
-                     <v-tooltip bottom >
-                      <template v-slot:activator="{ on }">
-                        <v-icon color="grey lighten-1" v-on="on" class="mr-2">info</v-icon>
+                          {{ data.item.description }}
+                        </v-tooltip>
+                        <div class="caption">
+                          {{ data.item.shortTitle }}
+                        </div>
                       </template>
-                      
-                        {{data.item.description}}
-                       
-                    </v-tooltip>
-<div class="caption">
-                     {{ data.item.shortTitle}}
-                      </div>
-                     
-                      
-                      </template>
-                    <!-- <template
+                      <!-- <template
                       slot="selection"
                       slot-scope="data"
                       class="selected"
@@ -270,20 +222,23 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel v-if="report.looperParam ">
-            <v-expansion-panel-header>Looper
+          <v-expansion-panel v-if="report.looperParam" >
+            <v-expansion-panel-header
+              >Looper
               <v-spacer></v-spacer>
-               <v-progress-linear
-               class="pl-5"
-              v-show="looperProgress && looperProgressPct < 100"
-              v-model="looperProgressPct"
-              color="green"
-              height="25"
-            >
-              <template v-slot="{  }">
-                <strong>{{looperProgress}} of {{report.actions.length}}</strong>
-              </template>
-            </v-progress-linear>
+              <v-progress-linear
+                class="pl-5"
+                v-show="looperProgress && looperProgressPct < 100"
+                v-model="looperProgressPct"
+                color="green"
+                height="25"
+              >
+                <template v-slot="{}">
+                  <strong
+                    >{{ looperProgress }} of {{ report.actions.length }}</strong
+                  >
+                </template>
+              </v-progress-linear>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <!-- <v-flex xs12 sm12 md12 pt-2 >
@@ -291,25 +246,19 @@
             <v-card-title>Looper</v-card-title>
 
               <v-card-text p1>-->
-              <div class="caption ">
-                Run multiple reports based on the selected items. 
+              <div class="caption">
+                Run multiple reports based on the selected items.
                 <v-tooltip bottom class="pr-10">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        color="gray"
-                        small
-                        v-bind="attrs"
-                        v-on="on"
-                    
-                        icon
-                      >
-                        <v-icon>info</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>This will
-                override the default selector.
-                Some reports may not be appropriate for the selection.</span>
-                  </v-tooltip>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="gray" small v-bind="attrs" v-on="on" icon>
+                      <v-icon>info</v-icon>
+                    </v-btn>
+                  </template>
+                  <span
+                    >This will override the default selector. Some reports may
+                    not be appropriate for the selection.</span
+                  >
+                </v-tooltip>
               </div>
 
               <v-flex
@@ -333,8 +282,7 @@
                 <br>
               <i>at {{looperRate}} calls p/second</i>
               </div> -->
-             
-              
+
               <!-- </v-card-text>
             <v-card-actions></v-card-actions>
               </v-card>-->
@@ -342,96 +290,16 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel v-show="reportData.length" >
-            <v-expansion-panel-header >JSON Results</v-expansion-panel-header>
-
-            <v-expansion-panel-content >
-              <!-- <v-flex xs12 sm12 md12 pt-2>
-          <v-card>
-            <v-card-title>
-              JSON Results-->
-
-              <!-- <v-toolbar width="100%" flat>
-              
-             -->
-
-              <!-- </v-toolbar> -->
-              <v-toolbar dense flat >
-                  <v-tooltip bottom class="pr-10">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        color="gray"
-                        small
-                        v-bind="attrs"
-                        v-on="on"
-                        @click="onSaveFile(reportData)"
-                        v-if="reportData"
-                        class="pr-15"
-                        icon
-                      >
-                        <v-icon>save_alt</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Download JSON</span>
-                  </v-tooltip>
-                  <v-spacer></v-spacer>
-                  <v-tooltip bottom class="pr-10">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        color="green"
-                        small
-                        v-bind="attrs"
-                        v-on="on"
-                        @click="onWriteSheet(reportData, report.title)"
-                        v-if="reportData"
-                        
-                      >
-                        <v-icon>mdi-table</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>to Sheet</span>
-                  </v-tooltip>
-                </v-toolbar>
-                
-              <div
-                style="overflow: auto; max-height: 400px"
-                v-if="reportData.length"
-              >
-                
-                <vue-json-pretty
-                  height="100%"
-                  :data="reportData"
-                  v-model="jsonResultSelection"
-                  showLength
-                  showLine
-                  collapsedOnClickBrackets
-                  highlightSelectedNode
-                  highlightMouseoverNode
-                  showDoubleQuotes
-                  selectOnClickNode
-                  @click="handleResultClick($event)"
-                  selectableType="single"
-                ></vue-json-pretty>
-              </div>
-
-              <!-- </v-card-text>
-              
-              </v-card>-->
-              <!-- </v-flex> -->
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-
-          <v-expansion-panel v-show="reportData.length">
-            <v-expansion-panel-header
-              >Filtered Results
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
+          <v-expansion-panel >
+            <v-expansion-panel-header>JSON Results </v-expansion-panel-header>
+            <v-expansion-panel-content id="jsonResultSection" >
               <jsonata
-              :key="selectedReport.shortTitle"
+                v-if="reportData"
+                :key="selectedReport.shortTitle"
                 :data="reportData"
-                :query="form.query"
                 :title="selectedReport.shortTitle"
               ></jsonata>
+              <pre v-else><code>no data</code></pre>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -517,13 +385,9 @@ export default Vue.extend({
       );
     },
     selectedReport() {
-      this.formData = {}; // reset form data
+      //this.formData = {}; // reset form data
       this.formData.org = this.org;
       this.formData.net = this.net;
-    },
-    jsonResultSelection() {
-      console.log("watch jsonResultSelection", this.jsonResultSelection);
-      this.handleResultClick(this.jsonResultSelection);
     },
   },
   directives: {
@@ -557,7 +421,7 @@ export default Vue.extend({
 
       showSearchDialog: false,
       looperProgress: 0,
-      looperProgressPct:0,
+      looperProgressPct: 0,
       looperRate: 1,
       browseByGroup: false,
       selectedGroup: "",
@@ -580,7 +444,7 @@ export default Vue.extend({
         includeIndex: false,
         query: "$",
       },
-      jsonResultSelection: [],
+      //jsonResultSelection: [],
     };
   },
 
@@ -603,9 +467,7 @@ export default Vue.extend({
     reportItems: function () {
       return this.reports.filter((r) => r.group === this.selectedGroup.group);
     },
-    /**
-     * Creates a computed report based off of generated template and selector formData
-     */
+
     report: function () {
       // Copy selected report template
       let report = this.selectedReport;
@@ -1035,8 +897,7 @@ export default Vue.extend({
     // *****
     initReports() {
       // using gitub source because its faster and doesn't impact API
-      const specJsonUrl =
-        "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json";
+      const specJsonUrl = `/organizations/${this.org.id}/openapiSpec`; //"https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json";
 
       this.parseMerakiSwagger(specJsonUrl).then((parsed) => {
         this.parsedSwagger = parsed;
@@ -1044,44 +905,16 @@ export default Vue.extend({
       });
     },
     parseMerakiSwagger(specJsonUrl) {
-      return axios
-        .get(specJsonUrl)
+      const options = {
+        method: "get",
+        url: specJsonUrl,
+      };
+      return this.$rh
+        .request(options)
         .then((res) => {
-          return res.data;
+          return res;
         })
         .catch((e) => console.log("axios openapiSpec get error ", e));
-
-      // if (!this.$merakiSdk.OpenAPISpecController || !orgId) {
-      //   // Public OAS
-      //   console.log("parseMerakiSwagger - using public openapiSpec");
-      //   return axios
-      //     .get(this.apiUrl + "/openapiSpec")
-      //     .then(res => {
-      //       return res.data;
-      //     })
-      //     .catch(e => console.log("axios openapiSpec get error ", e));
-      // } else {
-      // Org specific OAS
-      // console.log("parseMerakiSwagger - using org specific openapiSpec");
-      // let url =
-      // return axios.get('https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json').then(res => {
-      //     return res.data;
-      //   })
-      //   .catch(e => console.log("axios openapiSpec get error ", e));
-      // return this.$merakiSdk.OpenAPISpecController.getOrganizationOpenapiSpec(
-      //   orgId
-      // )
-      //   .then(res => {
-      //     // Parsing Swagger Spec
-      //     return oasReporter.swaggerParser
-      //       .parse(res)
-      //       .then(r => {
-      //         return r;
-      //       })
-      //       .catch(e => console.log("oasReporter.swaggerParser error ", e));
-      //   })
-      //   .catch(e => this.handleError(e));
-      //}
     },
 
     /**
@@ -1247,12 +1080,11 @@ export default Vue.extend({
       };
       rh.request(options)
         .then((res) => {
-         // res['meta'] = extraData
-          this.handleResponse(res,extraData, location)
-          }
-        )
+          // res['meta'] = extraData
+          this.handleResponse(res, extraData, location);
+        })
         .catch((e) => {
-          this.handleResponse(e.errors.length ? e.errors[0] : e,extraData,location);
+          this.handleResponse(e.errors ? e.errors[0] : e, extraData, location);
         });
     },
 
@@ -1288,17 +1120,22 @@ export default Vue.extend({
       // Throttle the API calls to avoid rate limit (5 calls/s)
       this.looperProgress = 0;
       this.looperProgressPct = 0;
-      var throttledAction = rateLimit(this.looperRate, 1000, (action, i, extraData) => {
-        // console.log("running rate limited action: ", i, action);
-        
-        this.looperProgress++
-        this.looperProgressPct = this.looperProgress/this.report.actions.length * 100
-        return this.runAction(action, i, extraData, location);
-      });
+      var throttledAction = rateLimit(
+        this.looperRate,
+        1000,
+        (action, i, extraData) => {
+          // console.log("running rate limited action: ", i, action);
+
+          this.looperProgress++;
+          this.looperProgressPct =
+            (this.looperProgress / this.report.actions.length) * 100;
+          return this.runAction(action, i, extraData, location);
+        }
+      );
 
       // Loops through each action in series, and adjusts the headers
       for (let [i, action] of this.report.actions.entries()) {
-        console.log("Looper i action", i, action);
+       // console.log("Looper i action", i, action);
         let extraData = {};
         if (this.report.looperParamVals) {
           if (Object.keys(this.report.looperParamVals).length > 0) {
@@ -1317,7 +1154,7 @@ export default Vue.extend({
 
         // console.log("queueing rate limited action: ", action);
 
-         throttledAction(action, i, extraData, location);
+        throttledAction(action, i, extraData, location);
       }
     },
     // Custom report handlers (to override default key/value info for report)
@@ -1359,11 +1196,9 @@ export default Vue.extend({
           adjustedReport = { ...adjustedReport, ...extraData };
         }
       }
-      console.log("adjustedReport", JSON.stringify(adjustedReport, "null", 4));
+      //console.log("adjustedReport", JSON.stringify(adjustedReport, "null", 4));
 
       // send to report
-
-      //const totalActions = this.report.actions.length;
 
       return this.toReport(adjustedReport, this.report.title, {}, location);
     },
@@ -1377,16 +1212,21 @@ export default Vue.extend({
       //this.onQuery(); // Run initial JSONata query
       this.panel = [0, 1, 2];
       // print data to sheet
-      if(location){
+      if (location) {
         this.$utilities.writeData(this.reportData, title, options, location);
       }
-      //
+
+      this.scrollToEnd();
+
       this.$store.commit("setLoading", false);
     },
+    scrollToEnd() {
+      this.$nextTick(() => {
+        this.$vuetify.goTo("#jsonResultSection");
+      });
+    },
     onRunAndPrint() {
-      this.onRunReport("overwrite")
-   
-      
+      this.onRunReport("overwrite");
     },
     onRunOnly() {
       this.onRunReport();
@@ -1422,36 +1262,8 @@ export default Vue.extend({
     onSaveFile(file) {
       this.$utilities.saveFile(file, this.selectedReport.shortTitle);
     },
-    onWriteSheet(data, title){
-      this.$utilities.writeData(data,title)
-    },
-    handleResultClick(value) {
-      //value = this.jsonResultSelection
-      console.log("handleResultClick value", value);
-      let split = value.split(".");
-      split.shift();
-      split = split.map((s) => {
-        // console.log('s', s)
-        // if (s.includes(null)) {
-        //   s = 'Nothing'
-        // }
-        if (!s.includes("[")) {
-          s = `\`${s}\``;
-        }
-        return s;
-      });
-      // console.log('handleResultClick split', split)
-      let query = split.length ? `.${split.join(".")}` : "";
-      this.form.query = query;
-      // if (!this.form.includeIndex) {
-      //   query = query.replace(/ *\[[^\]]*]/, ""); // removes everyting in brackets
-      // }
-      // //this.form.query = this.form.query + query;
-      // this.form.query = "$" + query;
-      // this.reportDataFiltered = this.generateJsonataResult(
-      //   this.form.query,
-      //   this.reportData
-      // );
+    onWriteSheet(data, title) {
+      this.$utilities.writeData(data, title);
     },
 
     // handleError(error, errorTitle, action) {
@@ -1507,12 +1319,4 @@ export default Vue.extend({
 .select__selections {
   padding-top: 2px !important;
 }
-
-.vjs-tree {
-    font-family: Monaco,Menlo,Consolas,Bitstream Vera Sans Mono,monospace;
-    font-size: 11px !important;;
-}
-
-
-
 </style>

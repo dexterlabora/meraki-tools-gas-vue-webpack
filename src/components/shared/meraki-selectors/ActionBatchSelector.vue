@@ -17,13 +17,17 @@ import Vue from "vue";
 export default Vue.extend({
   template: "#action-batch-selector",
   props: ["label", "description"],
-  computed: {},
+  computed: {
+    org(){
+      return this.$store.state.org;
+    }
+  },
   created: function() {
     this.fetchActionBatches();
   },
   data() {
     return {
-      //client: {},
+
       actionBatches: [],
       form: {
         actionBatch: {}
@@ -31,20 +35,31 @@ export default Vue.extend({
     };
   },
   methods: {
-    async fetchActionBatches() {
+    fetchActionBatches() {
       this.actionBatches = [];
       if (!this.org) {
         return;
       }
-      const api = await this.$merakiSdk.ActionBatchesController.getOrganizationActionBatches(
-        {
-          organizationId: this.org.id
-        }
-      )
-        .then(res => {
-          this.actionBatches = res;
-        })
-        .catch(e => console.log(e));
+      const options = {
+        method: "get",
+        url: `/organizations/${this.org.id}/actionBatches`,
+      };
+      
+      this.$rh.request(options)
+      .then(res => {  
+        // order and save the networks
+        this.actionBatches = res
+        
+      }).catch(e => {console.log("error fetching actionBatches",e)})
+      // const api = await this.$merakiSdk.ActionBatchesController.getOrganizationActionBatches(
+      //   {
+      //     organizationId: this.org.id
+      //   }
+      // )
+      //   .then(res => {
+      //     this.actionBatches = res;
+      //   })
+      //   .catch(e => console.log(e));
     }
   },
   watch: {

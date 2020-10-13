@@ -50,16 +50,33 @@ export default Vue.extend({
         return;
       }
       this.bleClients = [];
-      this.$merakiSdk.BluetoothClientsController.getNetworkBluetoothClients({
-        networkId: this.net.id,
-        perPage: 100,
-        timespan: this.timespan || 86400
-      })
-        .then(res => {
-          this.bleClients = res;
-          this.form.bleClient = this.bleClients[0]; // set default
-        })
-        .catch(e => console.log(e));
+      const options = {
+        method: "get",
+        url: `/networks/${this.net.id}/bluetoothClients`,
+      };
+      
+      this.$rh.request(options)
+      .then(res => {
+      
+        // order and save the networks
+        this.bleClients = res.sort(function(a, b) {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
+        
+      }).catch(e => {console.log("error fetching ble clients",e)})
+    //   this.$merakiSdk.BluetoothClientsController.getNetworkBluetoothClients({
+    //     networkId: this.net.id,
+    //     perPage: 100,
+    //     timespan: this.timespan || 86400
+    //   })
+    //     .then(res => {
+    //       this.bleClients = res;
+    //       this.form.bleClient = this.bleClients[0]; // set default
+    //     })
+    //     .catch(e => console.log(e));
+    // }
     }
   },
   watch: {
