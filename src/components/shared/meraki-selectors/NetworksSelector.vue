@@ -107,10 +107,23 @@ export default Vue.extend({
   font-size: xx-small;
 }
 
-.v-list__tile__action,
-.v-list__tile__avatar {
+.v-list__item__action,
+.v-list__item__avatar {
   display: flex;
   justify-content: flex-start;
   min-width: 32px !important;
+}
+.v-list-item .v-list-item__subtitle, .v-list-item .v-list-item__title {
+    line-height: 1.2;
+    font-size: smaller;
+}
+.v-autocomplete {
+  font-size: smaller;
+}
+.v-text-field .v-label {
+  top: 0px !important;
+}
+.select__selections {
+  padding-top: 2px !important;
 }
 </style>

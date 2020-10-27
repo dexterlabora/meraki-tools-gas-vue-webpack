@@ -55,7 +55,9 @@
               ></v-expansion-panel-header
             >
             <v-expansion-panel-content>
+              <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
               <v-autocomplete
+                
                 class="mt-2 p-2 ml-1 mr-1"
                 style="font-size: small"
                 :items="reports"
@@ -419,7 +421,7 @@ export default Vue.extend({
     return {
       panel: [0, 0, 0],
       speedDial: false,
-
+      loading: false,
       showSearchDialog: false,
       looperProgress: 0,
       looperProgressPct: 0,
@@ -450,9 +452,9 @@ export default Vue.extend({
   },
 
   computed: {
-    loading: function () {
-      return this.$store.state.loading;
-    },
+    // loading: function () {
+    //   return this.$store.state.loading;
+    // },
     apiKey: function () {
       return this.$store.state.apiKey;
     },
@@ -900,11 +902,12 @@ export default Vue.extend({
 
     initReports() {
       // using gitub source because its faster and doesn't impact API
-    
+      //this.$store.commit("setLoading",true)
+      this.loading = true
       this.fetchMerakiSwagger().then((parsed) => {
         this.parsedSwagger = parsed;
         this.swaggerReports = oasReporter.generateReportTemplates(parsed);
-      });
+      }).finally(()=>{this.loading=false});
     },
     fetchMerakiSwagger() {
       // Use official API releases when in production
@@ -1174,6 +1177,7 @@ export default Vue.extend({
 
         throttledAction(action, i, extraData, location);
       }
+      this.scrollToEnd();
     },
     // Custom report handlers (to override default key/value info for report)
     adjustMerakiReport(path, res) {
@@ -1234,7 +1238,7 @@ export default Vue.extend({
         this.$utilities.writeData(this.reportData, title, options, location);
       }
 
-      this.scrollToEnd();
+      
 
       this.$store.commit("setLoading", false);
     },
@@ -1328,6 +1332,20 @@ export default Vue.extend({
 });
 </script>
 <style >
+.small-chips {
+  font-size: xx-small;
+}
+
+.v-list__item__action,
+.v-list__item__avatar {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 32px !important;
+}
+.v-list-item .v-list-item__subtitle, .v-list-item .v-list-item__title {
+    line-height: 1.2;
+    font-size: smaller;
+}
 .v-autocomplete {
   font-size: smaller;
 }
@@ -1336,5 +1354,13 @@ export default Vue.extend({
 }
 .select__selections {
   padding-top: 2px !important;
+}
+
+.v-select__selection--comma {
+    margin: 7px 4px 7px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: small;
 }
 </style>

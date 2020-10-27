@@ -1,6 +1,7 @@
 <template id="ble-client-selector">
   <div>
     <v-select
+      :loading="loading"
       :items="bleClients"
       item-value="mac"
       return-object
@@ -38,6 +39,7 @@ export default Vue.extend({
   },
   data() {
     return {
+      loading:false,
       form: {
         bleClient: {}
       },
@@ -54,10 +56,10 @@ export default Vue.extend({
         method: "get",
         url: `/networks/${this.net.id}/bluetoothClients`,
       };
-      
+      this.loading=true;
       this.$rh.request(options)
       .then(res => {
-      
+        this.loading=false,
         // order and save the networks
         this.bleClients = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
@@ -65,7 +67,10 @@ export default Vue.extend({
           return 0;
         });
         
-      }).catch(e => {console.log("error fetching ble clients",e)})
+      }).catch(e => {
+        this.loading=false,
+        console.log("error fetching ble clients",e)
+        })
     //   this.$merakiSdk.BluetoothClientsController.getNetworkBluetoothClients({
     //     networkId: this.net.id,
     //     perPage: 100,

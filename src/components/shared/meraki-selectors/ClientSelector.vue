@@ -1,6 +1,7 @@
 <template id="client-selector">
   <div>
     <v-select
+      :loading="loading"
       v-bind:items="clients"
       item-text="description"
       item-value="mac"
@@ -18,30 +19,31 @@ export default Vue.extend({
   template: "#client-selector",
   props: ["label", "description"],
   computed: {
-    devices: function() {
+    devices: function () {
       return this.$store.state.devices;
     },
-    device: function() {
+    device: function () {
       return this.$store.state.device;
     },
-    net: function() {
+    net: function () {
       return this.$store.state.net;
-    }
+    },
     // timespan: function() {
     //   return this.$store.state.timespan;
     // }
   },
-  created: function() {
+  created: function () {
     this.fetchClients();
   },
   data() {
     return {
       //client: {},
+      loading: false,
       clients: [],
       form: {
-        client: {}
+        client: {},
       },
-      timespan: 7200
+      timespan: 7200,
     };
   },
   methods: {
@@ -54,18 +56,23 @@ export default Vue.extend({
         method: "get",
         url: `/networks/${this.net.id}/clients`,
       };
-
-      this.$rh.request(options)
-      .then(res => {
-        // order and save the networks
-        this.clients = res.sort(function(a, b) {
-          if (a.name < b.name) return -1;
-          if (a.name > b.name) return 1;
-          return 0;
+      this.loading = true;
+      this.$rh
+        .request(options)
+        .then((res) => {
+          this.loading = false;
+          // order and save the networks
+          this.clients = res.sort(function (a, b) {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+          });
+        })
+        .catch((e) => {
+          this.loading = false;
+          console.log("error fetching clients", e);
         });
-
-      }).catch(e => {console.log("error fetching clients",e)})
-    }
+    },
     //   const api = await this.$merakiSdk.ClientsController.getNetworkClients({
     //     networkId: this.net.id,
     //     timespan: this.timespan
@@ -87,13 +94,13 @@ export default Vue.extend({
     "form.client"() {
       //this.$store.commit("setClient", this.client);
       this.$emit("onChange", {
-        client: this.form.client
+        client: this.form.client,
       });
     },
     net() {
       this.fetchClients();
-    }
-  }
+    },
+  },
 });
 </script>
 

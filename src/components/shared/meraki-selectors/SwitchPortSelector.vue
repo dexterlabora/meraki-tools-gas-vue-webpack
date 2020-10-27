@@ -7,14 +7,14 @@
       label="Ports"
       @change="onChange"
     >
-      <template
-        slot="selection"
-        slot-scope="data"
-      >{{ data.item.number }} | {{data.item.type}} | VLAN {{data.item.vlan}} -- {{ data.item.name }}</template>
-      <template
-        slot="item"
-        slot-scope="data"
-      >{{ data.item.number }} | {{data.item.type}} | VLAN {{data.item.vlan}} -- {{ data.item.name }}</template>
+      <template slot="selection" slot-scope="data"
+        >{{ data.item.number }} | {{ data.item.type }} | VLAN
+        {{ data.item.vlan }} -- {{ data.item.name }}</template
+      >
+      <template slot="item" slot-scope="data"
+        >{{ data.item.number }} | {{ data.item.type }} | VLAN
+        {{ data.item.vlan }} -- {{ data.item.name }}</template
+      >
     </v-select>
   </div>
 </template>
@@ -27,8 +27,8 @@ export default Vue.extend({
   //props: ["label", "description", "device"],
   props: {
     device: {
-      serial: ""
-    }
+      serial: "",
+    },
   },
   computed: {
     /*
@@ -42,25 +42,26 @@ export default Vue.extend({
       return this.$store.state.device;
     },
     */
-    net: function() {
+    net: function () {
       return this.$store.state.net;
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchSwitchPorts();
   },
   data() {
     return {
+      loading: false,
       form: {
         port: {
           serial: "",
           number: "",
           type: "",
           vlan: "",
-          name: ""
-        }
+          name: "",
+        },
       },
-      ports: []
+      ports: [],
     };
   },
   methods: {
@@ -80,18 +81,24 @@ export default Vue.extend({
         method: "get",
         url: `/devices/${this.device.serial}/switch/ports`,
       };
-      this.$rh.request(options)
-      .then(res => {
-       
-        // order and save the networks
-        this.ports = res.sort(function(a, b) {
-          if (a.portId < b.portId) return -1;
-          if (a.portId > b.portId) return 1;
-          return 0;
+      this.loading = true;
+      this.$rh
+        .request(options)
+        .then((res) => {
+          this.loading = false;
+          // order and save the networks
+          this.ports = res.sort(function (a, b) {
+            if (a.portId < b.portId) return -1;
+            if (a.portId > b.portId) return 1;
+            return 0;
+          });
+
+          //this.vlan = this.vlans[0]; // set default ssid
+        })
+        .catch((e) => {
+          this.loading = false;
+          console.log("error fetching switch ports", e);
         });
-        
-        //this.vlan = this.vlans[0]; // set default ssid
-      }).catch(e => {console.log("error fetching switch ports",e)})
 
       // this.$merakiSdk.SwitchPortsController.getDeviceSwitchPorts(
       //   this.device.serial
@@ -101,7 +108,7 @@ export default Vue.extend({
     },
     onChange() {
       this.$emit("onChange", { switchPort: this.form.port });
-    }
+    },
   },
   watch: {
     ports() {
@@ -112,8 +119,8 @@ export default Vue.extend({
     },
     device() {
       this.fetchSwitchPorts();
-    }
-  }
+    },
+  },
 });
 </script>
 

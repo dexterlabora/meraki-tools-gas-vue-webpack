@@ -1,5 +1,6 @@
 <template id="event-type-selector">
   <v-select
+    :loading="loading"
     :items="eventTypes"
     v-model="form.input"
     :label="label"
@@ -29,6 +30,7 @@ export default Vue.extend({
   props: ["label", "description", "param", "networkId"],
   data() {
     return {
+      loading:false,
       form: {
         input: []
       },
@@ -60,14 +62,16 @@ export default Vue.extend({
       let options = {};
       options.url = `networks/${this.networkId}/events/eventTypes`;
       options.method = "get";
+      this.loading=true;
       this.$rh.request(options).then(res => {
+        this.loading=false;
         this.eventTypes = res.sort(function(a, b) {
           if (a.description < b.description) return -1;
           if (a.description > b.description) return 1;
           return 0;
         });
         //console.log("eventTypes", res);
-      });
+      }).catch(e =>{ this.loading=false; console.log('error loading eventTypes',e)});
      
     },
     updateInput: function() {

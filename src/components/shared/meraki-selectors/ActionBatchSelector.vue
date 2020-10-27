@@ -1,6 +1,7 @@
 <template id="action-batch-selector">
   <div>
     <v-select
+      :loading="loading"
       v-bind:items="actionBatches"
       item-text="id"
       item-value="id"
@@ -18,20 +19,20 @@ export default Vue.extend({
   template: "#action-batch-selector",
   props: ["label", "description"],
   computed: {
-    org(){
+    org() {
       return this.$store.state.org;
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchActionBatches();
   },
   data() {
     return {
-
+      loading: false,
       actionBatches: [],
       form: {
-        actionBatch: {}
-      }
+        actionBatch: {},
+      },
     };
   },
   methods: {
@@ -44,13 +45,18 @@ export default Vue.extend({
         method: "get",
         url: `/organizations/${this.org.id}/actionBatches`,
       };
-      
-      this.$rh.request(options)
-      .then(res => {  
-        // order and save the networks
-        this.actionBatches = res
-        
-      }).catch(e => {console.log("error fetching actionBatches",e)})
+      this.loading = true;
+      this.$rh
+        .request(options)
+        .then((res) => {
+          // order and save the networks
+          this.actionBatches = res;
+          this.loading = false;
+        })
+        .catch((e) => {
+          this.loading = false;
+          console.log("error fetching actionBatches", e);
+        });
       // const api = await this.$merakiSdk.ActionBatchesController.getOrganizationActionBatches(
       //   {
       //     organizationId: this.org.id
@@ -60,18 +66,18 @@ export default Vue.extend({
       //     this.actionBatches = res;
       //   })
       //   .catch(e => console.log(e));
-    }
+    },
   },
   watch: {
     "form.actionBatch"() {
       this.$emit("onChange", {
-        actionBatch: this.form.actionBatch
+        actionBatch: this.form.actionBatch,
       });
     },
     net() {
       this.fetchActionBatches();
-    }
-  }
+    },
+  },
 });
 </script>
 

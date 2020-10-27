@@ -1,7 +1,15 @@
 <template id="devices-selector">
   <div>
-    <v-select v-if="!model" :items="models" v-model="modelSelected" label="Model" single-line></v-select>
     <v-select
+      v-if="!model"
+      :items="models"
+      v-model="modelSelected"
+      label="Model"
+      single-line
+      clearable
+    ></v-select>
+    <v-select
+      :loading="loading"
       :items="filteredDevices"
       v-model="devicesSelected"
       label="Devices"
@@ -27,10 +35,9 @@
         <v-chip small v-if="index === 0">
           <span class="small-chips">{{ item.name }}</span>
         </v-chip>
-        <span
-          v-if="index === 1"
-          class="grey--text caption"
-        >(+{{ devicesSelected.length - 1 }} others)</span>
+        <span v-if="index === 1" class="grey--text caption"
+          >(+{{ devicesSelected.length - 1 }} others)</span
+        >
       </template>
     </v-select>
   </div>
@@ -43,14 +50,15 @@ export default Vue.extend({
   props: ["model"],
   data() {
     return {
+      loading: false,
       devicesSelected: [],
-      modelSelected: {},
+      modelSelected: "",
       devices: [],
-      models: ["MX", "MR", "MS", "MV"]
+      models: ["MX", "MR", "MS", "MV"],
     };
   },
   computed: {
-    net: function() {
+    net: function () {
       return this.$store.state.net;
     },
     /*
@@ -59,10 +67,14 @@ export default Vue.extend({
     },
     */
     filteredDevices() {
-      return this.devices.filter(d => d.model.includes(this.modelSelected));
-    }
+      if (this.modelSelected) {
+        return this.devices.filter((d) => d.model.includes(this.modelSelected));
+      } else {
+        return this.devices;
+      }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.modelSelected = this.model;
     this.fetchDevices();
   },
@@ -76,18 +88,25 @@ export default Vue.extend({
         method: "get",
         url: `/networks/${this.net.id}/devices`,
       };
-      this.$rh.request(options)
-      .then(res => {
-        // order and save the networks
-        this.devices = res.sort(function(a, b) {
-          if (a.name < b.name) return -1;
-          if (a.name > b.name) return 1;
-          return 0;
+      this.loading = true;
+      this.$rh
+        .request(options)
+        .then((res) => {
+          this.loading = false;
+          // order and save the networks
+          this.devices = res.sort(function (a, b) {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+          });
+
+          this.devicesSelected = []; // set default ssid
+    
+        })
+        .catch((e) => {
+          this.loading = false;
+          console.log("error fetching devices", e);
         });
-        
-        
-        this.devicesSelected = []; // set default ssid
-      }).catch(e => {console.log("error fetching devices",e)})
 
       // this.$merakiSdk.DevicesController.getNetworkDevices(this.net.id).then(
       //   res => {
@@ -104,7 +123,7 @@ export default Vue.extend({
           this.devicesSelected = this.filteredDevices.slice();
         }
       });
-    }
+    },
   },
   watch: {
     devicesSelected() {
@@ -115,11 +134,11 @@ export default Vue.extend({
       this.devicesSelected = [];
       this.devicesSelected = this.filteredDevices;
     },
-    net: function() {
+    net: function () {
       this.devicesSelected = [];
       this.fetchDevices();
-    }
-  }
+    },
+  },
 });
 </script>
 
@@ -133,5 +152,18 @@ export default Vue.extend({
   display: flex;
   justify-content: flex-start;
   min-width: 32px !important;
+}
+.v-list-item .v-list-item__subtitle, .v-list-item .v-list-item__title {
+    line-height: 1.2;
+    font-size: smaller;
+}
+.v-autocomplete {
+  font-size: smaller;
+}
+.v-text-field .v-label {
+  top: 0px !important;
+}
+.select__selections {
+  padding-top: 2px !important;
 }
 </style>
