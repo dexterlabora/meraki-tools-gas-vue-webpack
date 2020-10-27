@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import PageHome from "./components/pages/home.vue";
 import PageSettings from "./components/pages/settings.vue";
-import PageReports from "./components/pages/reports.vue";
+//import PageReports from "./components/pages/reports.vue";
 import PageReportsAutoOas from "./components/pages/reports-auto-oas.vue";
 import PageTools from "./components/pages/tools.vue";
 import JsonToSheet from "./components/pages/json-to-sheet.vue";
@@ -22,7 +22,7 @@ export default new Router({
     { path: "/", component: PageHome },
     { path: "/home", component: PageHome },
     { path: "/settings", component: PageSettings },
-    { path: "/reports-old", component: PageReports },
+   // { path: "/reports-old", component: PageReports },
     { path: "/reports", component: PageReportsAutoOas },
     { path: "/tools", component: PageTools },
     { path: "/swagger", component: PageSwagger },

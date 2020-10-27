@@ -57,17 +57,17 @@ export default Vue.extend({
       return this.$store.state.apiKey;
     },
     */
-    beta: function() {
-      return this.$store.state.beta;
-    },
-    displayJson: function() {
-      return this.$store.state.displayJson;
-    }
+    // beta: function() {
+    //   return this.$store.state.beta;
+    // },
+    // displayJson: function() {
+    //   return this.$store.state.displayJson;
+    // }
   },
   mounted: function() {
     //this.form.apiKey = this.apiKey;
-    this.form.beta = this.beta;
-    this.form.displayJson = this.displayJson;
+    // this.form.beta = this.beta;
+    // this.form.displayJson = this.displayJson;
     //this.$meraki.setApiKey(this.apiKey);
   },
   methods: {
@@ -77,26 +77,24 @@ export default Vue.extend({
       this.$meraki.setApiKey(this.form.apiKey);
     },
     */
-    onBeta: function() {
-      this.$store.commit("setBeta", this.form.beta);
-    },
-    onDisplayJson: function() {
-      this.$store.commit("setDisplayJson", this.form.displayJson);
-    },
-    // TODO: Remove SDK dependency
+    // onBeta: function() {
+    //   this.$store.commit("setBeta", this.form.beta);
+    // },
+    // onDisplayJson: function() {
+    //   this.$store.commit("setDisplayJson", this.form.displayJson);
+    // },
+    
     fetchOrgs: function() {
       let orgs = [];
       const options = {
         method: "get",
-        //baseUrl: this.apiUrl,
-        url: `/organizations`,
-        //apiKey: this.apiKey,
-       // contentType: "application/json",
+        url: `/organizations`,      
       };
       rh.request(options)
         .then((res) => {
-        //console.log("getOrganizations res", res);
-        // order and save orgs
+        // console.log("getOrganizations res", res);
+        
+        // Order and Save orgs
         orgs = res.sort(function(a, b) {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;

@@ -68,12 +68,7 @@ export default Vue.extend({
         });
         //console.log("eventTypes", res);
       });
-      /*
-      this.$meraki.EventsController.getNetworkEventTypes(res => {
-        this.eventTypes = res;
-        console.log('eventTypes', res);
-      });
-      */
+     
     },
     updateInput: function() {
       let event = {};
