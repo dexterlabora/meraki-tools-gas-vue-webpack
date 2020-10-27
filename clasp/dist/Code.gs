@@ -111,12 +111,12 @@ function writeCsvData() {
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 688);
+/******/ 	return __webpack_require__(__webpack_require__.s = 673);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 13:
+/***/ 10:
 /***/ (function(module, exports) {
 
 var g;
@@ -143,7 +143,7 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 680:
+/***/ 665:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -159,7 +159,7 @@ function loadMenu() {
 
 /***/ }),
 
-/***/ 684:
+/***/ 669:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -177,7 +177,7 @@ function doGet(e) {
 
 /***/ }),
 
-/***/ 685:
+/***/ 670:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -211,7 +211,7 @@ function fetch(path, options) {
 
 /***/ }),
 
-/***/ 686:
+/***/ 671:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -229,7 +229,7 @@ function loadSidebar() {
 
 /***/ }),
 
-/***/ 687:
+/***/ 672:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -337,16 +337,16 @@ function getDateTimeString() {
 
 /***/ }),
 
-/***/ 688:
+/***/ 673:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(684);
-/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(685);
-/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(686);
-/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(687);
-/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(680);
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(669);
+/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(670);
+/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(671);
+/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(672);
+/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(665);
 
 
 
@@ -384,7 +384,7 @@ global.onInstall = onInstall;
 global.loadSidebar = _sidebar__WEBPACK_IMPORTED_MODULE_2__[/* loadSidebar */ "a"];
 global.writeCsvData = _writeCsvData__WEBPACK_IMPORTED_MODULE_3__[/* writeCsvData */ "a"];
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
 
 /***/ })
 

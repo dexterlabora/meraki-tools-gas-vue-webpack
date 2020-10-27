@@ -313,6 +313,7 @@
 import Vue from "vue";
 import axios from "axios";
 import * as rh from "../../request-handler";
+import gasRequest from "../../gas-request";
 import getFunctionArguments from "get-function-arguments";
 import lodash from "lodash";
 import VueJsonPretty from "vue-json-pretty";
@@ -895,19 +896,33 @@ export default Vue.extend({
     // *****
     // SWAGGER Reports
     // *****
+
+
     initReports() {
       // using gitub source because its faster and doesn't impact API
-      const specJsonUrl = `/organizations/${this.org.id}/openapiSpec`; //"https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json";
-
-      this.parseMerakiSwagger(specJsonUrl).then((parsed) => {
+    
+      this.fetchMerakiSwagger().then((parsed) => {
         this.parsedSwagger = parsed;
         this.swaggerReports = oasReporter.generateReportTemplates(parsed);
       });
     },
-    parseMerakiSwagger(specJsonUrl) {
-      const options = {
+    fetchMerakiSwagger() {
+      // Use official API releases when in production
+      if(process.env.VUE_APP_SERVICE === "gas"){
+        const options = {
         method: "get",
-        url: specJsonUrl,
+        url: "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
+      };
+        return gasRequest(options).then((res) => {
+          return res;
+        })
+        .catch((e) => console.log("gas openapiSpec get error ", e));
+
+      }else{
+        // Use latest ORG streaming when in development
+        const options = {
+        method: "get",
+        url: `/organizations/${this.org.id}/openapiSpec`,
       };
       return this.$rh
         .request(options)
@@ -915,6 +930,9 @@ export default Vue.extend({
           return res;
         })
         .catch((e) => console.log("axios openapiSpec get error ", e));
+      }
+      
+    
     },
 
     /**

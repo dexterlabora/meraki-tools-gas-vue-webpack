@@ -76,21 +76,21 @@ new Vue({
     this.$axios.defaults.headers.post['Content-Type'] = 'application/json';
 
     // Applies updaed API Key to headers for each API request
-    this.$axios.interceptors.request.use(
-      (config) => {
-        let token = this.apiKey
+    // this.$axios.interceptors.request.use(
+    //   (config) => {
+    //     let token = this.apiKey
     
-        if (token) {
-          config.headers['X-Cisco-Meraki-API-Key'] = `${ token }`
-        }
+    //     if (token) {
+    //       config.headers['X-Cisco-Meraki-API-Key'] = `${ token }`
+    //     }
     
-        return config
-      },
+    //     return config
+    //   },
     
-      (error) => {
-        return Promise.reject(error)
-      }
-    )
+    //   (error) => {
+    //     return Promise.reject(error)
+    //   }
+    // )
   },
 
   vuetify,
