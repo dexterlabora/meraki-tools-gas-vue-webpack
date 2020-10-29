@@ -18,7 +18,8 @@
       </template>
       <template slot="item" slot-scope="data">
         <!-- HTML that describe how select should render items when the select is open -->
-        {{ data.item.name || data.item.mac }} | {{ data.item.model }}
+        <p class="subtitle-1 pr-5">{{ data.item.model }}</p>  <v-spacer></v-spacer>
+        <p>{{ data.item.name || data.item.mac }} </p>
       </template>
     </v-select>
   </div>
@@ -103,7 +104,7 @@ export default Vue.extend({
 
 <style >
 .small-chips {
-  font-size: xx-small;
+  font-size: smaller;
 }
 
 .v-list__item__action,
@@ -124,5 +125,13 @@ export default Vue.extend({
 }
 .select__selections {
   padding-top: 2px !important;
+}
+
+.v-select__selection--comma {
+    margin: 7px 4px 7px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: small;
 }
 </style>

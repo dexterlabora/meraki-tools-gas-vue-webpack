@@ -5,25 +5,52 @@
         <v-card>
           <v-card-title>Meraki API</v-card-title>
           <v-card-text p1>
-            <!-- <v-swagger :spec="openapiSpec" /-->
-            <!-- <v-swagger :spec="organizations"></v-swagger> -->
-
             <v-flex xs12 sm6 d-flex>
               <v-select
-                v-model="selectedGroup"
-                :items="groups"
+                :loading="loading"
+                v-model="selectedGroupA"
+                :items="selectorA"
                 item-text="group"
-                label="Group"
+                label="Domain"
                 outline
-                @change="onSelectedGroup"
               ></v-select>
             </v-flex>
-            <!-- <component :is="swaggerView" v-bind="{spec:filteredGroup}" :key="filteredGroup.request"></component> -->
+            <v-flex xs12 sm6 d-flex>
+              <v-select
+                v-model="selectedGroupB"
+                :items="selectorB"
+                item-text="group"
+                label="Use Case"
+                outline
+              ></v-select>
+            </v-flex>
+            <v-flex xs12 sm6 d-flex>
+              <v-select
+                v-model="selectedGroupC"
+                :items="selectorC"
+                item-text="group"
+                label="Service"
+                outline
+              >
+                <template slot="selection" slot-scope="data">
+                  <!-- HTML that describe how select should render selected items -->
+                  {{ data.item ? data.item : "/" }}
+                </template>
+                <template slot="item" slot-scope="data">
+                  <!-- HTML that describe how select should render items when the select is open -->
+                  {{ data.item ? data.item : "/" }}
+                </template>
+              </v-select>
+            </v-flex>
             <v-swagger
-              v-if="filteredGroup"
-              :spec="filteredGroup"
-              :key="filteredGroup.key"
+              v-if="
+                selectedGroupC ||
+                (selectedGroupB && selectedGroupC == undefined)
+              "
+              :spec="filteredSpecByGroup"
+              :key="[selectedGroupA, selectedGroupB, selectedGroupC].toString()"
               :baseUrl="apiUrl"
+              opened="true"
             />
           </v-card-text>
         </v-card>
@@ -33,12 +60,12 @@
           <v-flex class="sm6 md6" style="border-outline=2px">
             <v-label>Base URL</v-label>
             <v-spacer></v-spacer>
-            <strong>{{ allPaths.host }}</strong>
+            <strong>{{ spec.host }}</strong>
           </v-flex>
           <v-flex class="sm6 md6 mt-2">
             <v-label>Version</v-label>
             <v-spacer></v-spacer>
-            {{ allPaths.version }}
+            {{ spec.version }}
           </v-flex>
         </v-footer>
       </v-flex>
@@ -51,6 +78,7 @@ import Vue from "vue";
 import VSwagger from "../shared/v-swagger/src/v-swagger";
 import * as oasReporter from "../../oas-reporter";
 import axios from "axios";
+import jsonata from "jsonata";
 
 Vue.use(VSwagger);
 export default Vue.extend({
@@ -65,67 +93,16 @@ export default Vue.extend({
     apiUrl() {
       return this.$store.state.apiUrl;
     },
-    // Group Selectors
-    // groups() {
-    //   if (!this.allPaths) {
-    //     return [];
-    //   }
-    //   let groups = this.allPaths.tags.filter(t => t.name);
-    //   return groups.sort(function(a, b) {
-    //     if (a.group < b.group) return -1;
-    //     if (a.group > b.group) return 1;
-    //     return 0;
-    //   });
-    // }
-  },
-  mounted() {
-    //
   },
 
   data() {
     return {
-      swaggerView: null,
+      loading: false,
       selectedGroup: null,
-      groups: [],
-      allPaths: {},
-      // openapiSpec: {
-      //   host: "http://localhost:8080/api",
-      //   title: "Meraki Dashboard API",
-      //   description: "Cisco Meraki API",
-      //   opened: true,
-      //   request: [
-      //     {
-      //       method: "get", // post, delete or put
-      //       description: "Open API Spec",
-      //       url: "/openapiSpec"
-      //     },
-      //     {
-      //       method: "get", // post, delete or put
-      //       description: "Open API Spec",
-      //       url: "/organizations/:organizationId/openapiSpec"
-      //     }
-      //   ]
-      // },
-      // organizations: {
-      //   host: "http://localhost:8080/api",
-      //   title: "Meraki Dashboard API",
-      //   description: "Cisco Meraki API",
-      //   opened: true,
-      //   request: [
-      //     {
-      //       method: "get",
-      //       description: "Organizations",
-      //       url: "/organizations",
-      //       headers: [
-      //         {
-      //           key: "X-Cisco-Meraki-API-Key",
-      //           description: "{{apiKey}}"
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // },
-      parsedSwagger: {},
+      selectedGroupA: "",
+      selectedGroupB: "",
+      selectedGroupC: "",
+      spec: {},
     };
   },
   computed: {
@@ -144,19 +121,42 @@ export default Vue.extend({
     net: function () {
       return this.$store.state.net;
     },
-    filteredGroup() {
-      if (!this.allPaths || !this.selectedGroup) {
-        return [];
-      }
-      let filtered = [];
-      filtered = { ...filtered, ...this.allPaths };
-      filtered.key = this.selectedGroup;
-      if (!filtered.request) {
-        return;
-      }
-      filtered.request = filtered.request.filter(
-        (r) => r.tags[0] === this.selectedGroup || this.selectedGroup === "All"
+    selectorA() {
+      let tags = [];
+      let requests = this.spec.request;
+      let items = new Set(
+        this.filterRequestsByTags(tags, requests).map((r) => r.tags[0])
       );
+      return [...items];
+    },
+    selectorB() {
+      let tags = [this.selectedGroupA];
+      let requests = this.spec.request;
+      let items = new Set(
+        this.filterRequestsByTags(tags, requests).map((r) => r.tags[1])
+      );
+      return [...items];
+    },
+    selectorC() {
+      let tags = [this.selectedGroupA, this.selectedGroupB];
+      let requests = this.spec.request;
+      let items = new Set(
+        this.filterRequestsByTags(tags, requests).map((r) => r.tags[2])
+      );
+      return [...items]; //.map(i => i == undefined ? "/": i)
+    },
+
+    filteredSpecByGroup() {
+      let tags = [
+        this.selectedGroupA,
+        this.selectedGroupB,
+        this.selectedGroupC,
+      ];
+      let requests = this.spec.request;
+      let items = new Set(this.filterRequestsByTags(tags, requests));
+      let filtered = { ...this.spec };
+      filtered.request = [...items];
+
       return filtered;
     },
   },
@@ -164,28 +164,44 @@ export default Vue.extend({
     this.initSwagger();
   },
   watch: {
-    filteredGroup() {
-      this.swaggerView = "v-swagger";
+    selectorA() {
+      // set default
+      this.selectedGroupA = this.selectorA[0];
+      this.selectedGroupB = this.selectorB[0];
+      this.selectedGroupC = this.selectorC[0];
+    },
+    selectedGroupA() {
+      // set default
+      this.selectedGroupB = this.selectorB[0];
+      this.selectedGroupC = this.selectorC[0];
+    },
+    selectedGroupB() {
+      // set default
+      this.selectedGroupC = this.selectorC[0];
     },
   },
   methods: {
+    filterRequestsByTags(tags, requests) {
+      if (!requests) {
+        return [];
+      }
+      return requests.filter((r) => {
+        for (let [index, val] of tags.entries()) {
+          if (r.tags[index] != val) {
+            return;
+          }
+        }
+        return r;
+      });
+    },
     initSwagger() {
-      this.parseMerakiSwagger(this.org.id).then((parsed) => {
-        this.parsedSwagger = parsed;
-        //this.groups.push("All"); // add a catch-all group // this is TOO slow to load.
-        this.groups = [...this.groups, ...parsed.tags.map((t) => t.name)];
-
-        this.allPaths = oasReporter.generateSwaggerPathsVue(parsed, {
+      this.parseMerakiSwagger(this.org.id).then(async (parsed) => {
+        this.spec = await oasReporter.generateSwaggerPathsVue(parsed, {
           baseUrl: this.apiUrl,
         });
       });
     },
-    onSelectedGroup() {
-      if (!this.groupReports) {
-        return;
-      }
-      this.selectedGroup = this.groupReports[0]; // set default report
-    },
+
     parseMerakiSwagger(orgId) {
       if (!orgId) {
         return;
@@ -196,13 +212,15 @@ export default Vue.extend({
         method: "get",
         url: `/organizations/${orgId}/openapiSpec`,
       };
-
+      this.loading = true;
       return this.$rh
         .request(options)
         .then((res) => {
+          this.loading = false;
           return res;
         })
         .catch((e) => {
+          this.loading = false;
           console.log("error fetching openapiSpec", e);
         });
 
@@ -273,3 +291,49 @@ export default Vue.extend({
   },
 });
 </script>
+<style >
+.small-chips {
+  font-size: small;
+}
+
+.v-list__item__action,
+.v-list__item__avatar {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 32px !important;
+}
+.v-list-item .v-list-item__subtitle,
+.v-list-item .v-list-item__title {
+  line-height: 1.2;
+  font-size: small;
+}
+.v-list-item {
+  align-items: center;
+  display: flex;
+  flex: 1 1 100%;
+  letter-spacing: normal;
+  min-height: 48px;
+  outline: none;
+  padding: 0 16px;
+  position: relative;
+  text-decoration: none;
+  font-size: small;
+}
+.v-autocomplete {
+  font-size: small;
+}
+.v-text-field .v-label {
+  top: 0px !important;
+}
+.select__selections {
+  padding-top: 2px !important;
+}
+
+.v-select__selection--comma {
+  margin: 7px 4px 7px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: small;
+}
+</style>
