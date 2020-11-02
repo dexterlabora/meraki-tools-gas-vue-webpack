@@ -106,9 +106,9 @@ export default Vue.extend({
     };
   },
   computed: {
-    loading: function () {
-      return this.$store.state.loading;
-    },
+    // loading: function () {
+    //   return this.$store.state.loading;
+    // },
     apiKey: function () {
       return this.$store.state.apiKey;
     },
@@ -127,7 +127,7 @@ export default Vue.extend({
       let items = new Set(
         this.filterRequestsByTags(tags, requests).map((r) => r.tags[0])
       );
-      return [...items];
+      return [...items].sort();
     },
     selectorB() {
       let tags = [this.selectedGroupA];
@@ -135,7 +135,7 @@ export default Vue.extend({
       let items = new Set(
         this.filterRequestsByTags(tags, requests).map((r) => r.tags[1])
       );
-      return [...items];
+      return [...items].sort();
     },
     selectorC() {
       let tags = [this.selectedGroupA, this.selectedGroupB];
@@ -143,7 +143,9 @@ export default Vue.extend({
       let items = new Set(
         this.filterRequestsByTags(tags, requests).map((r) => r.tags[2])
       );
-      return [...items]; //.map(i => i == undefined ? "/": i)
+      //console.log('selectorC items',items)
+      
+      return [...items].map(i => !i ? i = "/" : i) // handles root service
     },
 
     filteredSpecByGroup() {
@@ -152,6 +154,7 @@ export default Vue.extend({
         this.selectedGroupB,
         this.selectedGroupC,
       ];
+      tags = tags.map(t => t === "/" ? undefined : t) // handles root service
       let requests = this.spec.request;
       let items = new Set(this.filterRequestsByTags(tags, requests));
       let filtered = { ...this.spec };
@@ -188,7 +191,7 @@ export default Vue.extend({
       return requests.filter((r) => {
         for (let [index, val] of tags.entries()) {
           if (r.tags[index] != val) {
-            return;
+            return ;
           }
         }
         return r;

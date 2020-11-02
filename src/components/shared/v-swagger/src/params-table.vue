@@ -237,7 +237,7 @@ export default {
 
       try {
         this.isLoading = true;
-        console.log("params-table rh config ", config);
+        //console.log("params-table rh config ", config);
         rh.request(config)
           .then(res => this.success(res))
           .catch(e => this.error(e))

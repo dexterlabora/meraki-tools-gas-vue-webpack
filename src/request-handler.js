@@ -25,7 +25,7 @@ const API_URL = store.state.apiUrl;
     requestOptions.url = `${requestOptions.baseURL}/${requestOptions.url}`;
     // console.log("gas requestOptions.url ", requestOptions.url);
     requestOptions.payload = JSON.stringify(requestOptions.data);
-    console.log("gas: requestOptions", requestOptions);
+   // console.log("gas: requestOptions", requestOptions);
     return gasRequest(requestOptions);
   } else {
     // ** AXIOS **
