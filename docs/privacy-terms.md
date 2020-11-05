@@ -36,4 +36,4 @@ The add-on is free for public use with no guarantees or official support. The pr
 
 Issues can be submitted [here.](https://github.com/dexterlabora/meraki-tools-gas-vue-webpack/issues)
 
-Project source code is available here[https://github.com/dexterlabora/meraki-tools-gas-vue-webpack]
+Project source code is available [here](https://github.com/dexterlabora/meraki-tools-gas-vue-webpack)
