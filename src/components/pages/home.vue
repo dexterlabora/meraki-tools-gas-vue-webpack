@@ -40,7 +40,14 @@
 
             <p>
               <a
-                href="https://developer.cisco.com/docs/meraki-tools-google-sheets-add-on/#!privacy-and-terms"
+                href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack"
+                target="_blank"
+              >Project Documentation</a>
+            </p>
+
+            <p>
+              <a
+                href="https://dexterlabora.github.io/meraki-tools-gas-vue-webpack/privacy-terms.html"
                 target="_blank"
               >Privacy Policy</a>
             </p>

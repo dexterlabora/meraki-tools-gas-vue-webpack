@@ -2,9 +2,10 @@ import axios from "axios";
 import store from "./store";
 import gasRequest from "./gas-request"
 
-export function request(requestOptions, count, extraData, location) {
+export function request(requestOptions, count, extraData, previousResponse) {
+  console.log("request_handler requestOptions, count, extraData, location", requestOptions, count, extraData, previousResponse)
   const API_KEY = store.state.apiKey;
-const API_URL = store.state.apiUrl;
+  const API_URL = store.state.apiUrl;
 
   // console.log("requestOptions", requestOptions);
   //**
@@ -25,21 +26,61 @@ const API_URL = store.state.apiUrl;
     requestOptions.url = `${requestOptions.baseURL}/${requestOptions.url}`;
     // console.log("gas requestOptions.url ", requestOptions.url);
     requestOptions.payload = JSON.stringify(requestOptions.data);
-   // console.log("gas: requestOptions", requestOptions);
-    return gasRequest(requestOptions);
+    // console.log("gas: requestOptions", requestOptions);
+    return gasRequest(requestOptions)
+      .then(res => {
+        console.log("gas res", res);
+        
+        return followPagination(requestOptions, count, extraData, res)
+      })
+      .catch(e => {
+        console.log("request-handler error: ", e);
+        return e.response.data
+      });
   } else {
     // ** AXIOS **
     requestOptions.baseURL = "http://localhost:8080/api"; // hard coded for local dev testing
     console.log("axios: requestOptions", requestOptions);
     return axios(requestOptions)
       .then(res => {
-        //console.log("axios res", res);
-        return res.data;
+        console.log("axios res", res);
+        return followPagination(requestOptions, count, extraData, res)
       })
       .catch(e => {
         console.log("request-handler error: ", e);
         return e.response.data
       });
+  }
+}
+
+function followPagination(requestOptions, pages, extraData, res) {
+  const linkHeader = res.headers["link"] || res.headers["Link"]
+  if (linkHeader && requestOptions.url.includes("perPage")) {
+
+    console.log('pagination links: linkHeader', linkHeader)
+
+
+    extraData = extraData || [];
+    extraData = [...extraData, ...res.data]
+    console.log('merge extraData', extraData)
+
+    requestOptions.urls = linkHeader.match(/\<(.*?)\>/g)
+    console.log('requestOptions.urls match', requestOptions.urls)
+    requestOptions.urls = requestOptions.urls.map(u => u.replace("<", "").replace(">", "")) // remove < > tags
+
+    console.log('requestOptions.urls ', requestOptions.urls)
+    requestOptions.url = requestOptions.urls[1]
+    if (!requestOptions.url || pages < 1) {
+      return extraData
+    } else {
+      pages--
+      requestOptions.url = requestOptions.url.replace(/http(.*?)v1/, "") // remove Meraki API v1 base URL
+      console.log('requestOptions.url ', requestOptions.url)
+      return request(requestOptions, pages, extraData, res)
+    }
+  } else {
+
+    return res.data
   }
 }
 

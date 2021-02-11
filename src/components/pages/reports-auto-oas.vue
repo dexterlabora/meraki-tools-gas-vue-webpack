@@ -55,9 +55,11 @@
               ></v-expansion-panel-header
             >
             <v-expansion-panel-content>
-              <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
+              <v-progress-linear
+                v-if="loading"
+                indeterminate
+              ></v-progress-linear>
               <v-autocomplete
-                
                 class="mt-2 p-2 ml-1 mr-1"
                 style="font-size: small"
                 :items="reports"
@@ -217,6 +219,17 @@
                         v-bind="c.attributes"
                         v-dynamic-events="c.knownEvents"
                       ></component>
+                      <div v-if="c.attributes" xs12 sm6 md6 class="pl-2 ml-2">
+                        <v-text-field
+                          v-if="c.attributes.label == `perPage`"
+                          label="Pages"
+                          placeholder="1"
+                          width="50"
+                          outlined
+                          :enabled="formData.perPage"
+                          v-model="formData.pages"
+                        ></v-text-field>
+                      </div>
                     </v-flex>
                   </div>
                 </div>
@@ -224,7 +237,7 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel v-if="report.looperParam" >
+          <v-expansion-panel v-if="report.looperParam">
             <v-expansion-panel-header
               >Looper
               <v-spacer></v-spacer>
@@ -273,6 +286,7 @@
                 :key="c.component.title"
               >
                 <component
+                  showMultiOrg
                   :is="c.component"
                   v-bind="c.attributes"
                   v-dynamic-events="c.knownEvents"
@@ -292,9 +306,9 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
 
-          <v-expansion-panel >
+          <v-expansion-panel>
             <v-expansion-panel-header>JSON Results </v-expansion-panel-header>
-            <v-expansion-panel-content id="jsonResultSection" >
+            <v-expansion-panel-content id="jsonResultSection">
               <jsonata
                 v-if="reportData"
                 :key="selectedReport.shortTitle"
@@ -442,7 +456,9 @@ export default Vue.extend({
       filteredPaths: [],
       reportData: [],
       reportDataFiltered: [],
-      formData: {},
+      formData: {
+        pages: 1,
+      },
       form: {
         includeIndex: false,
         query: "$",
@@ -899,43 +915,45 @@ export default Vue.extend({
     // SWAGGER Reports
     // *****
 
-
     initReports() {
       // using gitub source because its faster and doesn't impact API
       //this.$store.commit("setLoading",true)
-      this.loading = true
-      this.fetchMerakiSwagger().then((parsed) => {
-        this.parsedSwagger = parsed;
-        this.swaggerReports = oasReporter.generateReportTemplates(parsed);
-      }).finally(()=>{this.loading=false});
+      this.loading = true;
+      this.fetchMerakiSwagger()
+        .then((parsed) => {
+          this.parsedSwagger = parsed;
+          this.swaggerReports = oasReporter.generateReportTemplates(parsed);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     fetchMerakiSwagger() {
       // Use official API releases when in production
-      if(process.env.VUE_APP_SERVICE === "gas"){
+      if (process.env.VUE_APP_SERVICE === "gas") {
         const options = {
-        method: "get",
-        url: "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
-      };
-        return gasRequest(options).then((res) => {
-          return res;
-        })
-        .catch((e) => console.log("gas openapiSpec get error ", e));
-
-      }else{
+          method: "get",
+          url:
+            "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
+        };
+        return gasRequest(options)
+          .then((res) => {
+            return res.data;
+          })
+          .catch((e) => console.log("gas openapiSpec get error ", e));
+      } else {
         // Use latest ORG streaming when in development
         const options = {
-        method: "get",
-        url: `/organizations/${this.org.id}/openapiSpec`,
-      };
-      return this.$rh
-        .request(options)
-        .then((res) => {
-          return res;
-        })
-        .catch((e) => console.log("axios openapiSpec get error ", e));
+          method: "get",
+          url: `/organizations/${this.org.id}/openapiSpec`,
+        };
+        return this.$rh
+          .request(options)
+          .then((res) => {
+            return res;
+          })
+          .catch((e) => console.log("axios openapiSpec get error ", e));
       }
-      
-    
     },
 
     /**
@@ -1099,13 +1117,17 @@ export default Vue.extend({
         apiKey: this.apiKey,
         contentType: "application/json",
       };
-      rh.request(options)
+      return this.$rh
+        .request(options, this.formData.pages) // run request with pagination support
         .then((res) => {
           // res['meta'] = extraData
+          console.log("runAction res", res);
           this.handleResponse(res, extraData, location);
+          return res;
         })
         .catch((e) => {
           this.handleResponse(e.errors ? e.errors[0] : e, extraData, location);
+          return e;
         });
     },
 
@@ -1150,13 +1172,18 @@ export default Vue.extend({
           this.looperProgress++;
           this.looperProgressPct =
             (this.looperProgress / this.report.actions.length) * 100;
-          return this.runAction(action, i, extraData, location);
+          return this.runAction(action, i, extraData, location).then(
+            (actionResponse) => {
+              console.log("actionResponse", actionResponse);
+              return actionResponse;
+            }
+          );
         }
       );
 
-      // Loops through each action in series, and adjusts the headers
+      // Loops through each action in series
       for (let [i, action] of this.report.actions.entries()) {
-       // console.log("Looper i action", i, action);
+        // console.log("Looper i action", i, action);
         let extraData = {};
         if (this.report.looperParamVals) {
           if (Object.keys(this.report.looperParamVals).length > 0) {
@@ -1222,7 +1249,7 @@ export default Vue.extend({
 
       // send to report
 
-      return this.toReport(adjustedReport, this.report.title, {}, location);
+      this.toReport(adjustedReport, this.report.title, {}, location);
     },
     toReport(report, title, options = {}, location) {
       // format all responses into an array
@@ -1237,8 +1264,6 @@ export default Vue.extend({
       if (location) {
         this.$utilities.writeData(this.reportData, title, options, location);
       }
-
-      
 
       this.$store.commit("setLoading", false);
     },
@@ -1342,9 +1367,10 @@ export default Vue.extend({
   justify-content: flex-start;
   min-width: 32px !important;
 }
-.v-list-item .v-list-item__subtitle, .v-list-item .v-list-item__title {
-    line-height: 1.2;
-    font-size: smaller;
+.v-list-item .v-list-item__subtitle,
+.v-list-item .v-list-item__title {
+  line-height: 1.2;
+  font-size: smaller;
 }
 .v-autocomplete {
   font-size: smaller;
@@ -1357,10 +1383,10 @@ export default Vue.extend({
 }
 
 .v-select__selection--comma {
-    margin: 7px 4px 7px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: small;
+  margin: 7px 4px 7px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: small;
 }
 </style>

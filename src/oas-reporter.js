@@ -12,9 +12,9 @@ export function generateSwaggerPathsVue(
     return;
   }
 
-  var host = options.baseUrl
-    ? options.baseUrl
-    : `https://${parsedSwagger.host}${parsedSwagger.basePath}`;
+  var host = options.baseUrl ?
+    options.baseUrl :
+    `https://${parsedSwagger.host}${parsedSwagger.basePath}`;
 
   let paths = parsedSwagger.paths;
   let finalView = {
@@ -98,7 +98,9 @@ export function generateReportTemplates(parsedSwagger) {
     if (parsedSwagger.paths[path]["get"]) {
       filteredPaths.push({
         ...parsedSwagger.paths[path]["get"],
-        ...{ path: path }
+        ...{
+          path: path
+        }
       });
     }
   });
@@ -121,26 +123,36 @@ export function generateReportTemplates(parsedSwagger) {
 }
 
 export function getPathQueryWithValues(queryParams, paramVals) {
+  console.log('getPathQueryWithValues queryParams paramVals', queryParams, paramVals)
   // Append Query with Values
-  let query = "";
+  
   if (!queryParams || !paramVals) {
-    return query;
+    //return query;
+    return
   }
+  let query = "";
+  let count = 0;
   if (queryParams.length > 0) {
+ 
     queryParams.forEach((qp, i) => {
       if (!paramVals[qp.name]) {
         return;
+      }else{
+        count ++
       }
-      if (i > 0 && query !== "") {
-        if (qp.type === "array") {
-          paramVals[qp.name].forEach(qpa => {
-            query = query + "&" + qp.name + "[]=" + qpa;
-          });
-        } else {
-          query = query + "&" + qp.name + "=" + paramVals[qp.name];
-        }
+      if(count === 1){
+        query = "?"
+      }else{
+        query = query + "&"
+      }
+      
+      // adjust array param names to include `[]`     ?fooBar[]=miles&fooBar[]=meraki
+      if (qp.type === "array") {
+        paramVals[qp.name].forEach(qpa => {
+          query = query + qp.name + "[]=" + qpa;
+        });
       } else {
-        query = "?" + qp.name + "=" + paramVals[qp.name];
+        query = query + qp.name + "=" + paramVals[qp.name];
       }
     });
     return query;
@@ -171,7 +183,9 @@ export function getParamDescription(parsedSwagger, operationId, param) {
     if (parsedSwagger.paths[path]["get"]) {
       filteredPaths.push({
         ...parsedSwagger.paths[path]["get"],
-        ...{ path: path }
+        ...{
+          path: path
+        }
       });
     }
   });

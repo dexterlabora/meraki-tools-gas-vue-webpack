@@ -9,29 +9,26 @@ Meraki Tools is an Google Sheets Add-on to generate reports and makes adjustment
 
 ---
 
-![](MerakiTools_EventLog_Screenshot.png)
+
 
 
 ### See it in action
-![](MerakiTools_Looper.gif)
+![](MerakiTools-APIv1.gif)
 
 ## Key Technologies
 
-[Meraki Dashboard API](https://meraki.io/api)
+[Meraki Dashboard API](https://meraki.io/api-v1)
 
 
 
 ## Features
 
 - Reports
-  - **200+ Meraki Dynamic Reports**
+  - **200+ Meraki API v1 Dynamic Reports**
     - Dynamic form selectors (Orgs, Nets, Devices, Clients, etc.)
-  - Custom Meraki Reports (iterations, enhanced results)
-- Custom Tools
-  - Create Client
-  - Configure SSIDs
-  - Configure VLANs
-  - Claim Order
+    - Custom Meraki Reports (iterations, enhanced results)
+    - Filter JSON with JSONata expression
+    - OpenAPI explorer for Meraki API
 
 
 ## System Requirements

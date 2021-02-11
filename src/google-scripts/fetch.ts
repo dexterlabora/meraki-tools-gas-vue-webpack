@@ -8,6 +8,7 @@ export function urlFetchApp(path, options) {
 }
 */
 export function fetch(path, options) {
+  options = {...{}, ...options}
   options["muteHttpExceptions"] = true; // passes error on to client for processing / display
 
   try {
