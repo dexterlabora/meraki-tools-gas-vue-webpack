@@ -122,35 +122,20 @@ export default Vue.extend({
   },
   mounted: function () {
     this.loadNetworks();
-    //this.fetchNetworks();
   },
-  // watch: {
-  //   includeAllOrgs: function () {
-  //     console.log('watch loadNetworks')
-  //     this.loadNetworks();
-  //   },
-  // },
+ 
   methods: {
-    customFilter(item, queryText, itemText) {
-      // things to search for
-      const searchParams = [
-        item.name.toLowerCase(), // network name
-        JSON.stringify(item.tags).toLowerCase(), // network tags
-        item.organizationId.toLowerCase(), // organization ID
-        item.id.toLowerCase(), // Network ID
-      ];
 
-      // what the user has typed
-      const searchText = queryText.toLowerCase();
-
-      // search
-      var results;
-      for (let p of searchParams) {
-        results = results || p.indexOf(searchText) > -1;
+    fetchNetworks(orgId) {
+      if (!this.org) {
+        return;
       }
-
-      console.log("results", results);
-      return results;
+      const options = {
+        method: "get",
+        url: `/organizations/${orgId}/networks`,
+      };
+      console.log("selector fetch networks options", options);
+      return this.$rh.request(options);
     },
     loadNetworks() {
       // this.$nextTick(() => {
@@ -178,22 +163,30 @@ export default Vue.extend({
       }
 
       this.networksSelected = []; // set default
-      // });
-    },
-
-    fetchNetworks(orgId) {
-      if (!this.org) {
-        return;
-      }
-      const options = {
-        method: "get",
-        url: `/organizations/${orgId}/networks`,
-      };
-      console.log("selector fetch networks options", options);
-      return this.$rh.request(options);
+     
     },
     onMultiOrgToggle() {
       this.loadNetworks();
+    },
+    customFilter(item, queryText, itemText) {
+      // things to search for
+      const searchParams = [
+        item.name.toLowerCase(), // network name
+        JSON.stringify(item.tags).toLowerCase(), // network tags
+        item.organizationId.toLowerCase(), // organization ID
+        item.id.toLowerCase(), // Network ID
+      ];
+
+      // what the user has typed
+      const searchText = queryText.toLowerCase();
+
+      // search
+      var results;
+      for (let p of searchParams) {
+        results = results || p.indexOf(searchText) > -1;
+      }
+
+      return results;
     },
     onSelectAll() {
       // update selection items

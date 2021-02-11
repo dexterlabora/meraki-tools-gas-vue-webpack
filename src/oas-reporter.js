@@ -133,26 +133,28 @@ export function getPathQueryWithValues(queryParams, paramVals) {
   let query = "";
   let count = 0;
   if (queryParams.length > 0) {
- 
+    //query = "?"
     queryParams.forEach((qp, i) => {
       if (!paramVals[qp.name]) {
         return;
-      }else{
-        count ++
+      
       }
+      count ++
+      
       if(count === 1){
         query = "?"
-      }else{
-        query = query + "&"
       }
+      // }else{
+      //   query = query + "&"
+      // }
       
       // adjust array param names to include `[]`     ?fooBar[]=miles&fooBar[]=meraki
       if (qp.type === "array") {
         paramVals[qp.name].forEach(qpa => {
-          query = query + qp.name + "[]=" + qpa;
+          query = query + "&"+ qp.name + "[]=" + qpa;
         });
       } else {
-        query = query + qp.name + "=" + paramVals[qp.name];
+        query = query + "&"+ qp.name + "=" + paramVals[qp.name];
       }
     });
     return query;
