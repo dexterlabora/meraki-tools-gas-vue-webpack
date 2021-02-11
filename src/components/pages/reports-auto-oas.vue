@@ -219,16 +219,29 @@
                         v-bind="c.attributes"
                         v-dynamic-events="c.knownEvents"
                       ></component>
+
                       <div v-if="c.attributes" xs12 sm6 md6 class="pl-2 ml-2">
-                        <v-text-field
-                          v-if="c.attributes.label == `perPage`"
-                          label="Pages"
-                          placeholder="1"
-                          width="50"
-                          outlined
-                          :enabled="formData.perPage"
-                          v-model="formData.pages"
-                        ></v-text-field>
+                        <div v-if="c.attributes.label == `perPage`">
+                          <v-text-field
+                            label="Pages"
+                            placeholder="1"
+                            width="50"
+                            outlined
+                            :enabled="formData.perPage"
+                            v-model="formData.pages"
+                          >
+                            <template v-slot:append>
+                              <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                  <v-icon color="grey lighten-1" v-on="on"
+                                    >info</v-icon
+                                  >
+                                </template>
+                                An API call is made for each page. Results may take a moment to display as the data is being aggregated.
+                              </v-tooltip>
+                            </template>
+                          </v-text-field>
+                        </div>
                       </div>
                     </v-flex>
                   </div>

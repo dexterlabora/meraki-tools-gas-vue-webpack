@@ -61,6 +61,7 @@ function followPagination(requestOptions, pages, extraData, res) {
 
 
     extraData = extraData || [];
+   
     extraData = [...extraData, ...res.data]
     console.log('merge extraData', extraData)
 
@@ -76,6 +77,9 @@ function followPagination(requestOptions, pages, extraData, res) {
       pages--
       requestOptions.url = requestOptions.url.replace(/http(.*?)v1/, "") // remove Meraki API v1 base URL
       console.log('requestOptions.url ', requestOptions.url)
+      if(extraData._url){
+        extraData._url = requestOptions.url
+      }
       return request(requestOptions, pages, extraData, res)
     }
   } else {

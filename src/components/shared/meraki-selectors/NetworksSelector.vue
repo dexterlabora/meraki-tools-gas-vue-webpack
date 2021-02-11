@@ -21,6 +21,7 @@
       class="small"
     >
       <template v-slot:prepend-item>
+
         <v-list-item dense ripple @click="onSelectAll">
           <v-list-item-action>
             <v-icon>done_all</v-icon>
@@ -35,12 +36,19 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item dense class="pb-0" v-show="showMultiOrg">
+        <v-list-item dense ripple v-show="showMultiOrg" @click="onMultiOrgToggle">
+          <!-- <v-list-item-action>
+            <v-icon>done_all</v-icon>
+          </v-list-item-action> -->
+          <v-list-item-content>
+            <v-list-item-title>
           <v-checkbox
             v-model="includeAllOrgs"
-            @change="onMultiOrgToggle"
+            
             label="Multi-Org Search"
           ></v-checkbox>
+            </v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
 
         <v-divider></v-divider>
