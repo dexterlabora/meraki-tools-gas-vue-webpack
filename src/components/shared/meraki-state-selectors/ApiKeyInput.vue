@@ -1,8 +1,10 @@
 <template id="api-key-input">
   <v-card>
     <v-card-text>
+      <v-label>Active Key: <i>******{{activeApiKeyHint}}</i></v-label>
+      <v-spacer></v-spacer>
       <v-text-field
-        label="API Key"
+        label="Update the API Key"
         v-model="form.apiKey"
         :type="showApiKey ? 'text' : 'password'"
         :append-icon="showApiKey ? 'visibility_off' : 'visibility'"
@@ -28,10 +30,14 @@ export default Vue.extend({
   computed: {
     apiKey: function() {
       return this.$store.state.apiKey;
+    },
+    activeApiKeyHint: function(){
+      return this.apiKey.substr(this.apiKey.length - 5);
     }
   },
   mounted: function() {
-    this.form.apiKey = this.apiKey;
+   
+    //this.form.apiKey = this.apiKey
   },
   methods: {
     updateApiKey: function() {
