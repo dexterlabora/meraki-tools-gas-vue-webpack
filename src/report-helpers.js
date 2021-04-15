@@ -38,7 +38,8 @@ export function parseSwaggerPaths(swagger) {
 
         // create report
         report.push({
-          tag,
+          //tag,
+          tags: paths[path][p]["tags"],
           operationId,
           summary,
           method,

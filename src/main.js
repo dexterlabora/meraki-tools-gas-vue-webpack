@@ -49,10 +49,14 @@ new Vue({
   created() {
     if (!this.$store.state.apiKey) {
       // set sandbox key if not defined
-      this.$store.commit(
-        "setApiKey",
-        "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
-      );
+      // this.$store.commit(
+      //   "setApiKey",
+      //   "093b24e85df15a3e66f1fc359f4c48493eaa1b73"
+      // );
+      if (process.env.VUE_APP_API_KEY ) {
+        this.$store.commit("setApiKey", process.env.VUE_APP_API_KEY);
+      }
+    
     }
     //https://api-mp.meraki.com/api/v0
     // if (!this.$store.state.apiUrl) {
@@ -64,6 +68,7 @@ new Vue({
     //   }
     // }
 
+    
     if (process.env.VUE_APP_API_URL ) {
       this.$store.commit("setApiUrl", process.env.VUE_APP_API_URL);
     }
