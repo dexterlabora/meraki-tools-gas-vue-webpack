@@ -2,6 +2,7 @@
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
+const Dotenv = require('dotenv-webpack');
 require("babel-polyfill");
 
 var path = require("path");
@@ -84,8 +85,19 @@ module.exports = {
     net: "empty",
     tls: "empty"
   },
+  // "devServer":{
+  //   "proxy": {
+  //     "/api": {
+  //     "target": 'https://api.meraki.com/api/v1',
+  //     "pathRewrite": { '^/api': '' },
+  //     "changeOrigin": true,
+  //     "secure": false
+  //     }
+  //   }
+  // },
   plugins: [
-    new webpack.EnvironmentPlugin(["VUE_APP_SERVICE"]),
+    new Dotenv(),
+    new webpack.EnvironmentPlugin(["VUE_APP_SERVICE","VUE_APP_API_KEY"]),
     new VueLoaderPlugin(),
     new GasPlugin(),
     new WebpackShellPlugin({

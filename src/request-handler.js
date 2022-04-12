@@ -39,7 +39,7 @@ export function request(requestOptions, count, extraData, previousResponse) {
       });
   } else {
     // ** AXIOS **
-    requestOptions.baseURL = "http://localhost:8080/api"; // hard coded for local dev testing
+    requestOptions.baseURL = "api"; // hard coded for local dev testing
     console.log("axios: requestOptions", requestOptions);
     return axios(requestOptions)
       .then(res => {

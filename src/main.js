@@ -6,6 +6,7 @@ import vuetify from "./plugins/vuetify";
 import "@babel/polyfill";
 
 console.log("process.env.VUE_APP_SERVICE ", process.env.VUE_APP_SERVICE);
+//console.log("process.env.VUE_APP_API_KEY", process.env.VUE_APP_API_KEY);
 if (process.env.VUE_APP_SERVICE === "dev") {
   console.log("Running in developmnet mode");
 } else {
@@ -17,9 +18,9 @@ if (process.env.VUE_APP_SERVICE === "dev") {
   } else {
     console.log = () => "google service not available";
   }
-  // console.log = function(e) {
-  //   return e;
-  // }; // ********   DISABLES console.log
+  console.log = function(e) {
+    return e;
+  }; // ********   DISABLES console.log
 }
 
 

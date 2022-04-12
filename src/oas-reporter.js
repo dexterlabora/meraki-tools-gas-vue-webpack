@@ -123,44 +123,87 @@ export function generateReportTemplates(parsedSwagger) {
 }
 
 export function getPathQueryWithValues(queryParams, paramVals) {
-  console.log('getPathQueryWithValues queryParams paramVals', queryParams, paramVals)
+  console.log('getPathQueryWithValues queryParams ', queryParams)
+  console.log('getPathQueryWithValues paramVals ',  paramVals)
   // Append Query with Values
   
   if (!queryParams || !paramVals) {
     //return query;
     return
   }
-  let query = "";
-  let count = 0;
-  if (queryParams.length > 0) {
+
+  // clear undefined query params
+  for (const key in paramVals) {
+    if (paramVals[key] === undefined) {
+      delete paramVals[key];
+    }
+  }
+
+  const params = new URLSearchParams()
+  Object.entries(paramVals).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        //value.forEach(value => params.append(key, value.toString()))  
+        value.forEach(value => params.append(`${key}[]`, value.toString()))
+      } else {
+          params.append(key, value.toString())
+      }
+  });
+   const queryString = "?" + encodeURI(params.toString())
+   console.log("queryString", queryString)
+  return queryString
+
+
+
+
+  // const query = new URLSearchParams(paramVals)
+
+  // console.log("query string",query.toString())
+
+  // if (qp.type === "array") {
+  //   paramVals[qp.name].forEach(qpa => {
+  //     //query = query + "&"+ qp.name + "[]=" + qpa;
+  //     query = new URLSearchParams(qp).toString()
+  //   });
+
+    
+  // }
+  // console.log("query with arrays",query)
+  // return query;
+
+  //let query = "";
+ // let count = 0;
+  // if (queryParams.length > 0) {
     //query = "?"
-    queryParams.forEach((qp, i) => {
-      if (!paramVals[qp.name]) {
-        return;
+    // queryParams.forEach((qp, i) => {
+    //   if (!paramVals[qp.name]) {
+    //     return;
       
-      }
-      count ++
+    //   }
+  //    count ++
       
-      if(count === 1){
-        query = "?"
-      }
+      // if(count === 1){
+      //   query = "?"
+      // }
       // }else{
       //   query = query + "&"
       // }
       
       // adjust array param names to include `[]`     ?fooBar[]=miles&fooBar[]=meraki
-      if (qp.type === "array") {
-        paramVals[qp.name].forEach(qpa => {
-          query = query + "&"+ qp.name + "[]=" + qpa;
-        });
-      } else {
-        query = query + "&"+ qp.name + "=" + paramVals[qp.name];
-      }
-    });
-    return query;
-  } else {
-    return query;
-  }
+      // if (qp.type === "array") {
+      //   paramVals[qp.name].forEach(qpa => {
+      //     //query = query + "&"+ qp.name + "[]=" + qpa;
+      //     query = new URLSearchParams(qp).toString()
+      //   });
+      // } else {
+      //   query = query + "&"+ qp.name + "=" + paramVals[qp.name];
+      // }
+  //   });
+  //   return query;
+  // } else {
+
+    // console.log("query with arrays",query)
+    //  return query;
+  // }
 }
 
 export function getPathWithValues(path, values) {

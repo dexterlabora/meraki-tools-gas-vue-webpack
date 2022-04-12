@@ -5,4 +5,5 @@ yarn.lock
 yarn-error.log
 .devnotes.md 
 .gitignore
+.env
 
