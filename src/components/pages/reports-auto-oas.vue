@@ -683,6 +683,9 @@ export default Vue.extend({
       if (this.selectedReport["path"].includes("connectionStats")) {
         return { model: "MR" };
       }
+      if (this.selectedReport["path"].includes("sensor")) {
+        return { model: "MT" };
+      }
       if (this.selectedReport["path"].includes("wireless")) {
         return { model: "MR" };
       } else {
@@ -849,6 +852,14 @@ export default Vue.extend({
         serials: {
           component: DevicesSelector,
           attributes: this.deviceSelectorAttributes,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          paramVal: this.formData["devices"]
+            ? this.formData["devices"].map((d) => d.serial)
+            : undefined,
+        },
+        gatewaySerials: {
+          component: DevicesSelector,
+          attributes: { model: "MT" },
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["devices"]
             ? this.formData["devices"].map((d) => d.serial)
