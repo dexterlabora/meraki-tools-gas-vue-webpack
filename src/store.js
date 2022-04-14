@@ -18,6 +18,7 @@ export default new Vuex.Store({
   state: {
     apiKey: "", // Meraki Sandbox
     apiUrl: "", //"https://localhost:8080",
+    apiSpecUrl:{name:"v1 Latest",url:"https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json"},
     actionBatch: {},
     actionBatches: [],
     beta: false,
@@ -65,6 +66,9 @@ export default new Vuex.Store({
       //meraki.setDomain(payload);
       //Vue.$axios.defaults.baseURL = payload;
       //merakiSdk.Configuration.BASEURI = payload;
+    },
+    setApiSpecUrl(state, payload) {
+      state.apiSpecUrl = payload;
     },
     setActionBatch(state, payload) {
       state.actionBatch = payload;

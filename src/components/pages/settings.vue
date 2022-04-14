@@ -5,7 +5,7 @@
         <api-key-input></api-key-input>
       </v-flex>
       <v-flex xs12 md12 lg12 pt-5>
-        
+        <api-spec-url-selector></api-spec-url-selector>
         <!-- <input-base-url-selector></input-base-url-selector> -->
       </v-flex>
       <v-flex xs12 md12 lg12 class="pt-4">
@@ -18,11 +18,11 @@
           @change="onDisplayJson"
         ></v-switch> -->
       </v-flex>
-      <!-- not need for now
-      <v-flex xs12 md12 lg12 pt-5>
+      
+      <!-- <v-flex xs12 md12 lg12 pt-5>
         <v-switch v-model="form.beta" label="Use Beta Code" @change="onBeta"></v-switch>
-      </v-flex>
-      -->
+      </v-flex> -->
+     
     </v-layout>
   </v-container>
 </template>
@@ -30,7 +30,7 @@
 <script>
 import Vue from "vue";
 import ApiKeyInput from "../shared/meraki-state-selectors/ApiKeyInput";
-//import ApiUrlInput from "../shared/meraki-state-selectors/ApiUrlInput";
+import ApiSpecUrlSelector from "../shared/meraki-state-selectors/ApiSpecUrlSelector";
 //import InputBaseUrlSelector from "../shared/meraki-state-selectors/InputBaseUrlSelector";
 import OrgRefreshButton from "../shared/OrgRefreshButton";
 
@@ -40,7 +40,8 @@ export default Vue.extend({
     ApiKeyInput,
     //ApiUrlInput,
     //InputBaseUrlSelector,
-    OrgRefreshButton
+    OrgRefreshButton,
+    ApiSpecUrlSelector
   },
   data() {
     return {
@@ -77,9 +78,9 @@ export default Vue.extend({
       this.$meraki.setApiKey(this.form.apiKey);
     },
     */
-    // onBeta: function() {
-    //   this.$store.commit("setBeta", this.form.beta);
-    // },
+    onBeta: function() {
+      this.$store.commit("setBeta", this.form.beta);
+    },
     // onDisplayJson: function() {
     //   this.$store.commit("setDisplayJson", this.form.displayJson);
     // },

@@ -59,6 +59,7 @@
                 v-if="loading"
                 indeterminate
               ></v-progress-linear>
+              <div v-if="parsedSwagger">
               <v-autocomplete
                 class="mt-2 p-2 ml-1 mr-1"
                 style="font-size: small"
@@ -114,7 +115,7 @@
                 </template>
               </v-autocomplete>
 
-              <div>
+              
                 <!-- <v-speed-dial fab fixed bottom center color="primary" :loading="loading">
                 <template v-slot:activator>
                   <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
@@ -489,6 +490,9 @@ export default Vue.extend({
     },
     apiUrl: function () {
       return this.$store.state.apiUrl;
+    },
+    apiSpecUrl: function () {
+      return this.$store.state.apiSpecUrl;
     },
     org: function () {
       return this.$store.state.org;
@@ -952,34 +956,124 @@ export default Vue.extend({
           this.loading = false;
         });
     },
+    // fetchMerakiSwagger() {
+    //   // Use official API releases when in production
+    //   if (process.env.VUE_APP_SERVICE === "gas") {
+    //     const options = {
+    //       method: "get",
+    //       url:
+    //         "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
+    //     };
+    //     return gasRequest(options)
+    //       .then((res) => {
+    //         return res.data;
+    //       })
+    //       .catch((e) => console.log("gas openapiSpec get error ", e));
+    //   } else {
+    //     // Use latest ORG streaming when in development
+    //     const options = {
+    //       method: "get",
+    //       url: `/organizations/${this.org.id}/openapiSpec`,
+    //     };
+    //     return this.$rh
+    //       .request(options)
+    //       .then((res) => {
+    //         return res;
+    //       })
+    //       .catch((e) => console.log("axios openapiSpec get error ", e));
+    //   }
+    // },
     fetchMerakiSwagger() {
+      console.log("retrieving spec url: ",this.apiSpecUrl)
       // Use official API releases when in production
       if (process.env.VUE_APP_SERVICE === "gas") {
+        // private specs
+        if(this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")){
+          let url = this.apiSpecUrl.url.replace("https://api.meraki.com/api/v1/","")
+
+          return this.$rh
+          .request({url})
+          .then(res => {
+          
+            return res;
+          })
+          .catch((e) => console.log("$rh openapiSpec get error ", e));
+        }else{
+        // public specs
         const options = {
           method: "get",
           url:
-            "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
+            this.apiSpecUrl.url,
         };
         return gasRequest(options)
           .then((res) => {
             return res.data;
           })
           .catch((e) => console.log("gas openapiSpec get error ", e));
+        }
       } else {
-        // Use latest ORG streaming when in development
-        const options = {
-          method: "get",
-          url: `/organizations/${this.org.id}/openapiSpec`,
-        };
-        return this.$rh
-          .request(options)
-          .then((res) => {
+        // private specs
+        if(this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")){
+          let url = this.apiSpecUrl.url.replace("https://api.meraki.com/api/v1/","")
+
+          return this.$rh
+          .request({url})
+          .then(res => {
+          
             return res;
           })
+          .catch((e) => console.log("$rh openapiSpec get error ", e));
+        }else{
+          // public specs
+          console.log('using axios for public spec')
+          return axios.get(this.apiSpecUrl.url).then(res => {
+            return res.data;
+          })
           .catch((e) => console.log("axios openapiSpec get error ", e));
+        }
+        
       }
+    
+    // fetchMerakiSwagger() {
+    //   // Use official API releases when in production
+    //   if (this.$store.state.beta === true) {
+    //     const options = {
+    //       method: "get",
+    //       url:
+    //         "https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json",
+    //     };
+    //     return gasRequest(options)
+    //       .then((res) => {
+    //         return res.data;
+    //       })
+    //       .catch((e) => console.log("gas openapiSpec get error ", e));
+    //   } else if (this.$store.state.beta){
+    //     // Use latest ORG streaming when in development
+    //     const options = {
+    //       method: "get",
+    //       url: `https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json`,
+    //     };
+    //     return this.$rh
+    //       .request(options)
+    //       .then((res) => {
+    //         return res;
+    //       })
+    //       .catch((e) => console.log("axios openapiSpec get error ", e));
+    //   }
+    //   //  else {
+    //   //   // Use latest ORG streaming when in development
+    //   //   const options = {
+    //   //     method: "get",
+    //   //     url: `/organizations/${this.org.id}/openapiSpec`,
+    //   //   };
+    //   //   return this.$rh
+    //   //     .request(options)
+    //   //     .then((res) => {
+    //   //       return res;
+    //   //     })
+    //   //     .catch((e) => console.log("axios openapiSpec get error ", e));
+    //   // }
     },
-
     /**
      * @param pathParams
      * pathParams = ['networkId', 'serial']
