@@ -3,6 +3,14 @@ var sheet = function() {
   return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 };
 
+/**
+ * Converts CSV data into Sheet format
+ *
+ * @param {csvContent} csv data.
+ * @param {title} title of results.
+ * @return Google Sheet data
+ * @customfunction
+ */
 export function writeCsvData(csvContent,title, location: string) {
   if (!csvContent) {
     Logger.log("writeCsvData no csvContent");

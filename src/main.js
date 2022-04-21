@@ -12,15 +12,19 @@ if (process.env.VUE_APP_SERVICE === "dev") {
 } else {
   console.log("Running in production mode");
 
-  if (google) {
-    // Log to "USER" Google Apps Logs
-    //console.log = Logger.log; // doesn't work
-  } else {
-    console.log = () => "google service not available";
+
+  //   if (google) {
+  //     // Log to "USER" Google Apps Logs
+  //     //console.log = Logger.log; // doesn't work
+  //   } else {
+  //     console.log = () => "google service not available";
+  //   }
+    console.log = function(e) {
+      return e;
+  
+
   }
-  console.log = function(e) {
-    return e;
-  }; // ********   DISABLES console.log
+  
 }
 
 

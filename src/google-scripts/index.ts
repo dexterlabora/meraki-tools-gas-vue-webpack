@@ -3,6 +3,7 @@ import { fetch } from "./fetch";
 import { loadSidebar } from "./sidebar";
 import { writeCsvData } from "./writeCsvData";
 import { loadMenu } from "./menu";
+import { hello } from "./hello"
 
 function onOpen() {
   //loadSidebar(); //permissions issue
@@ -32,8 +33,33 @@ function onInstall() {
  */
 global.loadMenu = loadMenu;
 global.doGet = doGet;
+/**
+ * Fetch an API request
+ *
+ * @param {path} URL API path .
+ * @param {options} request options.
+ * @return JSON data
+ * @customfunction
+ */
 global.fetch = fetch;
 global.onOpen = onOpen;
 global.onInstall = onInstall;
 global.loadSidebar = loadSidebar;
+/**
+ * Converts CSV data into Sheet format
+ *
+ * @param {csvContent} csv data.
+ * @param {title} title of results.
+ * @return Google Sheet data
+ * @customfunction
+ */
 global.writeCsvData = writeCsvData;
+
+/**
+ * Hello !
+ *
+ * @param {name} URL API path .
+ * @return response string
+ * @customfunction
+ */
+global.hello = hello;

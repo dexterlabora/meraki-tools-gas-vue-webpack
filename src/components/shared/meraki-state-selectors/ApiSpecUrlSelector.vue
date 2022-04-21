@@ -36,14 +36,7 @@ export default Vue.extend({
         apiSpecUrl: this.apiSpecUrl,
       },
       specUrls: [
-        {
-          name: "v1 Latest",
-          url: "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
-        },
-        {
-          name: "v1 Beta",
-          url: "https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json",
-        }
+        
       ],
     };
   },
@@ -57,12 +50,7 @@ export default Vue.extend({
   },
   mounted: function () {
     this.form.apiSpecUrl = this.apiSpecUrl;
-    this.orgs.forEach(o => this.specUrls.push(
-      {
-          name: o.name,
-          url: `https://api.meraki.com/api/v1/organizations/${o.id}/openapiSpec`,
-        }
-    ))
+    this.buildSpecList()
   },
   watch: {
     "form.apiSpecUrl"() {
@@ -71,9 +59,29 @@ export default Vue.extend({
         this.$store.commit("setApiSpecUrl", this.form.apiSpecUrl);
       }
     
+    },
+    "orgs"() {
+      this.buildSpecList()
     }
   },
   methods: {
+    buildSpecList(){
+      this.specUrls = [{
+          name: "v1 Latest",
+          url: "https://raw.githubusercontent.com/meraki/openapi/master/openapi/spec2.json",
+        },
+        {
+          name: "v1 Beta",
+          url: "https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json",
+        }
+      ]
+      this.orgs.forEach(o => this.specUrls.push(
+      {
+          name: o.name,
+          url: `https://api.meraki.com/api/v1/organizations/${o.id}/openapiSpec`,
+        }
+    ))
+    }
     // onUpdateOasUrl(e) {
     //   console.log("onUpdateOasUrl", e.value);
     //   this.form.apiSpecUrl = e.value;

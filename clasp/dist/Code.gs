@@ -19,6 +19,14 @@ function loadMenu() {
 }
 function doGet() {
 }
+/**
+ * Fetch an API request
+ *
+ * @param {path} URL API path .
+ * @param {options} request options.
+ * @return JSON data
+ * @customfunction
+ */
 function fetch() {
 }
 function onOpen() {
@@ -27,7 +35,24 @@ function onInstall() {
 }
 function loadSidebar() {
 }
+/**
+ * Converts CSV data into Sheet format
+ *
+ * @param {csvContent} csv data.
+ * @param {title} title of results.
+ * @return Google Sheet data
+ * @customfunction
+ */
 function writeCsvData() {
+}
+/**
+ * Hello !
+ *
+ * @param {name} URL API path .
+ * @return response string
+ * @customfunction
+ */
+function hello() {
 }(function(e, a) { for(var i in a) e[i] = a[i]; }(this, /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -111,13 +136,13 @@ function writeCsvData() {
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 681);
+/******/ 	return __webpack_require__(__webpack_require__.s = 692);
 /******/ })
 /************************************************************************/
 /******/ ({
 
 /***/ 10:
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 var g;
 
@@ -143,11 +168,12 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 673:
+/***/ 683:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return loadMenu; });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadMenu", function() { return loadMenu; });
 function loadMenu() {
     // Main Menu
     var ui = SpreadsheetApp.getUi();
@@ -159,11 +185,12 @@ function loadMenu() {
 
 /***/ }),
 
-/***/ 677:
+/***/ 687:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return doGet; });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doGet", function() { return doGet; });
 function doGet(e) {
     /**
      * If you want to serve up other content than the single-page app, you can either
@@ -177,11 +204,12 @@ function doGet(e) {
 
 /***/ }),
 
-/***/ 678:
+/***/ 688:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return fetch; });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetch", function() { return fetch; });
 var __assign = (undefined && undefined.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -193,17 +221,17 @@ var __assign = (undefined && undefined.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-/*
-export function urlFetchApp(path, options) {
-  Logger.log("fetch");
-  let urlFetch = UrlFetchApp.fetch(path, options);
-  let data = urlFetch.getContentText();
-  Logger.log("fetch data" + data);
-  return data;
-}
-*/
+/**
+ * Fetch an API request
+ *
+ * @param {path} URL API path .
+ * @param {options} request options.
+ * @return JSON data
+ * @customfunction
+ */
 function fetch(path, options) {
-    options = __assign({}, options);
+    if (options === void 0) { options = {}; }
+    options = __assign({ followRedirects: true }, options);
     options["muteHttpExceptions"] = true; // passes error on to client for processing / display
     try {
         var res = UrlFetchApp.fetch(path, options);
@@ -216,6 +244,7 @@ function fetch(path, options) {
         };
     }
     catch (e) {
+        Logger.log("meraki tools fetch error: " + e);
         return e;
     }
 }
@@ -223,11 +252,12 @@ function fetch(path, options) {
 
 /***/ }),
 
-/***/ 679:
+/***/ 689:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return loadSidebar; });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadSidebar", function() { return loadSidebar; });
 function loadSidebar() {
     var htmlTemplate = HtmlService.createTemplateFromFile("index");
     var html = htmlTemplate.evaluate().setTitle("Meraki Tools");
@@ -241,15 +271,24 @@ function loadSidebar() {
 
 /***/ }),
 
-/***/ 680:
+/***/ 690:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return writeCsvData; });
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "writeCsvData", function() { return writeCsvData; });
 // Display Data on a Google Sheet
 var sheet = function () {
     return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 };
+/**
+ * Converts CSV data into Sheet format
+ *
+ * @param {csvContent} csv data.
+ * @param {title} title of results.
+ * @return Google Sheet data
+ * @customfunction
+ */
 function writeCsvData(csvContent, title, location) {
     if (!csvContent) {
         Logger.log("writeCsvData no csvContent");
@@ -349,16 +388,38 @@ function getDateTimeString() {
 
 /***/ }),
 
-/***/ 681:
+/***/ 691:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(677);
-/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(678);
-/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(679);
-/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(680);
-/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(673);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hello", function() { return hello; });
+/**
+ * Hello !
+ *
+ * @param {name} URL API path .
+ * @return response string
+ * @customfunction
+ */
+function hello(name) {
+    return "Hello " + name + "!";
+}
+
+
+/***/ }),
+
+/***/ 692:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var _do_get__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(687);
+/* harmony import */ var _fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(688);
+/* harmony import */ var _sidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(689);
+/* harmony import */ var _writeCsvData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(690);
+/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(683);
+/* harmony import */ var _hello__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(691);
+
 
 
 
@@ -366,7 +427,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function onOpen() {
     //loadSidebar(); //permissions issue
-    Object(_menu__WEBPACK_IMPORTED_MODULE_4__[/* loadMenu */ "a"])();
+    Object(_menu__WEBPACK_IMPORTED_MODULE_4__["loadMenu"])();
 }
 function onInstall() {
     onOpen();
@@ -388,13 +449,37 @@ function onInstall() {
  * Note that no matter your deployment target, you must set webpack's mode to
  * "production" or this won't work.
  */
-global.loadMenu = _menu__WEBPACK_IMPORTED_MODULE_4__[/* loadMenu */ "a"];
-global.doGet = _do_get__WEBPACK_IMPORTED_MODULE_0__[/* doGet */ "a"];
-global.fetch = _fetch__WEBPACK_IMPORTED_MODULE_1__[/* fetch */ "a"];
+global.loadMenu = _menu__WEBPACK_IMPORTED_MODULE_4__["loadMenu"];
+global.doGet = _do_get__WEBPACK_IMPORTED_MODULE_0__["doGet"];
+/**
+ * Fetch an API request
+ *
+ * @param {path} URL API path .
+ * @param {options} request options.
+ * @return JSON data
+ * @customfunction
+ */
+global.fetch = _fetch__WEBPACK_IMPORTED_MODULE_1__["fetch"];
 global.onOpen = onOpen;
 global.onInstall = onInstall;
-global.loadSidebar = _sidebar__WEBPACK_IMPORTED_MODULE_2__[/* loadSidebar */ "a"];
-global.writeCsvData = _writeCsvData__WEBPACK_IMPORTED_MODULE_3__[/* writeCsvData */ "a"];
+global.loadSidebar = _sidebar__WEBPACK_IMPORTED_MODULE_2__["loadSidebar"];
+/**
+ * Converts CSV data into Sheet format
+ *
+ * @param {csvContent} csv data.
+ * @param {title} title of results.
+ * @return Google Sheet data
+ * @customfunction
+ */
+global.writeCsvData = _writeCsvData__WEBPACK_IMPORTED_MODULE_3__["writeCsvData"];
+/**
+ * Hello !
+ *
+ * @param {name} URL API path .
+ * @return response string
+ * @customfunction
+ */
+global.hello = _hello__WEBPACK_IMPORTED_MODULE_5__["hello"];
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
 

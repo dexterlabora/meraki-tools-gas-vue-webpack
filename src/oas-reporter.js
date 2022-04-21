@@ -132,25 +132,41 @@ export function getPathQueryWithValues(queryParams, paramVals) {
     return
   }
 
-  // clear undefined query params
-  for (const key in paramVals) {
-    if (paramVals[key] === undefined) {
-      delete paramVals[key];
-    }
-  }
+  // test concept
+  const qs = require('query-string');
+  //queryString.parse('foo[]=1&foo[]=2&foo[]=3', {arrayFormat: 'bracket'});
+  let q = "?" + qs.stringify(paramVals,{arrayFormat: 'bracket'})
+  console.log('test queryString',q )
 
-  const params = new URLSearchParams()
-  Object.entries(paramVals).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        //value.forEach(value => params.append(key, value.toString()))  
-        value.forEach(value => params.append(`${key}[]`, value.toString()))
-      } else {
-          params.append(key, value.toString())
-      }
-  });
-   const queryString = "?" + encodeURI(params.toString())
-   console.log("queryString", queryString)
-  return queryString
+  // end test
+
+  // // clear undefined query params
+  // for (const key in paramVals) {
+  //   if (paramVals[key] === undefined) {
+  //     delete paramVals[key];
+  //   }
+  // }
+
+  // const params = new URLSearchParams()
+  // Object.entries(paramVals).forEach(([key, value]) => {
+  //     if (Array.isArray(value)) {
+  //       //value.forEach(value => params.append(key, value.toString()))  
+  //       console.log('param is an array, generate query param for each: ', key, value)
+  //       //value.forEach(value => params.append(`${key}[]`, value.toString()))
+  //       value.forEach(value => params.append(key + "[]", encodeURI(value)))
+  //         var arrStr = encodeURIComponent(JSON.stringify(value));
+  //         console.log('testing array string', arrStr)
+  //       console.log("params.toString()", params.toString())
+  //     } else {
+  //        console.log('param is NOT an array, generate param for:', key, value)
+  //         params.append(key, value.toString())
+  //     }
+  // });
+  // console.log("params ", params)
+  //  const queryString = "?" + params.toString()
+  // console.log("queryString URI encoded", encodeURI(queryString))
+  //return encodeURI(queryString)
+  return q
 
 
 

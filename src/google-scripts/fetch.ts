@@ -1,14 +1,14 @@
-/*
-export function urlFetchApp(path, options) {
-  Logger.log("fetch");
-  let urlFetch = UrlFetchApp.fetch(path, options);
-  let data = urlFetch.getContentText();
-  Logger.log("fetch data" + data);
-  return data;
-}
-*/
-export function fetch(path, options) {
-  options = {...{}, ...options}
+
+/**
+ * Fetch an API request
+ *
+ * @param {path} URL API path .
+ * @param {options} request options.
+ * @return JSON data
+ * @customfunction
+ */
+export function fetch(path, options={}) {
+  options = {...{followRedirects:true}, ...options}
   options["muteHttpExceptions"] = true; // passes error on to client for processing / display
 
   try {
@@ -22,6 +22,7 @@ export function fetch(path, options) {
       statusCode: responseCode
     };
   } catch (e) {
+    Logger.log("meraki tools fetch error: " + e);
     return e;
   }
 }

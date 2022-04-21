@@ -359,6 +359,7 @@ import OrganizationsSelector from "../shared/meraki-selectors/OrganizationsSelec
 import NetSelector from "../shared/meraki-state-selectors/NetSelector";
 import NetworksSelector from "../shared/meraki-selectors/NetworksSelector";
 import MethodSelector from "../shared/meraki-selectors/MethodSelector";
+import SensorMetricsSelector from "../shared/meraki-selectors/SensorMetricsSelector";
 import ModelSelector from "../shared/meraki-selectors/ModelSelector";
 import ProductTypeSelector from "../shared/meraki-selectors/ProductTypeSelector";
 import SsidSelector from "../shared/meraki-selectors/SsidSelector";
@@ -401,6 +402,7 @@ export default Vue.extend({
     VlanSelector,
     VueJsonPretty,
     Jsonata,
+    SensorMetricsSelector
   },
   created() {
     this.initReports();
@@ -794,6 +796,20 @@ export default Vue.extend({
           component: MethodSelector,
           knownEvents: { onChange: "handleSelectorEvent" },
           paramVal: this.formData["method"],
+        },
+        metrics: {
+          component: SensorMetricsSelector,
+          knownEvents: { onChange: "handleSelectorEvent" },
+          attributes: {
+            label: "metrics",
+            param: "metrics",
+            description: oasReporter.getParamDescription(
+              this.parsedSwagger,
+              "getOrganizationSensorReadingsHistory",
+              "metrics"
+            )
+          },
+          paramVal: this.formData["metrics"],
         },
         networkId: {
           //component: // Using global state
