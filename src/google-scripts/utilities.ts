@@ -1,6 +1,6 @@
 // Helper functions
 
-function flattenObject(ob) {
+export function flattenObject(ob) {
     var toReturn = {};
      
      for (var i in ob) {
@@ -20,7 +20,7 @@ function flattenObject(ob) {
      return toReturn;
  };
  
- function parseJsonToCsv(json, keys){
+export function parseJsonToCsv(json, keys){
    var values = [];
  
    // Parse JSON Object
@@ -40,7 +40,7 @@ function flattenObject(ob) {
    } else {
    
    // Parse JSON Array of Objects
-     for (i = 0; i < json.length; i++) { 
+     for (let i = 0; i < json.length; i++) { 
        
        var data = json[i];
        

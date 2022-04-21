@@ -3,6 +3,9 @@ import { fetch } from "./fetch";
 import { loadSidebar } from "./sidebar";
 import { writeCsvData } from "./writeCsvData";
 import { loadMenu } from "./menu";
+import { merakiFetchReport } from "./merakiFetchReport"
+import * as merakiWebhookReceiver from "./merakiWebhookReceiver"
+import * as utilities from "./utilities"
 import { hello } from "./hello"
 
 function onOpen() {
@@ -63,3 +66,16 @@ global.writeCsvData = writeCsvData;
  * @customfunction
  */
 global.hello = hello;
+global.utilities = utilities;
+
+/**
+ * Fetches data from the Meraki API and formats the JSON into Google Sheet format
+ * @param {string} url URL to pull json data from (i.e https://api.meraki.com/api/v1/organizations or /organizations)
+ * @param {string} apiKey API key for authorization
+ * @return Google Sheet data
+ * @customfunction
+ */
+global.merakiFetchReport = (url: string,apiKey: string) => merakiFetchReport(url,apiKey);
+
+
+global.merakiWebhookReceiver = merakiWebhookReceiver

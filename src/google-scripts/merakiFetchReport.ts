@@ -1,6 +1,4 @@
-const meraki_api_key = "6bec40cf957de430a6f1f2baa056b99a4fac9ea0" // DEMO KEY
-function merakiFetchReport(){ fetchMerakiReport("https://api.meraki.com/api/v1/organizations", meraki_api_key) }
-
+import * as utilities from "./utilities"
 // Global Functions
 
 /**
@@ -10,7 +8,9 @@ function merakiFetchReport(){ fetchMerakiReport("https://api.meraki.com/api/v1/o
  * @return Google Sheet data
  * @customfunction
  */
-export async function merakiFetchReport(url,apiKey){
+export async function merakiFetchReport(url: string,apiKey: string){
+  const baseUrl = "https://api.meraki.com/api/v1" // consider sourcing this from a global namespace
+  url = url.includes("https://") ? url : baseUrl+url
   const options = {
     "async": true,
      "crossDomain": true,
@@ -18,12 +18,13 @@ export async function merakiFetchReport(url,apiKey){
      "headers" : {'X-Cisco-Meraki-API-Key': apiKey}
   }
   // get api result
-  const res = await fetch(url,options)
+  let res: Object = {}
+  res = await fetch(url,options)
   let result = []
   try{
-    result = JSON.parse(res.body)
+    result = JSON.parse(res["body"])
   }catch(e){
-    result = res.body
+    result = e
   }
   
   // build results array
@@ -35,7 +36,8 @@ export async function merakiFetchReport(url,apiKey){
     results = [...[],...result]
     }else{results.push(result)}  
   results.forEach(function(obj){ 
-    var flat = flattenObject(obj);
+    let flat : any = {};
+    flat = utilities.flattenObject(obj) || {};
     data.push(flat);
     // set keys
     Object.keys(flat).forEach(function(value){
@@ -44,7 +46,7 @@ export async function merakiFetchReport(url,apiKey){
   });
 
   // convert to csv
-  const csvData = await parseJsonToCsv(data,keys)
+  const csvData: string = await utilities.parseJsonToCsv(data,keys).toString()
   Logger.log(`csvData results: %s`, csvData)
 
   // convert to sheet multi-dimensional array

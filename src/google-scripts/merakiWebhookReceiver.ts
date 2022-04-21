@@ -1,3 +1,4 @@
+import * as utilities from "./utilities"
 /*
 Copy this function over the existing Code.gs file in a Google Sheet
 Save the Sheet/Script
@@ -57,7 +58,7 @@ The URL will act as the Webhook URL for Meraki to send alerts
  function display(data){
    
    // Flatten JSON object and extract keys and values into seperate arrays
-   var flat = flattenObject(data);
+   var flat = utilities.flattenObject(data);
    var keys = Object.keys(flat);
    var values = [];
    var headers = [];
@@ -110,12 +111,12 @@ The URL will act as the Webhook URL for Meraki to send alerts
  }
  
  // Webhook GET request. Simply verifies that server is reachable.
- function doGet(e) {
+ export function doGet(e) {
    return HtmlService.createHtmlOutput("Meraki Webhook Google Sheets");
  }
  
  // Webhook Receiver - triggered with post to pusblished App URL.
- function doPost(e) {
+ export function doPost(e) {
    var params = JSON.stringify(e.postData.contents);
    params = JSON.parse(params);
    var postData = JSON.parse(params);
