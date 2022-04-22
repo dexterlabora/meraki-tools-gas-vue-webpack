@@ -1,4 +1,4 @@
-  const webpack = require("webpack");
+const webpack = require("webpack");
 const { VueLoaderPlugin } = require("vue-loader");
 const GasPlugin = require("gas-webpack-plugin");
 const WebpackShellPlugin = require("webpack-shell-plugin");
@@ -85,16 +85,6 @@ module.exports = {
     net: "empty",
     tls: "empty"
   },
-  // "devServer":{
-  //   "proxy": {
-  //     "/api": {
-  //     "target": 'https://api.meraki.com/api/v1',
-  //     "pathRewrite": { '^/api': '' },
-  //     "changeOrigin": true,
-  //     "secure": false
-  //     }
-  //   }
-  // },
   plugins: [
     new Dotenv(),
     new webpack.EnvironmentPlugin(["VUE_APP_SERVICE","VUE_APP_API_KEY"]),
