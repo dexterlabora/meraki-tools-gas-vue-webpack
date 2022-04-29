@@ -43,6 +43,22 @@
           </template>
           <span>Run only</span>
         </v-tooltip>
+        <v-tooltip left class="pr-10">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              fab
+              dark
+              small
+              color="green"
+              @click="onRunInsertDynamic()"
+            >
+              <v-icon>play_arrow</v-icon>
+            </v-btn>
+          </template>
+          <span>Insert Dynamic Report</span>
+        </v-tooltip>
       </v-speed-dial>
 
       <v-flex xs12 md12>
@@ -60,34 +76,34 @@
                 indeterminate
               ></v-progress-linear>
               <div v-if="parsedSwagger">
-              <v-autocomplete
-                class="mt-2 p-2 ml-1 mr-1"
-                style="font-size: small"
-                :items="reports"
-                :filter="searchFilter"
-                @change="onSearch"
-                return-object
-                hide-no-data
-                hide-selected
-                clearable
-                item-text="name"
-                item-value="symbol"
-                filled
-                solo
-                prepend-icon="mdi-magnify"
-              >
-                <!-- <template v-slot:label>
+                <v-autocomplete
+                  class="mt-2 p-2 ml-1 mr-1"
+                  style="font-size: small"
+                  :items="reports"
+                  :filter="searchFilter"
+                  @change="onSearch"
+                  return-object
+                  hide-no-data
+                  hide-selected
+                  clearable
+                  item-text="name"
+                  item-value="symbol"
+                  filled
+                  solo
+                  prepend-icon="mdi-magnify"
+                >
+                  <!-- <template v-slot:label>
                 <p>
                   <i>Search reports ...</i>
                 </p>
               </template>-->
-                <template
-                  v-slot:selection="{ item, selected }"
-                  class="selected"
-                >
-                  <label class="caption">{{ item.shortTitle }}</label>
-                </template>
-                <!-- <template v-slot:item="{ item }">
+                  <template
+                    v-slot:selection="{ item, selected }"
+                    class="selected"
+                  >
+                    <label class="caption">{{ item.shortTitle }}</label>
+                  </template>
+                  <!-- <template v-slot:item="{ item }">
                   <v-list-item-content>
                     <v-list-item-title
                       v-text="item.shortTitle"
@@ -99,23 +115,22 @@
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </template> -->
-                <template slot="item" slot-scope="data">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-icon color="grey lighten-1" v-on="on" class="mr-2"
-                        >info</v-icon
-                      >
-                    </template>
+                  <template slot="item" slot-scope="data">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-icon color="grey lighten-1" v-on="on" class="mr-2"
+                          >info</v-icon
+                        >
+                      </template>
 
-                    {{ data.item.description }}
-                  </v-tooltip>
-                  <div class="caption">
-                    {{ data.item.shortTitle }}
-                  </div>
-                </template>
-              </v-autocomplete>
+                      {{ data.item.description }}
+                    </v-tooltip>
+                    <div class="caption">
+                      {{ data.item.shortTitle }}
+                    </div>
+                  </template>
+                </v-autocomplete>
 
-              
                 <!-- <v-speed-dial fab fixed bottom center color="primary" :loading="loading">
                 <template v-slot:activator>
                   <v-btn color="blue darken-2" dark fab @click="onRunReport('overwrite')">
@@ -238,7 +253,9 @@
                                     >info</v-icon
                                   >
                                 </template>
-                                An API call is made for each page. Results may take a moment to display as the data is being aggregated.
+                                An API call is made for each page. Results may
+                                take a moment to display as the data is being
+                                aggregated.
                               </v-tooltip>
                             </template>
                           </v-text-field>
@@ -402,7 +419,7 @@ export default Vue.extend({
     VlanSelector,
     VueJsonPretty,
     Jsonata,
-    SensorMetricsSelector
+    SensorMetricsSelector,
   },
   created() {
     this.initReports();
@@ -807,7 +824,7 @@ export default Vue.extend({
               this.parsedSwagger,
               "getOrganizationSensorReadingsHistory",
               "metrics"
-            )
+            ),
           },
           paramVal: this.formData["metrics"],
         },
@@ -948,10 +965,11 @@ export default Vue.extend({
     searchFilter(item, queryText, itemText) {
       const textOne = item.title.toLowerCase();
       const textTwo = item.group.toLowerCase();
+      const textThree = JSON.stringify(item.tags);
       const searchText = queryText.toLowerCase();
 
       return (
-        textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1
+        textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1 || textThree.includes(searchText)
       );
     },
 
@@ -1000,95 +1018,99 @@ export default Vue.extend({
     //   }
     // },
     fetchMerakiSwagger() {
-      console.log("retrieving spec url: ",this.apiSpecUrl)
+      console.log("retrieving spec url: ", this.apiSpecUrl);
       // Use official API releases when in production
       if (process.env.VUE_APP_SERVICE === "gas") {
         // private specs
-        if(this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")){
-          let url = this.apiSpecUrl.url.replace("https://api.meraki.com/api/v1/","")
+        if (this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")) {
+          let url = this.apiSpecUrl.url.replace(
+            "https://api.meraki.com/api/v1/",
+            ""
+          );
 
           return this.$rh
-          .request({url})
-          .then(res => {
-          
-            return res;
-          })
-          .catch((e) => console.log("$rh openapiSpec get error ", e));
-        }else{
-        // public specs
-        const options = {
-          method: "get",
-          url:
-            this.apiSpecUrl.url,
-        };
-        return gasRequest(options)
-          .then((res) => {
-            return res.data;
-          })
-          .catch((e) => console.log("gas openapiSpec get error ", e));
+            .request({ url })
+            .then((res) => {
+              return res;
+            })
+            .catch((e) => console.log("$rh openapiSpec get error ", e));
+        } else {
+          // public specs
+          const options = {
+            method: "get",
+            url: this.apiSpecUrl.url,
+          };
+          return gasRequest(options)
+            .then((res) => {
+              return res.data;
+            })
+            .catch((e) => console.log("gas openapiSpec get error ", e));
         }
       } else {
         // private specs
-        if(this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")){
-          let url = this.apiSpecUrl.url.replace("https://api.meraki.com/api/v1/","")
+        if (this.apiSpecUrl.url.includes("https://api.meraki.com/api/v1/")) {
+          let url = this.apiSpecUrl.url.replace(
+            "https://api.meraki.com/api/v1/",
+            ""
+          );
 
           return this.$rh
-          .request({url})
-          .then(res => {
-          
-            return res;
-          })
-          .catch((e) => console.log("$rh openapiSpec get error ", e));
-        }else{
+            .request({ url })
+            .then((res) => {
+              return res;
+            })
+            .catch((e) => console.log("$rh openapiSpec get error ", e));
+        } else {
           // public specs
-          console.log('using axios for public spec')
-          return axios.get(this.apiSpecUrl.url).then(res => {
-            return res.data;
-          })
-          .catch((e) => console.log("axios openapiSpec get error ", e));
+          console.log("using axios for public spec");
+          return axios
+            .get(this.apiSpecUrl.url)
+            .then((res) => {
+              return res.data;
+            })
+            .catch((e) => console.log("axios openapiSpec get error ", e));
         }
-        
       }
-    
-    // fetchMerakiSwagger() {
-    //   // Use official API releases when in production
-    //   if (this.$store.state.beta === true) {
-    //     const options = {
-    //       method: "get",
-    //       url:
-    //         "https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json",
-    //     };
-    //     return gasRequest(options)
-    //       .then((res) => {
-    //         return res.data;
-    //       })
-    //       .catch((e) => console.log("gas openapiSpec get error ", e));
-    //   } else if (this.$store.state.beta){
-    //     // Use latest ORG streaming when in development
-    //     const options = {
-    //       method: "get",
-    //       url: `https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json`,
-    //     };
-    //     return this.$rh
-    //       .request(options)
-    //       .then((res) => {
-    //         return res;
-    //       })
-    //       .catch((e) => console.log("axios openapiSpec get error ", e));
-    //   }
-    //   //  else {
-    //   //   // Use latest ORG streaming when in development
-    //   //   const options = {
-    //   //     method: "get",
-    //   //     url: `/organizations/${this.org.id}/openapiSpec`,
-    //   //   };
-    //   //   return this.$rh
-    //   //     .request(options)
-    //   //     .then((res) => {
-    //   //       return res;
-    //   //     })
-    //   //     .catch((e) => console.log("axios openapiSpec get error ", e));
-    //   // }
+
+      // fetchMerakiSwagger() {
+      //   // Use official API releases when in production
+      //   if (this.$store.state.beta === true) {
+      //     const options = {
+      //       method: "get",
+      //       url:
+      //         "https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json",
+      //     };
+      //     return gasRequest(options)
+      //       .then((res) => {
+      //         return res.data;
+      //       })
+      //       .catch((e) => console.log("gas openapiSpec get error ", e));
+      //   } else if (this.$store.state.beta){
+      //     // Use latest ORG streaming when in development
+      //     const options = {
+      //       method: "get",
+      //       url: `https://raw.githubusercontent.com/meraki/openapi/v1-beta/openapi/spec2.json`,
+      //     };
+      //     return this.$rh
+      //       .request(options)
+      //       .then((res) => {
+      //         return res;
+      //       })
+      //       .catch((e) => console.log("axios openapiSpec get error ", e));
+      //   }
+      //   //  else {
+      //   //   // Use latest ORG streaming when in development
+      //   //   const options = {
+      //   //     method: "get",
+      //   //     url: `/organizations/${this.org.id}/openapiSpec`,
+      //   //   };
+      //   //   return this.$rh
+      //   //     .request(options)
+      //   //     .then((res) => {
+      //   //       return res;
+      //   //     })
+      //   //     .catch((e) => console.log("axios openapiSpec get error ", e));
+      //   // }
     },
     /**
      * @param pathParams
@@ -1322,9 +1344,8 @@ export default Vue.extend({
         if (this.report.looperParamVals) {
           if (Object.keys(this.report.looperParamVals).length > 0) {
             if (this.report.looperParamVals[this.report.looperParam.name]) {
-              const currentVal = this.report.looperParamVals[
-                this.report.looperParam.name
-              ][i]; // assuming only one looper param
+              const currentVal =
+                this.report.looperParamVals[this.report.looperParam.name][i]; // assuming only one looper param
               if (currentVal) {
                 extraData[this.report.looperParam.iterate] = currentVal;
               }
@@ -1332,7 +1353,7 @@ export default Vue.extend({
           }
         }
 
-        extraData["_report"] = action; // Create option to toggle this
+        //extraData["_report"] = action; // Create option to toggle this
 
         // console.log("queueing rate limited action: ", action);
 
@@ -1345,7 +1366,7 @@ export default Vue.extend({
       if (path.includes("/openapiSpec")) {
         return reportHelpers.parseSwaggerPaths(res);
       }
-      if (path.includes("/events") && !path.includes("/events/")) {
+      if (path.includes("/events") ) {
         return reportHelpers.parseNetworkEvents(res);
       }
       return res;
@@ -1383,7 +1404,12 @@ export default Vue.extend({
 
       // send to report
 
-      this.toReport(adjustedReport, this.report.title, {}, location);
+      this.toReport(
+        adjustedReport,
+        `${this.report.title}, ${this.report.actions[0]}`,
+        {},
+        location
+      );
     },
     toReport(report, title, options = {}, location) {
       // format all responses into an array
@@ -1396,6 +1422,11 @@ export default Vue.extend({
       this.panel = [0, 1, 2];
       // print data to sheet
       if (location) {
+        // if(location == "dynamic"){
+        //   this.$utilities.storeGoogleUserMerakiApiKey(this.apiKey)  // TEST - THIS SHOULD PROBABLY BE SET SOMEWHERE ELSE
+        //   let dynamicReport = `=merakiFetchReport("${this.report.actions[0]}"\,""\,"${this.report.title}")`
+        //   this.$utilities.writeData(dynamicReport, "Dynamic", options, location);
+        // }
         this.$utilities.writeData(this.reportData, title, options, location);
       }
 
@@ -1411,6 +1442,15 @@ export default Vue.extend({
     },
     onRunOnly() {
       this.onRunReport();
+    },
+    onRunInsertDynamic() {
+      this.$utilities.storeGoogleUserMerakiApiKey(this.apiKey); // TEST - THIS SHOULD PROBABLY BE SET SOMEWHERE ELSE
+      this.$utilities.writeData(
+        "",
+        `=merakiFetchReport("${this.report.actions[0]}"\,""\,"${this.report.title}",'_meraki_tools'!B1)`,
+        {},
+        "overwrite"
+      );
     },
     onResultsToSheet() {
       this.$utilities.writeData(

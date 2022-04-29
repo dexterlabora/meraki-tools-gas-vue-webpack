@@ -14,6 +14,21 @@ export function parseSwaggerPaths(swagger) {
         let operationId = paths[path][p]["operationId"];
         let params = paths[path][p]["parameters"] || [];
         let method = Object.keys(paths[path])[i];
+        let responses = {...{}, ...paths[path][p]["responses"]}
+
+        let example_200 = ""
+        try{
+          example_200 = JSON.stringify(responses["200"]["examples"]["application/json"]).replaceAll(",",";")
+        }       
+          catch(e){
+        }
+
+        let example_201 = ""
+        try{
+          example_201 = JSON.stringify(responses["201"]["examples"]["application/json"]).replaceAll(",",";")
+        }       
+          catch(e){
+        }
 
         // pathParams
         let pathParams = [];
@@ -36,17 +51,24 @@ export function parseSwaggerPaths(swagger) {
         //bodyModel = JSON.stringify(bodyModel);
         bodyModel = bodyModel.join(", ");
 
+        //summary
+        summary =  summary.replaceAll(",",";") // replaces , with ; to avoid csv chaos
+
         // create report
         report.push({
           //tag,
-          tags: paths[path][p]["tags"],
+          path,
           operationId,
           summary,
-          method,
-          path,
+          "product tags.0": paths[path][p]["tags"][0],    // product  
+          "category tags.1": paths[path][p]["tags"][1],    // category
+          "service tags.2": paths[path][p]["tags"][1],    // service
+          method,       
           pathParams,
           queryParams,
-          bodyModel
+         // example_200, // conflicting with sheet (when run via web app)
+         // example_201,
+         //j bodyModel
           //description //this data has chararcter conflicts with the sheet
         });
       });
@@ -63,6 +85,6 @@ export function parseSwaggerPaths(swagger) {
   }
 }
 
-export function parseNetworkEvents(events) {
-  return events.events;
+export function parseNetworkEvents(res) {
+  return res.events;
 }

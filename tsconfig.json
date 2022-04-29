@@ -6,10 +6,14 @@
     "target": "es5",
     // "module": "commonjs",
     "outDir": "dist",
+    "lib": [
+      // ... other libs
+      "ES2021.String"
+    ],
     "strictNullChecks": false,
     "noImplicitThis": true,
     "noImplicitAny": false,
-    "module": "es2015",
+    "module": "es2022",
     "moduleResolution": "node",
     //"target": "es5",
     "sourceMap": true,

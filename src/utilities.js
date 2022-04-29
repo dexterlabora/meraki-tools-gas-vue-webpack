@@ -169,3 +169,12 @@ export function writeData(json, title, options = {}, location) {
   }
   //}
 }
+
+export function storeGoogleUserMerakiApiKey(apiKey){
+  if (typeof google !== "undefined") {
+    google.script.run.setUserApiKey(apiKey)
+  }else{
+    console.log("storeGoogleUserMerakiApiKey: Not running in a Google environment")
+  }
+  
+}

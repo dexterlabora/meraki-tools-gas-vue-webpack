@@ -21,7 +21,9 @@
       href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css"
       rel="stylesheet"
     />
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2/dist/vuetify.min.css" rel="stylesheet" />-->
+    -->
+    
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2/dist/vuetify.min.css" rel="stylesheet" /> 
     <div id="app">
       <v-app>
         <v-content class="font-weight-light">
@@ -54,6 +56,8 @@ import OrgSelector from "./components/shared/meraki-state-selectors/OrgSelector.
 import NetSelector from "./components/shared/meraki-state-selectors/NetSelector.vue";
 import Snackbar from "./components/shared/Snackbar.vue";
 //import "vuetify/dist/vuetify.min.css";
+//import "./assets/vuetify/style.css"
+import vuetify from "./plugins/vuetify";
 
 export default {
   name: "App",
@@ -71,6 +75,8 @@ export default {
 };
 </script>
 <style>
+@import "/vuetify/lib";
+
 .tight {
   padding: 1px !important;
 }

@@ -1,12 +1,14 @@
 import { doGet } from "./do_get";
 import { fetch } from "./fetch";
 import { loadSidebar } from "./sidebar";
+import { refreshReports } from "./refreshReports";
 import { writeCsvData } from "./writeCsvData";
 import { loadMenu } from "./menu";
 import { merakiFetchReport } from "./merakiFetchReport"
 import * as merakiWebhookReceiver from "./merakiWebhookReceiver"
 import * as utilities from "./utilities"
 import { hello } from "./hello"
+import { setUserApiKey } from "./setUserApiKey"
 
 function onOpen() {
   //loadSidebar(); //permissions issue
@@ -14,6 +16,7 @@ function onOpen() {
 }
 
 function onInstall() {
+  refreshReports(); // adds _meraki_tools settings sheet
   onOpen();
 }
 
@@ -36,6 +39,8 @@ function onInstall() {
  */
 global.loadMenu = loadMenu;
 global.doGet = doGet;
+global.refreshReports = refreshReports;
+
 /**
  * Fetch an API request
  *
@@ -69,13 +74,16 @@ global.hello = hello;
 global.utilities = utilities;
 
 /**
- * Fetches data from the Meraki API and formats the JSON into Google Sheet format
- * @param {string} url URL to pull json data from (i.e https://api.meraki.com/api/v1/organizations or /organizations)
- * @param {string} apiKey API key for authorization
+ * Fetches Meraki API data and formats the JSON data into Google Sheet format
+ * @param url url to pull json data from
+ * @param apiKey API key for authorization
+ * @param title The title text to display in the cell
+ * @param refresh Triggers a refresh of the report when changed. Google does not permit the use of now() or random functions to be used here. Instead, a hidden _meraki_tools sheet is created and stores a timestamp at cell '_meraki_tools'!B1 that gets updated when the Refresh Reports function is run. You can optionaly set a Trigger to call the refreshReports function on a schedule. 
  * @return Google Sheet data
  * @customfunction
  */
-global.merakiFetchReport = (url: string,apiKey: string) => merakiFetchReport(url,apiKey);
+global.merakiFetchReport = (url: string,apiKey: string, title: string, refresh:string) => merakiFetchReport(url,apiKey,title,refresh);
+global.setUserApiKey = setUserApiKey;
 
 
 global.merakiWebhookReceiver = merakiWebhookReceiver

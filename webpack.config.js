@@ -26,6 +26,7 @@ module.exports = {
     libraryTarget: "this",
     publicPath: "/clasp/dist"
   },
+  
   module: {
     rules: [
       {
@@ -65,14 +66,44 @@ module.exports = {
       //   test: /\.styl$/,
       //   loader: ["style-loader", "css-loader", "stylus-loader"]
       // },
+      // {
+      //   test: /\.css$/,
+      //   use: ["css-loader"]
+      // },
       {
-        test: /\.css$/,
-        use: ["css-loader"]
+        test: /\.css$/i,
+        loader: "css-loader",
+        options: {
+          import: true,
+        },
       },
       {
         test: /\.js?$/,
         exclude: /(node_modules|bower_components)/,
         loader: "babel-loader"
+      },
+      {
+        test: /\.s(c|a)ss$/,
+        exclude: [path.resolve(__dirname, './src/components/shared/v-swagger')],
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            // Requires sass-loader@^7.0.0
+            options: {
+              implementation: require('sass'),
+              indentedSyntax: true // optional
+            },
+            // Requires >= sass-loader@^8.0.0
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                indentedSyntax: true // optional
+              },
+            },
+          },
+        ],
       }
     ]
   },

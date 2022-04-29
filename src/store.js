@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import * as utilities from "./utilities"
 import * as Cookies from "js-cookie";
 //import * as meraki from "./meraki-api.js";
 //import * as merakiSdk from "./lib";
@@ -57,6 +58,7 @@ export default new Vuex.Store({
   mutations: {
     setApiKey: (state, payload) => {
       state.apiKey = payload;
+      utilities.storeGoogleUserMerakiApiKey(payload);
       //meraki.setApiKey(payload);
       //Vue.$axios.defaults.headers.common['X-Cisco-Meraki-API-Key'] = payload;
       //merakiSdk.Configuration.xCiscoMerakiAPIKey = payload;

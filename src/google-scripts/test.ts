@@ -10,7 +10,7 @@
 //     return arr
 // }
 
-
+import { fetch } from "./fetch"
 import * as utilities from "./utilities"
 
 
