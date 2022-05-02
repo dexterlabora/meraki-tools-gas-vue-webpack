@@ -341,12 +341,12 @@
             <v-expansion-panel-header>JSON Results </v-expansion-panel-header>
             <v-expansion-panel-content id="jsonResultSection">
               <jsonata
-                v-if="reportData"
+                v-show="reportData"
                 :key="selectedReport.shortTitle"
                 :data="reportData"
                 :title="selectedReport.shortTitle"
               ></jsonata>
-              <pre v-else><code>no data</code></pre>
+              
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -1359,7 +1359,7 @@ export default Vue.extend({
 
         throttledAction(action, i, extraData, location);
       }
-      this.scrollToEnd();
+     // this.scrollToEnd();
     },
     // Custom report handlers (to override default key/value info for report)
     adjustMerakiReport(path, res) {
@@ -1434,7 +1434,11 @@ export default Vue.extend({
     },
     scrollToEnd() {
       this.$nextTick(() => {
+        try{
         this.$vuetify.goTo("#jsonResultSection");
+        }catch(e){
+          // no json results yet
+        }
       });
     },
     onRunAndPrint() {
@@ -1442,6 +1446,7 @@ export default Vue.extend({
     },
     onRunOnly() {
       this.onRunReport();
+      this.scrollToEnd();
     },
     onRunInsertDynamic() {
       this.$utilities.storeGoogleUserMerakiApiKey(this.apiKey); // TEST - THIS SHOULD PROBABLY BE SET SOMEWHERE ELSE
@@ -1530,7 +1535,7 @@ export default Vue.extend({
   },
 });
 </script>
-<style >
+<style scoped>
 .small-chips {
   font-size: xx-small;
 }

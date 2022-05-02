@@ -132,10 +132,23 @@ export function getPathQueryWithValues(queryParams, paramVals) {
     return
   }
 
+  // merge values wtih queryParams
+  queryParams.forEach(q => q.value = paramVals[q.name])
+
+  let params = {}
+  queryParams.forEach(q =>{
+    if(paramVals[q.name]){
+      params[q.name] = paramVals[q.name]
+      
+    }
+    
+  })
+
+  
   // test concept
   const qs = require('query-string');
   //queryString.parse('foo[]=1&foo[]=2&foo[]=3', {arrayFormat: 'bracket'});
-  let q = "?" + qs.stringify(paramVals,{arrayFormat: 'bracket'})
+  let q = "?" + qs.stringify(params,{arrayFormat: 'bracket'})
   console.log('test queryString',q )
 
   // end test

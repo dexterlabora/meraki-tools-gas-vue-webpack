@@ -22,8 +22,9 @@
       rel="stylesheet"
     />
     -->
-    
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2/dist/vuetify.min.css" rel="stylesheet" /> 
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/vuetify@2/dist/vuetify.min.css" rel="stylesheet" />  -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-json-pretty@1.8.2/lib/styles.css">
     <div id="app">
       <v-app>
         <v-content class="font-weight-light">
@@ -74,7 +75,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 @import "/vuetify/lib";
 
 .tight {
