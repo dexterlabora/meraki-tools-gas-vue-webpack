@@ -923,15 +923,26 @@ function merakiFetchReport(url, apiKey, title, refresh) {
                                 keys.push(value);
                         });
                     });
-                    return [4 /*yield*/, utilities["parseJsonToCsv"](data, keys).toString()];
+                    return [4 /*yield*/, utilities["parseJsonToCsv"](data, keys).toString()
+                        // Logger.log(`csvData results: %s`, csvData)
+                        // add title
+                    ];
                 case 2:
                     csvData = _a.sent();
-                    Logger.log("csvData results: %s", csvData);
+                    // Logger.log(`csvData results: %s`, csvData)
                     // add title
                     csvData = title + csvData;
-                    return [4 /*yield*/, Utilities.parseCsv(csvData).map(function (row) {
-                            return row.map(function (col) {
-                                if (!col) {
+                    return [4 /*yield*/, Utilities.parseCsv(csvData).map(function (row, rIndex) {
+                            return row.map(function (col, cIndex) {
+                                // Logger.log('row %s', JSON.stringify(row))
+                                // Logger.log('col %s', col)
+                                // Logger.log('rIndex %s', rIndex)
+                                // Logger.log('cIndex %s', cIndex)
+                                if (cIndex < 1) { // skip formatting ID
+                                    // Logger.log("skipping ID formatting for value %s for %s" , col, row[rIndex])
+                                    return col;
+                                }
+                                else if (!col) {
                                     return;
                                 }
                                 else {
@@ -941,7 +952,7 @@ function merakiFetchReport(url, apiKey, title, refresh) {
                         })];
                 case 3:
                     arr = _a.sent();
-                    Logger.log(" csvToArray arr : %s", arr);
+                    // Logger.log(` csvToArray arr : %s`, arr)
                     SpreadsheetApp.flush();
                     return [2 /*return*/, arr];
             }

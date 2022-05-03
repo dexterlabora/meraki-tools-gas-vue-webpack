@@ -1,6 +1,7 @@
 import * as utilities from "./utilities"
 import {parseSwaggerPaths, parseNetworkEvents} from "./reportHelpers";
 import {fetch} from "./fetch"
+import {flatMap} from "lodash";
 // Global Functions
 
 /**
@@ -73,27 +74,39 @@ export async function merakiFetchReport(url: string, apiKey: string, title: stri
             if (keys.indexOf(value) == -1) 
                 keys.push(value);
             
+
+
         });
     });
 
     // convert to csv
     let csvData: string = await utilities.parseJsonToCsv(data, keys).toString()
-    Logger.log(`csvData results: %s`, csvData)
+    // Logger.log(`csvData results: %s`, csvData)
 
     // add title
     csvData = title + csvData;
     // convert to sheet multi-dimensional array
     // const arr = await Utilities.parseCsv(csvData)
-    const arr = await Utilities.parseCsv(csvData).map(function (row) {
-        return row.map(function (col: any) {
-          if (!col){return}else{
-            return isNaN(col) ? col : Number(col)
-          }
-            
+    const arr = await Utilities.parseCsv(csvData).map(function (row, rIndex) {
+        return row.map(function (col: any, cIndex) {
+            // Logger.log('row %s', JSON.stringify(row))
+            // Logger.log('col %s', col)
+            // Logger.log('rIndex %s', rIndex)
+            // Logger.log('cIndex %s', cIndex)
+            if (cIndex < 1) { // skip formatting ID
+              // Logger.log("skipping ID formatting for value %s for %s" , col, row[rIndex])
+              return col
+            }else if (! col) {
+                return
+            } else  {
+
+                return isNaN(col) ? col : Number(col)
+            }
+
         })
     }); // new concept to avoid losing number format
 
-    Logger.log(` csvToArray arr : %s`, arr)
+    // Logger.log(` csvToArray arr : %s`, arr)
     SpreadsheetApp.flush();
 
 
