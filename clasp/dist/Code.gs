@@ -881,7 +881,9 @@ function merakiFetchReport(url, apiKey, title, refresh) {
                         "async": true,
                         "crossDomain": true,
                         "method": "GET",
-                        "headers": { 'X-Cisco-Meraki-API-Key': apiKey }
+                        "headers": {
+                            'X-Cisco-Meraki-API-Key': apiKey
+                        }
                     };
                     res = {};
                     return [4 /*yield*/, Object(fetch["fetch"])(url, options)];
@@ -927,7 +929,16 @@ function merakiFetchReport(url, apiKey, title, refresh) {
                     Logger.log("csvData results: %s", csvData);
                     // add title
                     csvData = title + csvData;
-                    return [4 /*yield*/, Utilities.parseCsv(csvData)];
+                    return [4 /*yield*/, Utilities.parseCsv(csvData).map(function (row) {
+                            return row.map(function (col) {
+                                if (!col) {
+                                    return;
+                                }
+                                else {
+                                    return isNaN(col) ? col : Number(col);
+                                }
+                            });
+                        })];
                 case 3:
                     arr = _a.sent();
                     Logger.log(" csvToArray arr : %s", arr);
